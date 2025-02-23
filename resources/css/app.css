@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Mặc định (Light Mode) */
+body {
+    background-color: #f3f4f6; /* bg-gray-100 */
+    color: #000000;
+  }
+  
+  /* Khi có class .dark (Dark Mode) */
+  .dark body {
+    background-color: #111827; /* bg-gray-900 */
+    color: #ffffff;
+  }
+  
