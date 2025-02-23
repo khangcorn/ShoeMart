@@ -8,8 +8,8 @@
     <table class="table mt-3">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
+                <th class="text-red-400">ID</th>
+                <th class="text-red-500">Name</th>
                 <th>Mô tả</th>
                 <th>Price</th>
                 <th>Price_sale</th>
