@@ -1,28 +1,35 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Factories;
 
-return new class extends Migration {
-    public function up()
-    {
-        Schema::create('order_details', function (Blueprint $table) {
-            $table->id('order_detail_id');
-            $table->foreignId('order_id')->constrained('orders', 'order_id');
-            $table->foreignId('product_id')->constrained('products', 'product_id');
-            $table->foreignId('variant_id')->nullable()->constrained('variants', 'variant_id');
-            $table->integer('quantity');
-            $table->decimal('price', 10, 2);
-            $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->decimal('subtotal', 10, 2);
-            $table->decimal('total_price', 10, 2);
-            $table->timestamps();
-        });
-    }
+use App\Models\Order;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\OrderDetail;
+use App\Models\Product;
+use App\Models\ProductVariant;
 
-    public function down()
+class OrderDetailFactory extends Factory
+{
+    protected $model = OrderDetail::class;
+
+    public function definition()
     {
-        Schema::dropIfExists('order_details');
+        return [
+            'order_id' => Order::inRandomOrder()->first()->order_id ?? Order::factory(),
+            'product_id' => Product::inRandomOrder()->first()->product_id ?? Product::factory(),
+            'variant_id' => ProductVariant::inRandomOrder()->first()->variant_id ?? null, // Cho phép null nếu không có variant
+            'quantity' => $this->faker->numberBetween(1, 5),
+            'price' => $this->faker->randomFloat(2, 10, 500), // Đảm bảo giá không bị null
+            'discount_amount' => $this->faker->randomFloat(2, 0, 50),
+            'subtotal' => function (array $attributes) {
+                return $attributes['quantity'] * $attributes['price'];
+            },
+            'total_price' => function (array $attributes) {
+                return $attributes['subtotal'] - $attributes['discount_amount'];
+            },
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
-};
+    
+}

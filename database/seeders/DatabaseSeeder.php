@@ -6,26 +6,50 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $this->call([
-            UsersTableSeeder::class,           // 🟢 Không có khóa ngoại
-            StatusesTableSeeder::class,        // 🟢 Không có khóa ngoại
-            OrderStatusesTableSeeder::class,   // 🟢 Không có khóa ngoại
-            CouponsTableSeeder::class,         // 🟢 Không có khóa ngoại
-            SlidersTableSeeder::class,         // 🟢 Không có khóa ngoại
-            ProductsTableSeeder::class,        // 🟢 Không có khóa ngoại
+            // 1️⃣ Seed bảng quyền và vai trò trước
+            RoleSeeder::class,
+            PermissionSeeder::class,
             
-            UserAddressesTableSeeder::class,   // 🔵 Phụ thuộc vào Users
-            ProductVariantsTableSeeder::class, // 🔵 Phụ thuộc vào Products
-            VariantsTableSeeder::class,        // 🔵 Phụ thuộc vào ProductVariants
-            
-            OrdersTableSeeder::class,          // 🔴 Phụ thuộc vào Users, UserAddresses, OrderStatuses
-            OrderDetailsTableSeeder::class,    // 🔴 Phụ thuộc vào Orders, Products, ProductVariants
-            OrderCouponsTableSeeder::class,    // 🔴 Phụ thuộc vào Orders, Coupons
+            // 2️⃣ Seed bảng trung gian giữa roles & permissions
+            RolePermissionSeeder::class,
+
+            // 3️⃣ Seed user
+            UserSeeder::class,
+
+            // 4️⃣ Gán role cho user
+            UserRoleSeeder::class,
+
+            // 5️⃣ Seed danh mục sản phẩm
+            CategorySeeder::class,
+
+            // 6️⃣ Seed sản phẩm & biến thể
+            ProductSeeder::class,
+            ProductVariantSeeder::class,
+            ProductImageSeeder::class,
+
+            // 7️⃣ Seed trạng thái đơn hàng & phí vận chuyển
+            OrderStatusSeeder::class,
+            ShippingFeeSeeder::class,
+
+            // 8️⃣ Seed mã giảm giá
+            CouponSeeder::class,
+
+            // 9️⃣ Seed đơn hàng & chi tiết đơn hàng
+            OrderSeeder::class,
+            OrderDetailSeeder::class,
+            OrderCouponSeeder::class,
+
+            // 🔟 Seed giỏ hàng (nếu cần)
+            CartSeeder::class,
+            CartDetailSeeder::class,
+
+            // 1️⃣1️⃣ Seed bình luận & đánh giá
+            CommentSeeder::class,
+            CommentVoteSeeder::class,
+            CommentVariantSeeder::class,
         ]);
     }
 }

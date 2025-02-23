@@ -1,27 +1,39 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Factories;
 
-return new class extends Migration {
-    public function up()
-    {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id('order_id');
-            $table->string('order_code', 50)->unique();
-            $table->foreignId('user_id')->constrained('users', 'user_id');
-            $table->foreignId('address_id')->constrained('user_addresses', 'address_id');
-            $table->decimal('total', 10, 2);
-            $table->foreignId('status_id')->constrained('order_statuses', 'status_id');
-            $table->decimal('shipping_fee', 10, 2)->default(0);
-            $table->enum('payment_method', ['cod', 'bank_transfer', 'credit_card', 'paypal']);
-            $table->timestamps();
-        });
-    }
+use App\Models\Order;
+use App\Models\User;
+use App\Models\OrderStatus;
+use App\Models\ShippingFee;
+use App\Models\Coupon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-    public function down()
+class OrderFactory extends Factory
+{
+    protected $model = Order::class;
+
+    public function definition()
     {
-        Schema::dropIfExists('orders');
+        $user = User::inRandomOrder()->first();
+        $status = OrderStatus::inRandomOrder()->first();
+        $shipping = ShippingFee::inRandomOrder()->first();
+        $coupon = Coupon::inRandomOrder()->first();
+
+        $totalPrice = $this->faker->randomFloat(2, 50, 1000); // Tổng giá trị đơn hàng
+        $shippingFee = $shipping ? $shipping->fee : 0; // Phí ship
+        $discount = $coupon ? ($coupon->discount_type == 'percentage' ? $totalPrice * $coupon->discount_value / 100 : $coupon->discount_value) : 0;
+
+        return [
+            'user_id' => $user ? $user->user_id : User::factory(), // Nếu không có user nào, tạo mới
+            'total_price' => $totalPrice,
+            'total' => max(0, $totalPrice - $discount + $shippingFee), // Tổng tiền cuối cùng
+            'status_id' => $status ? $status->status_id : OrderStatus::factory(),
+            'shipping_fee' => $shippingFee,
+            'shipping_id' => $shipping ? $shipping->shipping_id : ShippingFee::factory(),
+            'coupon_id' => $coupon ? $coupon->coupon_id : null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
-};
+}

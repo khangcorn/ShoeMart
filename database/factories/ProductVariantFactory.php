@@ -2,18 +2,23 @@
 
 namespace Database\Factories;
 
+use App\Models\ProductVariant;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductVariantFactory extends Factory
 {
-    public function definition(): array
+    protected $model = ProductVariant::class;
+
+    public function definition()
     {
         return [
-            'product_id' => Product::factory(), // Tạo sản phẩm ngẫu nhiên nếu chưa có
-            'name' => $this->faker->randomElement(['Size S', 'Size M', 'Size L', 'Màu Đỏ', 'Màu Xanh']),
-            'price' => $this->faker->randomFloat(2, 100, 1000), // Giá ngẫu nhiên từ 100 đến 1000
-            'stock' => $this->faker->numberBetween(10, 100), // Số lượng tồn kho ngẫu nhiên
+            'product_id' => Product::inRandomOrder()->first()->id ?? Product::factory(),
+            'size' => $this->faker->randomElement(['38', '39', '40', '41', '42', '43', '44']),
+            'color' => $this->faker->safeColorName,
+            'stock' => $this->faker->numberBetween(0, 50),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

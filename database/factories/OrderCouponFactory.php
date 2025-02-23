@@ -1,23 +1,23 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Factories;
 
-return new class extends Migration {
-    public function up()
-    {
-        Schema::create('order_coupons', function (Blueprint $table) {
-            $table->id('order_coupon_id');
-            $table->foreignId('order_id')->constrained('orders', 'order_id');
-            $table->foreignId('coupon_id')->constrained('coupons', 'coupon_id');
-            $table->decimal('applied_amount', 10, 2);
-            $table->timestamps();
-        });
-    }
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-    public function down()
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OrderCoupon>
+ */
+class OrderCouponFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
-        Schema::dropIfExists('order_coupons');
+        return [
+            //
+        ];
     }
-};
+}

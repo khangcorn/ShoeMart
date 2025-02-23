@@ -1,24 +1,21 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Factories;
 
-return new class extends Migration {
-    public function up()
-    {
-        Schema::create('sliders', function (Blueprint $table) {
-            $table->id('slider_id');
-            $table->string('image_url', 255);
-            $table->text('caption')->nullable();
-            $table->string('link', 255)->nullable();
-            $table->integer('position')->default(0);
-            $table->timestamps();
-        });
-    }
+use App\Models\Slider;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-    public function down()
+class SliderFactory extends Factory
+{
+    protected $model = Slider::class;
+
+    public function definition()
     {
-        Schema::dropIfExists('sliders');
+        return [
+            'image_url' => $this->faker->imageUrl(1200, 400, 'banner'),
+            'status' => $this->faker->boolean,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
-};
+}

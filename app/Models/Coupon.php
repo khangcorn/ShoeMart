@@ -1,21 +1,23 @@
 <?php
 
+// app/Models/Coupon.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Coupon extends Model
 {
     use HasFactory;
 
+    protected $table = 'coupons';
     protected $primaryKey = 'coupon_id';
+    public $timestamps = true;
 
-    protected $fillable = ['code', 'discount_type', 'discount_value', 'max_discount_value', 'expiration_date', 'usage_limit', 'usage_count', 'status'];
+    protected $fillable = ['code', 'discount_type', 'discount_value', 'expiration_date', 'usage_limit', 'usage_count'];
 
-    public function orderCoupons(): HasMany
+    public function orders()
     {
-        return $this->hasMany(OrderCoupon::class, 'coupon_id');
+        return $this->hasMany(Order::class, 'coupon_id');
     }
 }
