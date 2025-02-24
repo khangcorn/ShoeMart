@@ -10,7 +10,7 @@
                 </svg>
             </button>
             <input type="text" placeholder="Search something..."
-                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 
+                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-400 bg-transparent py-2.5 pl-12 pr-14 
   text-black placeholder:text-gray-400 
   focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 
   dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] 
@@ -21,14 +21,33 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <div class="cursor-pointer border border-gray-400 rounded-full p-2" onclick="toggleDarkMode()">
+            <div class="cursor-pointer border border-gray-400 bg-white rounded-full p-2" onclick="toggleDarkMode()">
                 <svg id="darkModeToggleIcon" class="text-black w-5 h-5" class="dark:hidden" width="20"
-                height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle cx="12" cy="12" r="6" stroke="#000000" stroke-width="1.5"></circle> <path d="M12 2V3" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M12 21V22" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M22 12L21 12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M3 12L2 12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M19.0708 4.92969L18.678 5.32252" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M5.32178 18.6777L4.92894 19.0706" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M19.0708 19.0703L18.678 18.6775" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> <path d="M5.32178 5.32227L4.92894 4.92943" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> </g></svg>
+                    height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <circle cx="12" cy="12" r="6" stroke="#000000" stroke-width="1.5"></circle>
+                        <path d="M12 2V3" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path d="M12 21V22" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path d="M22 12L21 12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path d="M3 12L2 12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path d="M19.0708 4.92969L18.678 5.32252" stroke="#000000" stroke-width="1.5"
+                            stroke-linecap="round"></path>
+                        <path d="M5.32178 18.6777L4.92894 19.0706" stroke="#000000" stroke-width="1.5"
+                            stroke-linecap="round"></path>
+                        <path d="M19.0708 19.0703L18.678 18.6775" stroke="#000000" stroke-width="1.5"
+                            stroke-linecap="round"></path>
+                        <path d="M5.32178 5.32227L4.92894 4.92943" stroke="#000000" stroke-width="1.5"
+                            stroke-linecap="round"></path>
+                    </g>
+                </svg>
+                
 
             </div>
-            <div class="relative cursor-pointer border border-gray-400 rounded-full p-2">
+            <div class="relative cursor-pointer border border-gray-400 rounded-full p-2 bg-white">
                 <div class="absolute h-2 w-2 bg-red-600 rounded-full top-0 right-0"></div>
-                <svg class=" text-black w-5 h-5" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"
+                <svg class=" text-black w-5 h-5 " width="20" height="20" viewBox="0 0 20 20" fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg">
 
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -36,8 +55,8 @@
                         fill=""></path>
                 </svg>
             </div>
-            <div class="cursor-pointer border border-gray-400 rounded-full p-2">
-                <svg class="text-black w-5 h-5" viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1"
+            <div class="cursor-pointer border border-gray-400 rounded-full p-2 bg-white">
+                <svg class="text-black w-5 h-5 " viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1"
                     xmlns="http://www.w3.org/2000/svg" fill="#000000">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -70,4 +89,3 @@
     }
 </script>
 <script src="{{ asset('js/darkmode.js') }}"></script>
-

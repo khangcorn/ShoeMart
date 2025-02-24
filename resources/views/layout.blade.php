@@ -14,7 +14,7 @@
     <!-- Dark Mode Script -->
     <script src="{{ asset('js/darkmode.js') }}" defer></script>
 </head>
-<body class="bg-gray-100 text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
+<body class="bg-gray-100 text-black dark:bg-black dark:text-white transition-colors duration-300">
 
     <!-- Nội dung của bạn ở đây -->
     <div class="flex min-h-screen bg-gray-100 dark:bg-gray-800">
