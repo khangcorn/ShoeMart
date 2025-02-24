@@ -857,6 +857,10 @@ video {
   fill: #fff;
 }
 
+.fill-gray-500 {
+  fill: #6b7280;
+}
+
 .stroke-black {
   stroke: #000;
 }

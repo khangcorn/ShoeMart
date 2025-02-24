@@ -4,7 +4,7 @@
 <div class="py-4 px-4">
    
 <div class="flex items-center justify-between">
-    <a href="{{ route('products.create') }}" class="inline-block transition duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:ring-3 focus:outline-hidden">Upload New Product</a>
+    <a href="{{ route('products.create') }}" class="inline-block  duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-3 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">Upload New Product</a>
     <button class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-2.5 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
         <svg class="fill-white stroke-current dark:fill-gray-800" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M2.29004 5.90393H17.7067" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -17,17 +17,17 @@
     <table class="w-full mt-3">
         <thead class="">
             <tr>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center" >#</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center" >Name</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Description</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Old Price</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">New Price</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Discount</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Stock</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Image</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Color</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Category</th>
-                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center">Action</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold" >#</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold" >Name</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Description</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Old Price</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">New Price</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Discount</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Stock</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Image</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Color</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Category</th>
+                <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Action</th>
             </tr>
         </thead>
         <tbody>

@@ -4,8 +4,8 @@
         <div class="flex gap-2 items-center">
             <div class="">
                 <button id="toggleSidebar"
-                    class=" left-4 rounded-lg py-2.5 px-2.5 border border-gray-300 dark:border-gray-700 ">
-                    <svg class="w-5 h-5 fill-gray-300 dark:fill-gray-300" xmlns="http://www.w3.org/2000/svg" x="0px"
+                    class=" left-4 rounded-lg py-3 px-3 border border-gray-300 dark:border-gray-700 ">
+                    <svg class="w-5 h-5 fill-gray-500 dark:fill-gray-300" xmlns="http://www.w3.org/2000/svg" x="0px"
                         y="0px" width="100" height="100" viewBox="0 0 50 50">
                         <path
                             d="M 3 9 A 1.0001 1.0001 0 1 0 3 11 L 47 11 A 1.0001 1.0001 0 1 0 47 9 L 3 9 z M 3 24 A 1.0001 1.0001 0 1 0 3 26 L 47 26 A 1.0001 1.0001 0 1 0 47 24 L 3 24 z M 3 39 A 1.0001 1.0001 0 1 0 3 41 L 47 41 A 1.0001 1.0001 0 1 0 47 39 L 3 39 z">
@@ -15,7 +15,7 @@
             </div>
             <div class="relative">
                 <button class="absolute left-4 top-1/2 -translate-y-1/2">
-                    <svg class="fill-gray-300 dark:fill-gray-300" width="20" height="20" viewBox="0 0 20 20"
+                    <svg class="fill-gray-500 dark:fill-gray-300" width="20" height="20" viewBox="0 0 20 20"
                         fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
