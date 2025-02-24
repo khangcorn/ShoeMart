@@ -60,6 +60,7 @@
 
             </div>
             <div class="relative cursor-pointer border border-gray-300 rounded-full p-2 bg-white">
+                <div class="absolute h-2 w-2 animate-ping bg-red-600 rounded-full top-0 right-0"></div>
                 <div class="absolute h-2 w-2 bg-red-600 rounded-full top-0 right-0"></div>
                 <svg class=" text-black w-5 h-5 " width="20" height="20" viewBox="0 0 20 20" fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg">

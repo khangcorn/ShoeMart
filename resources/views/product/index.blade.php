@@ -14,7 +14,7 @@
         </svg>
       </button>
 </div>
-    <table class="w-full mt-3">
+    <table class="w-full mt-4">
         <thead class="">
             <tr>
                 <th class="px-2 py-4 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold" >#</th>
@@ -78,5 +78,73 @@
             @endforeach
         </tbody>
     </table>
+    <div class="mt-4">
+
+<ol class="flex justify-center gap-1 text-xs font-medium">
+    <li>
+      <a
+        href="#"
+        class="inline-flex size-8 items-center justify-center dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-lg border border-gray-300 bg-white text-gray-900 rtl:rotate-180"
+      >
+        <span class="sr-only">Prev Page</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </a>
+    </li>
+  
+    <li class="">
+      <a
+        href="#"
+        class="block size-8 border dark:border-gray-700 border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:text-white text-center leading-8 text-gray-900"
+      >
+        1
+      </a>
+    </li>
+  
+    <li class="block size-8 rounded-lg dark:border-gray-700 border-blue-600 bg-blue-600 text-center leading-8 text-white">
+      2
+    </li>
+  
+    <li>
+      <a
+        href="#"
+        class="block size-8 rounded-lg border dark:border-gray-700 border-gray-300 dark:bg-gray-700 dark:text-white bg-white text-center leading-8 text-gray-900"
+      >
+        3
+      </a>
+    </li>
+  
+    <li>
+      <a
+        href="#"
+        class="inline-flex size-8 dark:border-gray-700 items-center dark:bg-gray-700 justify-center rounded-lg border  dark:text-white border-gray-300 bg-white text-gray-900 rtl:rotate-180"
+      >
+        <span class="sr-only">Next Page</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </a>
+    </li>
+  </ol>
+    </div>
 </div>
 @endsection
