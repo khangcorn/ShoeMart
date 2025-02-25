@@ -32,13 +32,7 @@
                 <label for="stock">Số Lượng</label>
                 <input type="number" class="form-control" id="stock" name="stock" value="{{ old('stock') }}" required>
             </div>
-            <div class="form-group">
-                <label for="images">Hình Ảnh</label>
-                <input type="file" class="form-control" id="images" name="images[]" multiple>
-                @error('images')
-                    <div class="alert alert-danger mt-2">{{ $message }}</div>
-                @enderror
-            </div>
+     
 
             <div class="form-group">
                 <label for="category_id">Danh Mục</label>

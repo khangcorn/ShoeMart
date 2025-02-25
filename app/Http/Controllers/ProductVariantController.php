@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProductVariantController extends Controller
@@ -36,9 +38,13 @@ class ProductVariantController extends Controller
             'variants.*.attributes' => 'required|array',
             'variants.*.attributes.*.name' => 'required|string',
             'variants.*.attributes.*.value' => 'required|string',
+            'variants.*.images' => 'nullable|array', // Chấp nhận mảng ảnh cho từng biến thể
+            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Kiểm tra ảnh
         ]);
     
+        // Lưu biến thể sản phẩm
         foreach ($validated['variants'] as $variant) {
+            // Tạo biến thể sản phẩm
             $productVariant = ProductVariant::create([
                 'product_id' => $validated['product_id'],
                 'price' => $variant['price'],
@@ -46,17 +52,43 @@ class ProductVariantController extends Controller
                 'stock' => $variant['stock'],
             ]);
     
-            // Nếu có thuộc tính (attributes), lưu vào bảng khác nếu cần
-            foreach ($variant['attributes'] as $attribute) {
-                $productVariant->attributes()->create([
-                    'name' => $attribute['name'],
-                    'value' => $attribute['value'],
-                ]);
+            // Lấy variant_id sau khi tạo thành công bản ghi
+            $productVariant->refresh(); // Tải lại đối tượng để đảm bảo các thuộc tính đã được cập nhật
+
+            // Lấy variant_id sau khi tạo thành công bản ghi
+            $variant_id = $productVariant->variant_id;
+            
+         
+    
+            // Lưu ảnh cho biến thể nếu có
+            if (isset($variant['images'])) {
+                foreach ($variant['images'] as $image) {
+                    $imagePath = $image->store('images', 'public'); // Lưu ảnh vào storage/app/public/product_images
+    
+                    // Lưu đường dẫn vào cơ sở dữ liệu
+                    ProductImage::create([
+                        'product_id' => $validated['product_id'],
+                        'variant_id' => $variant_id,  // Liên kết ảnh với variant_id
+                        'image_url' => $imagePath, // Lưu đường dẫn relative, không bao gồm 'storage/'
+                        'type' => 'gallery',
+                    ]);
+                }
+            }
+    
+            // Lưu thuộc tính cho biến thể nếu có
+            if (isset($variant['attributes'])) {
+                foreach ($variant['attributes'] as $attributeData) {
+                    $productVariant->attributes()->create([
+                        'attribute_name' => $attributeData['name'],
+                        'attribute_value' => $attributeData['value'],
+                    ]);
+                }
             }
         }
     
-        return redirect()->route('product_variants.index')->with('success', 'Biến thể đã được thêm thành công!');
+        return redirect()->route('product_variants.index')->with('success', 'Variant added successfully!');
     }
+    
     
     
     

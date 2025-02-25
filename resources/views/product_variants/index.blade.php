@@ -15,24 +15,18 @@
                 <th>Tổng</th>
                 <th>Tên biến thể</th>
                 <th>Giá trị biến thể</th>
+                <th>Hình ảnh</th> <!-- Thêm cột hiển thị ảnh -->
             </tr>
         </thead>
         <tbody>
             @foreach($variants as $variant)
             <tr>
-                <td>{{ $variant->id }}</td>
-                <!-- Correcting this line to access the product's name -->
-               
-                <td>
-                    <!-- Access the product directly, as it's a 'belongsTo' relationship -->
-                    {{ $variant->products ? $variant->products->name : 'Sản phẩm không tồn tại' }}
-                </td>
-                
+                <td>{{ $variant->variant_id }}</td>
+                <td>{{ $variant->product ? $variant->product->name : 'Sản phẩm không tồn tại' }}</td>
                 <td>{{ $variant->price }}</td>
                 <td>{{ $variant->price_sale }}</td>
                 <td>{{ $variant->stock }}</td>
 
-                <!-- Displaying variant attributes -->
                 <td>
                     @foreach($variant->attributes as $attribute)
                         <div>{{ $attribute->attribute_name }}</div>
@@ -41,6 +35,13 @@
                 <td>
                     @foreach($variant->attributes as $attribute)
                         <div>{{ $attribute->attribute_value }}</div>
+                    @endforeach
+                </td>
+
+                <!-- Hiển thị hình ảnh -->
+                <td>
+                    @foreach($variant->images as $image)
+                        <img src="{{ asset('storage/' . $image->image_url) }}" alt="Hình ảnh" width="100">
                     @endforeach
                 </td>
             </tr>

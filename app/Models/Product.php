@@ -13,7 +13,7 @@ class Product extends Model
     protected $table = 'products';
 
     // Chỉ định khóa chính nếu không phải 'id'
-    protected $primaryKey = 'product_id';
+    protected $primaryKey = 'id';
 
     // Cho phép các cột có thể gán dữ liệu hàng loạt (Mass Assignment)
     protected $fillable = [

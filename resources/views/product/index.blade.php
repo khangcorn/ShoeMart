@@ -14,7 +14,7 @@
                 <th>Price</th>
                 <th>Price_sale</th>
                 <th>Stock</th>
-                <th>Image</th>
+           
                 <th>Color</th>
                 <th>Category</th>
                 <th>Status</th>
@@ -29,23 +29,23 @@
                 <td>{{ $product->price }}</td>
                 <td>{{ $product->price_sale ?? 'Không có' }}</td>
                 <td>{{ $product->stock }}</td>
-                <td>
-                    <img src="{{ asset('./storage/images' . $product->image_url) }}"  width="100">
-                </td>
                 
                 <td>
-                    @if($product->variants->isNotEmpty())
-                        @foreach($product->variants as $variant)
-                            @foreach($variant->attributes as $attribute)
-                                @if($attribute->attribute_name == 'Color')
-                                    {{ $attribute->attribute_value }}<br>
-                                @endif
-                            @endforeach
-                        @endforeach
-                    @else
-                        Chưa có màu
+                    @if ($product->variants->isNotEmpty()) 
+                        @php
+                            $firstVariant = $product->variants->first(); // Lấy biến thể đầu tiên
+                            $firstAttribute = $firstVariant->attributes->first(); // Lấy thuộc tính đầu tiên
+                        @endphp
+                        
+                        @if ($firstAttribute)
+                            {{ $firstAttribute->attribute_value }}
+                        @endif
                     @endif
                 </td>
+                
+                
+                
+                
                 <td>{{ $product->category->name ?? 'Không có danh mục' }}</td>
                 <td>
                     <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning">Sửa</a>
