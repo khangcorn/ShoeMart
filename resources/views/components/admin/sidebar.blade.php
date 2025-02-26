@@ -100,10 +100,10 @@
             </a>
         </li>
 
-        {{-- <li>
+        <li>
             <a class="block p-2.5 rounded  transition flex items-center" href="{{ route('product_variants.index') }}">
                 🎨 <span class="ml-2">Product Variant</span>
             </a>
-        </li> --}}
+        </li>
     </ul>
 </nav>
