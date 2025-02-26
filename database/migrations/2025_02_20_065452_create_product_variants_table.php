@@ -12,14 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('product_variants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // product_id as foreign key to products
+            $table->id('variant_id');  // Đảm bảo cột khóa chính là variant_id
+            $table->unsignedBigInteger('product_id');
             $table->decimal('price', 10, 2);
             $table->decimal('price_sale', 10, 2)->nullable();
             $table->integer('stock');
             $table->timestamps();
+    
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
+    
 
     /**
      * Reverse the migrations.

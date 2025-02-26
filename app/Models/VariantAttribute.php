@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class VariantAttribute extends Model
 {
-    protected $primaryKey = 'attribute_id';
+    protected $primaryKey = 'id';
 
     protected $fillable = ['variant_id', 'attribute_name', 'attribute_value'];
 

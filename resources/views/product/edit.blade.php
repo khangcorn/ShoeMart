@@ -13,8 +13,20 @@
         </div>
 
         <div class="form-group">
+            <label for="price">Mô tả</label>
+            <input type="text" name="description" class="form-control" value="{{ $product->description }}" required>
+        </div>
+        <div class="form-group">
             <label for="price">Giá</label>
             <input type="number" name="price" class="form-control" value="{{ $product->price }}" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Giá khuyến mại</label>
+            <input type="number" name="price_sale" class="form-control" value="{{ $product->price_sale }}" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Stock</label>
+            <input type="number" name="stock" class="form-control" value="{{ $product->stock }}" required>
         </div>
 
         <div class="form-group">
