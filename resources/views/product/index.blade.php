@@ -15,19 +15,21 @@
               
                     <form method="GET" action="{{ route('products.index') }}" class="flex items-center gap-2">
 
-                        <div class="relative">
+                        <div>
+                          <div class="relative text-gray-700">
                             <input type="text" name="search" placeholder="Search product" value="{{ request()->search }}"
-                                class=" border w-40 text-sm h-10 border-gray-300 p-2 rounded-md">
-                            <button type="submit" class=" ">   <svg class=" absolute top-2.5 right-3 fill-gray-500 dark:fill-gray-300" width="18" height="18" viewBox="0 0 20 20"
+                                class=" border  w-40 text-xs  border-gray-300 px-2 py-2 rounded-md">
+                            <button type="submit" class=" absolute top-2 right-3 ">   <svg class="  fill-gray-500 dark:fill-gray-300" width="18" height="18" viewBox="0 0 20 20"
                               fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path fill-rule="evenodd" clip-rule="evenodd"
                                   d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
                                   fill=""></path>
                           </svg></button>
                         </div>
-                        <section class="w-40 h-10 bg-white border border-gray-300 rounded-md  ring-1 ring-black ring-opacity-5">
-                            <div class="px-1 py-1">
-                                <select name="category" class="block w-full px-4 py-2 text-xs text-gray-700 "
+                        </div>
+                        <section class="w-40  bg-white border border-gray-300 rounded-md ">
+                            <div class="">
+                                <select name="category" class="block w-full px-2 py-2 rounded-md text-xs text-gray-700 "
                                     onchange="this.form.submit()">
                                     <option value="">Sort by Category</option>
                                     @foreach ($categories as $category)
@@ -40,9 +42,9 @@
                             </div>
                         </section>
 
-                        <section class="w-40 h-10 border border-gray-300  bg-white rounded-md  ring-1 ring-black ring-opacity-5 ">
-                            <div class="px-1 py-1">
-                                <select class="block w-full px-4 py-2 text-xs text-gray-700 "
+                        <section class="w-40 border border-gray-300  bg-white rounded-md     ">
+                            <div class="">
+                                <select class="block w-full px-2 py-2 text-xs text-gray-700 rounded-md "
                                     onchange="window.location.href=this.value">
                                     <option value="" selected disabled>Sort by Price</option>
                                     <option
@@ -160,7 +162,7 @@
                             /
                             {{ $product->price_sale ? number_format($product->price_sale, 0, ',', '.') : 'Không có' }}
                             <span class="underline">vnđ</span>
-                            <p class="text-xs text-white bg-red-500 px-1.5 rounded-full absolute top-1 right-1">
+                            <p class="text-[11px] text-white bg-red-500 px-1 rounded-full absolute top-1 right-1">
                                 @if ($product->price_sale && $product->price > 0)
                                     {{ round((($product->price - $product->price_sale) / $product->price) * 100, 2) }}%
                                 @else
