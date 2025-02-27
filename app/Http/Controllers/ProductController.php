@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\ProductImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Category;
@@ -90,16 +91,19 @@ class ProductController extends Controller
         }
     
         // Thêm hình ảnh cho sản phẩm
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('public/images');
-                $product->images()->create([
-                    'image_url' => Storage::url($path),
-                    'type' => 'gallery', // Hoặc 'main' tùy theo logic của bạn
+        if (isset($variantData['images']) && is_array($variantData['images'])) {
+            foreach ($variantData['images'] as $image) {
+                $imagePath = $image->store('images', 'public');
+                
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'variant_id' => $variant->variant_id, // Gán hình ảnh cho biến thể
+                    'image_url' => $imagePath,
+                    'type' => 'gallery', // Đặt giá trị mặc định phù hợp với biến thể
                 ]);
             }
         }
-    
+        
         return redirect()->route('products.index')->with('success', 'Product created successfully');
     }
     /**
@@ -112,7 +116,7 @@ class ProductController extends Controller
     }
     public function edit($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with(['variants.attributes', 'variants.images'])->findOrFail($id);
         $categories = Category::all(); // Lấy danh sách danh mục để hiển thị trong dropdown
         return view('product.edit', compact('product', 'categories'));
     }
@@ -150,55 +154,71 @@ class ProductController extends Controller
         // Cập nhật thông tin sản phẩm
         $product->update($request->only(['name', 'description', 'price', 'price_sale', 'stock', 'category_id']));
     
-     // Thêm hình ảnh cho sản phẩm
-if ($request->hasFile('images')) {
-    foreach ($request->file('images') as $image) {
-        $path = $image->store('public/images');
-        $product->images()->create([
-            'image_url' => Storage::url($path),
-            'type' => 'gallery',
-            'variant_id' => null // Ảnh của sản phẩm chính
-        ]);
-    }
-}
-
-// Thêm các biến thể cho sản phẩm
-if ($request->has('variants')) {
-    foreach ($request->variants as $variantData) {
-        $variant = $product->variants()->create([
-            'price' => $variantData['price'],
-            'price_sale' => $variantData['price_sale'] ?? null,
-            'stock' => $variantData['stock'],
-        ]);
-
-        // Thêm các thuộc tính cho biến thể
-        if (isset($variantData['attributes'])) {
-            foreach ($variantData['attributes'] as $attributeData) {
-                $variant->attributes()->create([
-                    'attribute_name' => $attributeData['name'],
-                    'attribute_value' => $attributeData['value'],
-                ]);
-            }
+        // Xóa tất cả biến thể cũ (nếu có)
+        foreach ($product->variants as $variant) {
+            // Lưu lại các hình ảnh trước khi xóa biến thể
+          
+    
+            // Xóa thuộc tính cũ
+            $variant->attributes()->delete();
+    
+            // Xóa biến thể cũ
+            $variant->delete();
         }
-
-        // Thêm hình ảnh cho biến thể (nếu có)
-        if (isset($variantData['images'])) {
-            foreach ($variantData['images'] as $image) {
+    
+        // Thêm hình ảnh cho sản phẩm chính
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
                 $path = $image->store('public/images');
-                $variant->images()->create([
+                $product->images()->create([
                     'image_url' => Storage::url($path),
                     'type' => 'gallery',
-                    'product_id' => $product->product_id, // Để giữ liên kết với sản phẩm
+                    'variant_id' => null // Ảnh của sản phẩm chính
                 ]);
             }
         }
-    }
-}
-
     
+        // Thêm các biến thể mới cho sản phẩm
+        if ($request->has('variants')) {
+            foreach ($request->variants as $variantData) {
+                // Tạo mới biến thể
+                $variant = $product->variants()->create([
+                    'price' => $variantData['price'],
+                    'price_sale' => $variantData['price_sale'] ?? null,
+                    'stock' => $variantData['stock'],
+                ]);
+    
+                // Thêm thuộc tính cho biến thể
+                if (isset($variantData['attributes'])) {
+                    foreach ($variantData['attributes'] as $attributeData) {
+                        $variant->attributes()->create([
+                            'attribute_name' => $attributeData['name'],
+                            'attribute_value' => $attributeData['value'],
+                        ]);
+                    }
+                }
+    
+                // Thêm hình ảnh cho biến thể (nếu có)
+                if (isset($variantData['images'])) {
+                    foreach ($variantData['images'] as $image) {
+                        // Lưu ảnh vào thư mục public/images trong storage
+                        $imagePath = $image->store('images', 'public'); // Lưu vào storage/app/public/images
+    
+                        // Lưu ảnh vào cơ sở dữ liệu
+                        $variant->images()->create([
+                            'image_url' => Storage::url($imagePath),
+                            'type' => 'gallery',
+                            'product_id' => $product->id, // Liên kết với sản phẩm
+                        ]);
+                    }
+                }
+            }
+        }
     
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
+    
+    
     
 /**
  * Xóa sản phẩm.

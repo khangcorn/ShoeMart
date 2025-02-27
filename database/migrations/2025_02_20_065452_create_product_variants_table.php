@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id('variant_id');  // Đảm bảo cột khóa chính là variant_id
             $table->unsignedBigInteger('product_id');
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
             $table->decimal('price_sale', 10, 2)->nullable();
             $table->integer('stock');
             $table->timestamps();
