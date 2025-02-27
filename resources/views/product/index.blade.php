@@ -1,26 +1,31 @@
 @extends('layout')
 
 @section('content')
-    <div class="mt-2 px-4">
+    <div class="py-4 px-4">
 
-        <div class="flex items-center justify-between">
+        <div class="flex  items-center justify-between">
             <a href="{{ route('products.create') }}"
                 class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
                 New Product
             </a>
 
 
-            <div class="relative inline-block text-left group">
+           
 
-                <div class="flex items-center gap-2">
-                    <form method="GET" action="{{ route('products.index') }}" class="flex gap-2 mb-4">
+              
+                    <form method="GET" action="{{ route('products.index') }}" class="flex items-center gap-2">
 
-                        <div>
+                        <div class="relative">
                             <input type="text" name="search" placeholder="Search product" value="{{ request()->search }}"
-                                class="border p-2 rounded">
-                            <button type="submit" class="bg-blue-500 text-white rounded-r-full">Tìm kiếm</button>
+                                class=" border w-40 text-sm h-10 border-gray-300 p-2 rounded-md">
+                            <button type="submit" class=" ">   <svg class=" absolute top-2.5 right-3 fill-gray-500 dark:fill-gray-300" width="18" height="18" viewBox="0 0 20 20"
+                              fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path fill-rule="evenodd" clip-rule="evenodd"
+                                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                                  fill=""></path>
+                          </svg></button>
                         </div>
-                        <section class="w-40  bg-white rounded-md shadow-sm ring-1 ring-black ring-opacity-5">
+                        <section class="w-40 h-10 bg-white border border-gray-300 rounded-md  ring-1 ring-black ring-opacity-5">
                             <div class="px-1 py-1">
                                 <select name="category" class="block w-full px-4 py-2 text-xs text-gray-700 "
                                     onchange="this.form.submit()">
@@ -35,7 +40,7 @@
                             </div>
                         </section>
 
-                        <section class="w-40  bg-white rounded-md shadow-sm ring-1 ring-black ring-opacity-5 ">
+                        <section class="w-40 h-10 border border-gray-300  bg-white rounded-md  ring-1 ring-black ring-opacity-5 ">
                             <div class="px-1 py-1">
                                 <select class="block w-full px-4 py-2 text-xs text-gray-700 "
                                     onchange="window.location.href=this.value">
@@ -59,19 +64,19 @@
 
 
 
-                </div>
-            </div>
+   
+            
         </div>
         <div class="py-2 flex items-center gap-2">
           @if (request()->search)
           <div class="items-center flex gap-2">
-            <p class="flex items-center gap-2 text-black px-2 py-1 border border-black rounded-full">Keyword: {{ request()->search }}
+            <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Keyword: {{ request()->search }}
               <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('search')) }}'">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
-                  <path d="M3 21.32L21 3.32001" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M3 3.32001L21 21.32" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                 </g>
               </svg>
             </p>
@@ -80,14 +85,14 @@
 
             @if (request()->category)
             <div class="items-center flex gap-2">
-              <p class="flex items-center gap-2 text-black px-2 py-1 border border-black rounded-full">Category:
+              <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Category:
                 {{ $categories->find(request()->category)->name ?? '' }}
                 <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('category')) }}'">
                   <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                   <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                   <g id="SVGRepo_iconCarrier">
-                    <path d="M3 21.32L21 3.32001" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M3 3.32001L21 21.32" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                   </g>
                 </svg>
               </p>
@@ -96,14 +101,14 @@
 
             @if (request()->sort)
             <div class="items-center flex gap-2">
-              <p class="flex items-center gap-2 text-black px-2 py-1 border border-black rounded-full">Price:
+              <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Price:
                 {{ request()->sort == 'asc' ? 'Price Decrease' : 'Price Increase' }}
                 <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('sort')) }}'">
                   <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                   <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                   <g id="SVGRepo_iconCarrier">
-                    <path d="M3 21.32L21 3.32001" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M3 3.32001L21 21.32" stroke="#ff0000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                   </g>
                 </svg>
               </p>

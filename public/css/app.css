@@ -669,6 +669,14 @@ video {
   inset-inline-end: 0px;
 }
 
+.top-3 {
+  top: 0.75rem;
+}
+
+.top-2\.5 {
+  top: 0.625rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -780,6 +788,14 @@ video {
 
 .h-3 {
   height: 0.75rem;
+}
+
+.h-20 {
+  height: 5rem;
+}
+
+.h-10 {
+  height: 2.5rem;
 }
 
 .min-h-screen {
