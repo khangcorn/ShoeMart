@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('variant_attributes', function (Blueprint $table) {
-            $table->id('attribute_id');
-            $table->foreignId('variant_id')->constrained('product_variants', 'variant_id')->cascadeOnDelete();
-            $table->string('attribute_name', 50);
-            $table->string('attribute_value', 100);
+        Schema::create('carts', function (Blueprint $table) {
+            $table->id('cart_id');
+            $table->foreignId('user_id')->nullable()->constrained('users', 'user_id')->cascadeOnDelete();
+            $table->string('session_id', 255)->nullable()->unique(); // Cho khách vãng lai
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('variant_attributes');
+        Schema::dropIfExists('carts');
     }
 };
