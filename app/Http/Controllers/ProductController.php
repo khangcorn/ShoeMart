@@ -20,13 +20,35 @@ class ProductController extends Controller
     //     return view('product.index', compact('products', 'categories'));
 
     // }
-    public function index()
-{
-    $products = Product::with('category')->paginate(10); // Logic phân trang 
-    $categories = Category::with('products')->get();
+    public function index(Request $request)
+    {
+        $sort = $request->input('sort');
+        $categoryFilter = $request->input('category');
+        $search = $request->input('search');
     
-    return view('product.index', compact('products', 'categories'));
-}
+        $query = Product::with('category');
+    
+        if ($categoryFilter) {
+            $query->where('category_id', $categoryFilter);
+        }
+    
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+    
+
+        if ($sort == 'asc') {
+            $query->orderBy('price', 'asc');
+        } elseif ($sort == 'desc') {
+            $query->orderBy('price', 'desc');
+        }
+    
+        $products = $query->paginate(10);
+        $categories = Category::all();
+    
+        return view('product.index', compact('products', 'categories'));
+    }
+    
 
     public function create()
     {

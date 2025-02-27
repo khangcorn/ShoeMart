@@ -3,10 +3,48 @@
 @section('content')
     <div class="py-4 px-4">
 
-        <div class="flex items-center justify-between">
-            <a href="{{ route('products.create') }}"
-                class="inline-block  duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-3 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
-                New Product</a>
+      <div class="flex items-center justify-between">
+        <a href="{{ route('products.create') }}"
+            class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-3 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
+            New Product
+        </a>
+        <form method="GET" action="{{ route('products.index') }}" class="flex gap-2 mb-4">
+          <input type="text" name="search" placeholder="Tìm kiếm..." value="{{ request()->search }}" class="border p-2 rounded">
+          
+          <select name="category" class="border p-2 rounded">
+              <option value="">Tất cả danh mục</option>
+              @foreach ($categories as $category)
+                  <option value="{{ $category->id }}" {{ request()->category == $category->id ? 'selected' : '' }}>
+                      {{ $category->name }}
+                  </option>
+              @endforeach
+          </select>
+      
+          @if(request()->search)
+          <span class="text-blue-600">Tìm kiếm: {{ request()->search }}</span>
+      @endif
+      
+      @if(request()->category)
+          <span class="text-blue-600">Danh mục: {{ $categories->find(request()->category)->name ?? '' }}</span>
+      @endif
+      
+      <a href="{{ route('products.index', array_merge(request()->query(), ['sort' => 'asc'])) }}"
+        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+        Giá tăng dần
+    </a>
+    <a href="{{ route('products.index', array_merge(request()->query(), ['sort' => 'desc'])) }}"
+        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+        Giá giảm dần
+    </a>
+    
+      
+      
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">
+              Lọc
+          </button>
+      </form>
+      
+        <div class="relative inline-block text-left group">
             <button
                 class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-2.5 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
                 <svg class="fill-white stroke-current dark:fill-gray-800" width="20" height="20" viewBox="0 0 20 20"
@@ -23,7 +61,23 @@
                         fill="" stroke="" stroke-width="1.5"></path>
                 </svg>
             </button>
+    
+            <div
+                class="absolute right-0 z-10 w-40 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 hidden group-hover:block">
+                <div class="py-1">
+                    <a href="{{ route('products.index', ['sort' => 'asc']) }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Giá tăng dần
+                    </a>
+                    <a href="{{ route('products.index', ['sort' => 'desc']) }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Giá giảm dần
+                    </a>
+                </div>
+            </div>
         </div>
+    </div>
+    
         <table class="w-full mt-4">
             <thead class="">
                 <tr>
