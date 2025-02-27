@@ -1,13 +1,13 @@
 <nav class="px-4 py-3 ">
     <div>
-        <h2 class="text-xl font-semibold ">Dashboard</h2>
+        <h2 class="text-xl font-semibold  ">Dashboard</h2>
     </div>
-    <div class="py-3 text-gray-400 font-semibold uppercase text-xs">
+    <div class="py-3  text-gray-400 font-semibold uppercase text-xs">
         <p>Menu</p>
     </div>
     <ul class="space-y-2">
         <li>
-            <a class="flex items-center p-2.5 rounded bg-[#ECF3FF] text-[#465FFF] " href="{{ url('/') }}">
+            <a class="flex  items-center p-2.5 rounded bg-[#ECF3FF] text-[#465FFF] " href="{{ url('/') }}">
                 <svg class="w-6 h-6 " width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -19,7 +19,7 @@
         </li>
 
         <li>
-            <a class=" p-2.5 rounded flex items-center" href="{{ route('categories.index') }}"
+            <a class=" p-2.5  rounded flex items-center" href="{{ route('categories.index') }}"
                 aria-label="Go to Categories">
                 <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +37,7 @@
         </li>
 
         <li>
-            <a class="flex items-center p-2.5 rounded" href="{{ route('products.index') }}">
+            <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
                 <svg class="  w-6 h-6 !dark:text-black  " width="24" height="24" viewBox="0 0 24 24"
                     fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path class="dark:stroke-white" stroke-width="0.1" fill-rule="evenodd" clip-rule="evenodd"
@@ -49,7 +49,7 @@
         </li>
 
         <li>
-            <a class="flex items-center p-2.5 rounded" href="{{ route('products.index') }}">
+            <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     class="menu-item-icon-inactive !dark:text-black dark:stroke-white">
@@ -63,7 +63,7 @@
             </a>
         </li>
         <li>
-            <a class="flex items-center p-2.5 rounded !dark:text-black dark:text-white"
+            <a class="flex  items-center p-2.5 rounded !dark:text-black dark:text-white"
                 href="{{ route('products.index') }}">
                 <svg width="24" height="24" class="stroke-black dark:stroke-white" viewBox="0 0 24 24"
                     fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -85,7 +85,7 @@
         </li>
 
         <li>
-            <a class="flex items-center p-2.5 rounded" href="{{ route('products.index') }}">
+            <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
                 <svg viewBox="0 0 24 24" class="stroke-black dark:stroke-white" stroke-width="1" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     
@@ -101,9 +101,14 @@
         </li>
 
         <li>
-            <a class="block p-2.5 rounded  transition flex items-center" href="{{ route('product_variants.index') }}">
-                🎨 <span class="ml-2">Product Variant</span>
+            <a class="block p-2.5 rounded flex items-center text-gray-900 dark:text-white" href="{{ route('product_variants.index') }}">
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.4768,3.51125 C21.6484,4.68282 21.6484,6.58232 20.4768,7.75389 L18.944,9.28676 C19.4787,10.3993 19.2849,11.7743 18.3625,12.6966 L17.6484,13.4107 C16.8674,14.1918 15.601,14.1918 14.82,13.4107 L8.3347,19.896 C7.77209,20.4586 7.00903,20.7747 6.21338,20.7747 L4.41338,20.7747 C3.75063,20.7747 3.21338,20.2374 3.21338,19.5747 L3.21338,17.7747 C3.21338,16.9791 3.52945,16.216 4.09206,15.6534 L10.5773,9.1681 C9.79629,8.38705 9.79629,7.12072 10.5773,6.33968 L11.2915,5.62553 C12.2138,4.70321 13.5888,4.5094 14.7013,5.04412 L16.2342,3.51125 C17.4058,2.33968 19.3053,2.33968 20.4768,3.51125 Z" stroke-width="2"></path>
+                </svg>
+                <span class="ml-2">Product Variant</span>
             </a>
         </li>
+        
+        
     </ul>
 </nav>

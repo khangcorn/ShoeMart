@@ -14,7 +14,7 @@
                 </button>
             </div>
             <div class="relative">
-                <button class="absolute left-4 top-1/2 -translate-y-1/2">
+                <button class="absolute left-6 top-1/2 -translate-y-1/2">
                     <svg class="fill-gray-500 dark:fill-gray-300" width="20" height="20" viewBox="0 0 20 20"
                         fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"

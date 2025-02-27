@@ -12,14 +12,22 @@ class ProductController extends Controller
     /**
      * Hiển thị danh sách sản phẩm.
      */
-    public function index()
-    {
-        $products = Product::with('category')->get();
-        $categories = Category::with('products')->get();
+    // public function index()
+    // {
+    //     $products = Product::with('category')->get();
+    //     $categories = Category::with('products')->get();
         
-        return view('product.index', compact('products', 'categories'));
+    //     return view('product.index', compact('products', 'categories'));
 
-    }
+    // }
+    public function index()
+{
+    $products = Product::with('category')->paginate(10); // Logic phân trang 
+    $categories = Category::with('products')->get();
+    
+    return view('product.index', compact('products', 'categories'));
+}
+
     public function create()
     {
         $products = Product::all();
@@ -224,5 +232,4 @@ public function destroy($id)
 }
 
 
- 
 }
