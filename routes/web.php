@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductVariantController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,3 +31,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/sliders/{slider}', [SliderController::class, 'update'])->name('sliders.update'); // Cập nhật
     Route::delete('/sliders/{slider}', [SliderController::class, 'destroy'])->name('sliders.destroy'); // Xóa slider
 });
+Route::resource('categories', CategoryController::class);
+Route::resource('products', ProductController::class);
+Route::resource('product_variants', ProductVariantController::class);
+
