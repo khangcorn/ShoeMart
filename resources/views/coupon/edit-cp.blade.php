@@ -53,10 +53,10 @@
 </head>
 <body>
 
-<h2>Add New Coupon</h2>
+<h2>Edit Coupon</h2>
 <a href="{{ route('coupon.index') }}">Quay về trang Coupons Table</a>
 <div class="form-container">
-    <form action="{{ route('coupon.update',$coupon->coupon_id) }}" method="POST">
+    <form action="{{ route('coupon.update',$coupon->id) }}" method="POST">
         @csrf
         @method('PUT')
         <!-- Coupon Code -->

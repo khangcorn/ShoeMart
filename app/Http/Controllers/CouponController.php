@@ -36,10 +36,10 @@ class CouponController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $coupon_id)
+    public function show(string $id)
     {
-        // Nếu bạn muốn sử dụng coupon_id trong phương thức show, cần đảm bảo là bạn truy vấn bằng coupon_id
-        $coupon = Coupon::findOrFail($coupon_id);
+        // Nếu bạn muốn sử dụng id trong phương thức show, cần đảm bảo là bạn truy vấn bằng id
+        $coupon = Coupon::findOrFail($id);
         return view('coupon.show-cp', compact('coupon'));
     }
 
@@ -54,19 +54,28 @@ class CouponController extends Controller
     // /**
     //  * Update the specified resource in storage.
     //  */
-    // public function update(Request $request, Coupon $coupon)
-    // {
-    //     $coupon->update($request->all());
-    //     // dd($request->all());
-    //     return redirect()->route('coupon.index')->with('thongbao','Cập nhật coupon thành công!');
-    // }
+    public function update(Request $request, Coupon $coupon)
+{
+    $coupon->update($request->all());
+    return redirect()->route('coupon.index')->with('thongbao', 'Cập nhật coupon thành công!');
+}
+public function edit($id)
+{
+    // Lấy coupon bằng id
+    $coupon = Coupon::findOrFail($id);  // Sử dụng id thay vì id
+    
+    // Trả về view để chỉnh sửa coupon
+    return view('coupon.edit-cp', compact('coupon'));  // Thay đổi tên view nếu cần
+}
 
-    // /**
-    //  * Remove the specified resource from storage.
-    //  */
-    // public function destroy(Coupon $coupon)
-    // {
-    //     $coupon->delete();
-    //     return redirect()->route('coupon.index')->with('thongbao','Xóa coupon thành công!');
-    // }
+
+/**
+ * Remove the specified resource from storage.
+ */
+public function destroy(Coupon $coupon)
+{
+    $coupon->delete();
+    return redirect()->route('coupon.index')->with('thongbao', 'Xóa coupon thành công!');
+}
+
 }
