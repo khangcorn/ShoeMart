@@ -17,12 +17,16 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $table = 'users';
+    protected $primaryKey = 'user_id';
+    public $timestamps = true;
 
+    protected $fillable = ['username', 'password', 'email', 'phone', 'address'];
+    
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class, 'user_id');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *
