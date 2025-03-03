@@ -76,14 +76,16 @@
 
         <!-- Discount Value -->
         <div class="form-group">
-            <label for="discount_value">Discount Value:</label>
-            <input value="{{ $coupon->discount_value }}" placeholder="Discount Value:" type="number" id="discount_value" name="discount_value" step="0.01" required>
+            <label for="discount_value">Discount Value(%):</label>
+            <input placeholder="Discount Value:" type="number" id="discount_value" name="discount_value" step="1" required min="1" 
+            max="100" >
         </div>
 
         <!-- Max Discount Value (optional) -->
         <div class="form-group">
             <label for="max_discount_value">Max Discount Value (optional):</label>
-            <input value="{{ $coupon->max_discount_value }}" placeholder="Max Discount Value (optional):" type="number" id="max_discount_value" name="max_discount_value" step="0.01">
+            <input placeholder="Max Discount Value (optional):" type="number" id="max_discount_value" name="max_discount_value"  step="1" required min="1" 
+            max="100">
         </div>
 
         <!-- Expiration Date -->
@@ -95,7 +97,7 @@
         <!-- Usage Limit -->
         <div class="form-group">
             <label for="usage_limit">Usage Limit:</label>
-            <input value="{{ $coupon-> usage_limit}}" placeholder="Usage Limit:" type="number" id="usage_limit" name="usage_limit" required>
+            <input value="{{ $coupon-> usage_limit}}" placeholder="Usage Limit:" type="number" id="usage_limit" name="usage_limit" required min="0" >
         </div>
 
         <!-- Usage Count (default is 0) -->

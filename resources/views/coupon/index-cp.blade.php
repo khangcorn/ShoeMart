@@ -78,8 +78,8 @@
                 <th>Coupon ID</th>
                 <th>Code</th>
                 <th>Discount Type</th>
-                <th>Discount Value</th>
-                <th>Max Discount Value</th>
+                <th>Discount Value(%)</th>
+                <th>Max Discount Value(%)</th>
                 <th>Expiration Date</th>
                 <th>Usage Limit</th>
                 <th>Usage Count</th>

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\ShippingFeeController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,6 +16,6 @@ use App\Http\Controllers\CouponController;
 */
 
 Route::resource('coupon', CouponController::class);
-
+Route::resource('shipping_fees', ShippingFeeController::class);
 
 
