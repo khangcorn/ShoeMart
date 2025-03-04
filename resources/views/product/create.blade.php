@@ -105,13 +105,12 @@
                         <label for="attribute_value_${variantIndex}">Giá trị Biến Thể</label>
                         <input type="text" class="form-control" name="variants[${variantIndex}][attributes][0][value]" value="">
                     </div>
-                      <div class="form-group">
-                        <label for="variant_images">Hình Ảnh Biến Thể</label>
-                        <input type="file" class="form-control @error('variants.0.images') is-invalid @enderror" name="variants[0][images][]" multiple>
-                        @error('variants.0.images')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                 <div class="form-group">
+    <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
+    <input type="file" class="form-control variant-images" name="variants[${variantIndex}][images][]" multiple data-index="${variantIndex}">
+    <div id="variant_images_preview_${variantIndex}" class="mt-2"></div>
+</div>
+
                 `;
                 
                 // Thêm nhóm biến thể mới vào trong form

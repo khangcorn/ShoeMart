@@ -211,31 +211,12 @@ public function update(Request $request, $id)
  // Xóa một biến thể sản phẩm
  public function destroy($id)
  {
-     $variant = ProductVariant::find($id);
-     
-     if (!$variant) {
-         return response()->json(['message' => 'Variant not found'], 404);
-     }
- 
-     // Xóa các ảnh liên quan đến biến thể
-     $variant->images->each(function ($image) {
-         $imagePath = 'public/' . $image->image_url;
-         if (Storage::exists($imagePath)) {
-             Storage::delete($imagePath); // Xóa ảnh trong storage
-         }
-         $image->delete(); // Xóa dữ liệu ảnh trong cơ sở dữ liệu
-     });
- 
-     // Xóa các thuộc tính liên quan đến biến thể (dùng cột id trong bảng product_variant_attributes)
-     $variant->attributes->each(function ($attribute) {
-         $attribute->delete(); // Xóa dữ liệu thuộc tính trong cơ sở dữ liệu
-     });
- 
-     // Xóa biến thể
+     $variant = ProductVariant::findOrFail($id);
      $variant->delete();
  
-     return redirect()->route('product_variants.index')->with('success', 'Product deleted successfully');
+     return response()->json(['success' => true]);
  }
+ 
  
 
 }
