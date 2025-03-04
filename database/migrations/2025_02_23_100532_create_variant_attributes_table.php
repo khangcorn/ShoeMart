@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('variant_id')->references('variant_id')->on('product_variants')->onDelete('cascade');
             $table->string('attribute_name', 50);
             $table->string('attribute_value', 100);
+            $table->timestamps(); 
         });        
     }
 

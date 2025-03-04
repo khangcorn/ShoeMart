@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ProductVariantSeeder::class,
             ProductImageSeeder::class,
+            VariantAttributeSeeder::class, // ✅ Thêm seed dữ liệu thuộc tính biến thể
 
             // 7️⃣ Seed trạng thái đơn hàng & phí vận chuyển
             OrderStatusSeeder::class,
@@ -50,6 +51,9 @@ class DatabaseSeeder extends Seeder
             CommentSeeder::class,
             CommentVoteSeeder::class,
             CommentVariantSeeder::class,
+
+            // 1️⃣2️⃣ Seed slider
+            SliderSeeder::class, // ✅ Thêm seed dữ liệu slider
         ]);
     }
 }

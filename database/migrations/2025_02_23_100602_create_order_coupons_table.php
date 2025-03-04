@@ -12,7 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('order_coupons', function (Blueprint $table) {
-            $table->id();
+            $table->id('order_coupon_id');
+            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('coupon_id');
+
+            $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
+            $table->foreign('coupon_id')->references('coupon_id')->on('coupons')->onDelete('cascade');
+            $table->decimal('applied_amount', 10, 2)->default(0);
             $table->timestamps();
         });
     }

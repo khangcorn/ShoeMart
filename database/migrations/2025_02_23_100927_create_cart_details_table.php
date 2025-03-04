@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id('cart_detail_id');
             $table->unsignedBigInteger('cart_id');
             $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('variant_id');
+            $table->unsignedBigInteger('variant_id')->nullable();
 
-            $table->foreign('cart_id')->references('cart_id')->on('cart')->onDelete('cascade');
+            $table->foreign('cart_id')->references('cart_id')->on('carts')->onDelete('cascade');
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
             $table->foreign('variant_id')->references('variant_id')->on('product_variants')->onDelete('cascade');
             $table->integer('quantity')->default(1);

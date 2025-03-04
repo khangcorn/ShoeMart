@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 class VariantAttributeSeeder extends Seeder {
     public function run(): void {
-        VariantAttribute::factory(20)->create();
+        VariantAttribute::factory()->count(10)->create();
     }
 }
 

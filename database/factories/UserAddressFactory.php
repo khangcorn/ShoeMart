@@ -11,7 +11,7 @@ class UserAddressFactory extends Factory {
 
     public function definition(): array {
         return [
-            'user_id' => User::inRandomOrder()->first()?->user_id,
+           'user_id' => User::query()->inRandomOrder()->value('user_id') ?? User::factory(),
             'province' => $this->faker->state,
             'district' => $this->faker->city,
             'ward' => $this->faker->streetName,
