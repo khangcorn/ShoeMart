@@ -10,111 +10,130 @@
             </a>
 
 
-           
-
-              
-                    <form method="GET" action="{{ route('products.index') }}" class="flex items-center gap-2">
-
-                        <div>
-                          <div class="relative text-gray-700">
-                            <input type="text" name="search" placeholder="Search product" value="{{ request()->search }}"
-                                class=" border  w-40 text-xs  border-gray-300 px-2 py-2 rounded-md">
-                            <button type="submit" class=" absolute top-2 right-3 ">   <svg class="  fill-gray-500 dark:fill-gray-300" width="18" height="18" viewBox="0 0 20 20"
-                              fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd"
-                                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                                  fill=""></path>
-                          </svg></button>
-                        </div>
-                        </div>
-                        <section class="w-40  bg-white border border-gray-300 rounded-md ">
-                            <div class="">
-                                <select name="category" class="block w-full px-2 py-2 rounded-md text-xs text-gray-700 "
-                                    onchange="this.form.submit()">
-                                    <option value="">Sort by Category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ request()->category == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </section>
-
-                        <section class="w-40 border border-gray-300  bg-white rounded-md     ">
-                            <div class="">
-                                <select class="block w-full px-2 py-2 text-xs text-gray-700 rounded-md "
-                                    onchange="window.location.href=this.value">
-                                    <option value="" selected disabled>Sort by Price</option>
-                                    <option
-                                        value="{{ route('products.index', array_merge(request()->query(), ['sort' => 'asc'])) }}">
-                                        Price Decrease</option>
-                                    <option
-                                        value="{{ route('products.index', array_merge(request()->query(), ['sort' => 'desc'])) }}">
-                                        Price Increase</option>
-                                </select>
-                            </div>
-                        </section>
 
 
 
+            <form method="GET" action="{{ route('products.index') }}" class="flex items-center gap-2">
+
+                <div>
+                    <div class="relative text-gray-700">
+                        <input type="text" name="search" placeholder="Search product" value="{{ request()->search }}"
+                            class=" border  w-40 text-xs  border-gray-300 px-2 py-2 rounded-md">
+                        <button type="submit" class=" absolute top-2 right-3 "> <svg
+                                class="  fill-gray-500 dark:fill-gray-300" width="18" height="18" viewBox="0 0 20 20"
+                                fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                                    fill=""></path>
+                            </svg></button>
+                    </div>
+                </div>
+                <section class="w-40  bg-white border border-gray-300 rounded-md ">
+                    <div class="">
+                        <select name="category" class="block w-full px-2 py-2 rounded-md text-xs text-gray-700 "
+                            onchange="this.form.submit()">
+                            <option value="">Sort by Category</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ request()->category == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </section>
+
+                <section class="w-40 border border-gray-300  bg-white rounded-md     ">
+                    <div class="">
+                        <select class="block w-full px-2 py-2 text-xs text-gray-700 rounded-md "
+                            onchange="window.location.href=this.value">
+                            <option value="" selected disabled>Sort by Price</option>
+                            <option
+                                value="{{ route('products.index', array_merge(request()->query(), ['sort' => 'asc'])) }}">
+                                Price Decrease</option>
+                            <option
+                                value="{{ route('products.index', array_merge(request()->query(), ['sort' => 'desc'])) }}">
+                                Price Increase</option>
+                        </select>
+                    </div>
+                </section>
 
 
 
-                    </form>
 
 
 
-   
-            
+            </form>
+
+
+
+
+
         </div>
         <div class="py-2 flex items-center gap-2">
-          @if (request()->search)
-          <div class="items-center flex gap-2">
-            <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Keyword: {{ request()->search }}
-              <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('search')) }}'">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                <g id="SVGRepo_iconCarrier">
-                  <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                </g>
-              </svg>
-            </p>
-          </div>
-          @endif
+            @if (request()->search)
+                <div class="items-center flex gap-2">
+                    <p
+                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">
+                        Keyword: {{ request()->search }}
+                        <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
+                            fill="none" xmlns="http://www.w3.org/2000/svg"
+                            onclick="window.location.href='{{ route('products.index', request()->except('search')) }}'">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                                <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                            </g>
+                        </svg>
+                    </p>
+                </div>
+            @endif
 
             @if (request()->category)
-            <div class="items-center flex gap-2">
-              <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Category:
-                {{ $categories->find(request()->category)->name ?? '' }}
-                <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('category')) }}'">
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </g>
-                </svg>
-              </p>
-            </div>
+                <div class="items-center flex gap-2">
+                    <p
+                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">
+                        Category:
+                        {{ $categories->find(request()->category)->name ?? '' }}
+                        <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
+                            fill="none" xmlns="http://www.w3.org/2000/svg"
+                            onclick="window.location.href='{{ route('products.index', request()->except('category')) }}'">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                                <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                            </g>
+                        </svg>
+                    </p>
+                </div>
             @endif
 
             @if (request()->sort)
-            <div class="items-center flex gap-2">
-              <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">Price:
-                {{ request()->sort == 'asc' ? 'Price Decrease' : 'Price Increase' }}
-                <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="window.location.href='{{ route('products.index', request()->except('sort')) }}'">
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </g>
-                </svg>
-              </p>
-            </div>
+                <div class="items-center flex gap-2">
+                    <p
+                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300 dark:border-gray-700 dark:text-white rounded-full">
+                        Price:
+                        {{ request()->sort == 'asc' ? 'Price Decrease' : 'Price Increase' }}
+                        <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
+                            fill="none" xmlns="http://www.w3.org/2000/svg"
+                            onclick="window.location.href='{{ route('products.index', request()->except('sort')) }}'">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path d="M3 21.32L21 3.32001" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                                <path d="M3 3.32001L21 21.32" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                            </g>
+                        </svg>
+                    </p>
+                </div>
             @endif
 
         </div>
@@ -156,7 +175,8 @@
 
                         <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
                             {{ $product->name }}</td>
-                        <td class="border relative border-gray-300 dark:border-gray-700 px-4 py-5 items-center text-center">
+                        <td
+                            class="border relative border-gray-300 dark:border-gray-700 px-4 py-5 items-center text-center">
                             <span
                                 class="line-through text-gray-500">{{ number_format($product->price, 0, ',', '.') }}</span>
                             /
