@@ -26,9 +26,15 @@ Route::get('/', function () {
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}', [HomeController::class, 'show'])->name('products.detail');
 
+Route::prefix('admin')->group(function() {
+    Route::resource('products', ProductController::class);
+});
+
+
+
 
 
 Route::resource('categories', CategoryController::class);
-Route::resource('products', ProductController::class);
-Route::resource('product_variants', ProductVariantController::class);
+
+
 

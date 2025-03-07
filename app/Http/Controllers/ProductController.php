@@ -117,6 +117,16 @@ class ProductController extends Controller
                     }
                 }
     
+                // Thêm kích thước (size) cho biến thể
+                if (isset($variantData['sizes']) && is_array($variantData['sizes'])) {
+                    foreach ($variantData['sizes'] as $size) {
+                        $variant->attributes()->create([
+                            'attribute_name' => 'size',
+                            'attribute_value' => $size,
+                        ]);
+                    }
+                }
+    
                 // Thêm hình ảnh cho biến thể (nếu có)
                 if (isset($variantData['images']) && is_array($variantData['images'])) {
                     foreach ($variantData['images'] as $image) {
@@ -137,6 +147,7 @@ class ProductController extends Controller
     
         return redirect()->route('products.index')->with('success', 'Sản phẩm đã được tạo thành công.');
     }
+    
     
     /**
      * Hiển thị chi tiết một sản phẩm.

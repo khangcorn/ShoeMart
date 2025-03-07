@@ -126,7 +126,7 @@
 
 
             <button type="submit" class="btn btn-success mt-2">Cập nhật</button>
-            <a href="{{ route('product_variants.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
+            <a href="{{ route('products.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
         </form>
     </div>
     <script>
