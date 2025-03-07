@@ -1,17 +1,17 @@
 @extends('layout')
 
 @section('content')
-<div class="container">
-    <h2>Chỉnh sửa danh mục</h2>
+<div class="container mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6">Edit Category</h2>
 
-    <form action="{{ route('categories.update', $category->id) }}" method="POST">
+    <form action="{{ route('categories.update', $category->id) }}" method="POST" class="space-y-4">
         @csrf @method('PUT')
-        <div class="form-group">
-            <label for="name">Tên danh mục</label>
-            <input type="text" name="name" class="form-control" value="{{ $category->name }}" required>
+        <div>
+            <label for="name" class="block font-medium">Category Name</label>
+            <input type="text" name="name" class="w-full p-2 border rounded" value="{{ $category->name }}" required>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Cập nhật</button>
-        <a href="{{ route('categories.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
+        <a href="{{ route('categories.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded">Back</a>
     </form>
 </div>
 @endsection
