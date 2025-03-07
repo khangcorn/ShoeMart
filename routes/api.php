@@ -14,14 +14,3 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::get('/user/{id}', [UserController::class, 'getUserDetail']);
-    Route::post('/user/{id}/address', [UserController::class, 'updateUserAddress']);
-});

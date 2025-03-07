@@ -49,7 +49,10 @@
         <button type="submit" class="btn btn-primary">Lưu địa chỉ</button>
     </form>
     
-
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit">Logout</button>
+    </form>
 
 
 </div>

@@ -22,7 +22,7 @@ class User extends Authenticatable
     public $timestamps = true;
 
     protected $fillable = ['username', 'password', 'email', 'phone', 'address'];
-    
+
     public function addresses()
     {
         return $this->hasMany(UserAddress::class, 'user_id');

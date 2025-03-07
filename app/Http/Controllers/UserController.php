@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\UserAddress;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
+use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
     public function showRegisterForm()
@@ -24,21 +24,33 @@ class UserController extends Controller
 
     // Xử lý đăng ký
     public function register(Request $request)
-    {
-        $request->validate([
-            'username' => 'required|unique:users|max:50',
-            'email' => 'required|email|unique:users|max:100',
-            'password' => 'required|min:6|confirmed',
-        ]);
+{
 
-        User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password_hash' => Hash::make($request->password),
-        ]);
-
-        return redirect()->route('login.form')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
+    // Validate input data
+    $validator = Validator::make($request->all(), [
+        'username' => 'required|max:255',
+        'password' => 'required|string|min:6',
+        'email' => 'required|string|email|max:255|unique:users,email',
+        'password_confirmation' => 'required|string|min:6',
+        'phone' => 'nullable|string|max:20',
+        'address' => 'nullable|string|max:255',
+    ]);
+  
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
     }
+
+    // Create user
+    $user = User::create([
+        'username' => $request->username,
+        'password' => Hash::make($request->password),
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'address' => $request->address,
+    ]);
+
+    return redirect()->route('login')->with('success', 'User registered successfully');
+}
 
     // Xử lý đăng nhập
     public function login(Request $request)
@@ -120,4 +132,5 @@ class UserController extends Controller
 
         return back()->with('success', 'Cập nhật địa chỉ thành công.');
     }
+   
 }
