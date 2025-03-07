@@ -13,7 +13,10 @@ class Product extends Model
     protected $table = 'products';
 
     // Chỉ định khóa chính nếu không phải 'id'
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'product_id';
+    public $incrementing = true; // Nếu không phải là auto-increment
+    protected $keyType = 'int';
+    
 
     // Cho phép các cột có thể gán dữ liệu hàng loạt (Mass Assignment)
     protected $fillable = [
@@ -30,7 +33,7 @@ class Product extends Model
      */
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
     /**
@@ -38,7 +41,7 @@ class Product extends Model
      */
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class, 'product_id', 'id'); // product_id in product_variants table, id in products table
+        return $this->hasMany(ProductVariant::class, 'product_id', 'product_id'); // product_id in product_variants table, id in products table
     }
 
     /**
@@ -46,7 +49,7 @@ class Product extends Model
      */
     public function images()
     {
-        return $this->hasMany(ProductImage::class, 'product_id', 'id');
+        return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
     }
 
 

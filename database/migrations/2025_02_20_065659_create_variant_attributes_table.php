@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('variant_attributes', function (Blueprint $table) {
-            $table->id();  // Cột khóa chính
+            $table->id('attribute_id');  // Cột khóa chính
             $table->unsignedBigInteger('variant_id');  // Cột khóa ngoại tham chiếu đến variant_id trong bảng product_variants
             $table->string('attribute_name');
             $table->string('attribute_value');

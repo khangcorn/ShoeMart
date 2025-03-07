@@ -49,15 +49,17 @@ class ProductController extends Controller
         $products = $query->paginate(10);
         $categories = Category::all();
     
-        return view('product.index', compact('products', 'categories'));
+        return view('admin.product.index', compact('products', 'categories'));
     }
+ 
+    
     
 
     public function create()
     {
         $products = Product::all();
         $categories = Category::all();
-        return view('product.create ', compact('products','categories'));
+        return view('admin.product.create ', compact('products','categories'));
         
     }
 
@@ -73,7 +75,9 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'price_sale' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:1',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:categories,category_id',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], [
             'name.required' => 'Tên sản phẩm không được để trống.',
             'name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự.',
@@ -96,6 +100,7 @@ class ProductController extends Controller
         // Thêm các biến thể cho sản phẩm
         if ($request->has('variants')) {
             foreach ($request->variants as $variantData) {
+                // Tạo biến thể
                 $variant = $product->variants()->create([
                     'price' => $variantData['price'],
                     'price_sale' => $variantData['price_sale'] ?? null,
@@ -111,38 +116,42 @@ class ProductController extends Controller
                         ]);
                     }
                 }
+    
+                // Thêm hình ảnh cho biến thể (nếu có)
+                if (isset($variantData['images']) && is_array($variantData['images'])) {
+                    foreach ($variantData['images'] as $image) {
+                        // Lưu ảnh và lấy đường dẫn
+                        $imagePath = $image->store('images', 'public');
+    
+                        // Lưu thông tin ảnh vào bảng ProductImage
+                        ProductImage::create([
+                            'product_id' => $product->product_id,
+                            'variant_id' => $variant->variant_id, // Gán ảnh cho biến thể
+                            'image_url' => $imagePath,
+                            'type' => 'gallery', // Loại ảnh là của biến thể
+                        ]);
+                    }
+                }
             }
         }
     
-        // Thêm hình ảnh cho sản phẩm
-        if (isset($variantData['images']) && is_array($variantData['images'])) {
-            foreach ($variantData['images'] as $image) {
-                $imagePath = $image->store('images', 'public');
-                
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'variant_id' => $variant->variant_id, // Gán hình ảnh cho biến thể
-                    'image_url' => $imagePath,
-                    'type' => 'gallery', // Đặt giá trị mặc định phù hợp với biến thể
-                ]);
-            }
-        }
-        
-        return redirect()->route('products.index')->with('success', 'Product created successfully');
+        return redirect()->route('products.index')->with('success', 'Sản phẩm đã được tạo thành công.');
     }
+    
     /**
      * Hiển thị chi tiết một sản phẩm.
      */
     public function show($id)
     {
         $product = Product::with(['category', 'variants.attributes', 'images'])->findOrFail($id);
-        return view('product.show', compact('product'));
+        return view('admin.product.show', compact('product'));
     }
+
     public function edit($id)
     {
         $product = Product::with(['variants.attributes', 'variants.images'])->findOrFail($id);
         $categories = Category::all(); // Lấy danh sách danh mục để hiển thị trong dropdown
-        return view('product.edit', compact('product', 'categories'));
+        return view('admin.product.edit', compact('product', 'categories'));
     }
     
 
@@ -161,7 +170,7 @@ class ProductController extends Controller
             'price' => 'sometimes|required|numeric|min:0',
             'price_sale' => 'nullable|numeric|min:0',
             'stock' => 'sometimes|required|integer|min:0',
-            'category_id' => 'sometimes|required|exists:categories,id',
+            'category_id' => 'sometimes|required|exists:categories,category_id',
             'variants' => 'nullable|array',
             'variants.*.id' => 'nullable|exists:product_variants,variant_id',
             'variants.*.price' => 'required|numeric|min:0',
@@ -194,7 +203,8 @@ class ProductController extends Controller
     
                 // **Cập nhật hoặc tạo mới biến thể**
                 $variant = ProductVariant::updateOrCreate(
-                    ['variant_id' => $variantData['id'] ?? null, 'product_id' => $product->id],
+                    ['variant_id' => $variantData['id'] ?? null, 
+                    'product_id' => $product->product_id],
                     [
                         'price' => $variantData['price'],
                         'price_sale' => $variantData['price_sale'] ?? null,
@@ -228,7 +238,7 @@ class ProductController extends Controller
                             $variant->images()->create([
                                 'image_url' => $imageUrl, // Lưu đường dẫn đúng
                                 'type' => 'gallery',
-                                'product_id' => $product->id,
+                                'product_id' => $product->product_id,
                             ]);
                         }
                     }
