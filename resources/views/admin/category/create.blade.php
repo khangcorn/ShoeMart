@@ -1,8 +1,8 @@
 @extends('admin.layout')
 
 @section('content')
-<div class="container">
-    <h2>Thêm danh mục mới</h2>
+<div class="container mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6">Thêm danh mục mới</h2>
 
     <form action="{{ route('categories.store') }}" method="POST">
         @csrf
