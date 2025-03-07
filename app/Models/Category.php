@@ -12,6 +12,9 @@ class Category extends Model
     // Chỉ định tên bảng (không bắt buộc nếu Laravel có thể tự động xác định)
     protected $table = 'categories';
 
+    protected $primaryKey = 'category_id'; // Nếu khóa chính là 'category_id'
+
+
     // Cho phép các cột có thể gán dữ liệu hàng loạt (Mass Assignment)
     protected $fillable = [
         'name',
@@ -39,6 +42,6 @@ class Category extends Model
      */
     public function products()
     {
-        return $this->hasMany(Product::class, 'category_id', 'id');
+        return $this->hasMany(Product::class, 'category_id', 'category_id');
     }
 }

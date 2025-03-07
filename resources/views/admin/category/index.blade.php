@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('content')
 <div class="container">
@@ -16,11 +16,11 @@
         <tbody>
             @foreach($categories as $category)
             <tr>
-                <td>{{ $category->id }}</td>
+                <td>{{ $category->category_id }}</td>
                 <td>{{ $category->name }}</td>
                 <td>
-                    <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-warning">Sửa</a>
-                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" style="display:inline;">
+                    <a href="{{ route('categories.edit', $category->category_id) }}" class="btn btn-warning">Sửa</a>
+                    <form action="{{ route('categories.destroy', $category->category_id) }}" method="POST" style="display:inline;">
                         @csrf @method('DELETE')
                         <button class="btn btn-danger" onclick="return confirm('Xóa danh mục này?')">Xóa</button>
                     </form>

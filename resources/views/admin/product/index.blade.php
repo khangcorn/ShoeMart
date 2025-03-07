@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('content')
     <div class="py-4 px-4">
@@ -199,8 +199,8 @@
                             class="border border-gray-300 dark:border-gray-700  px-2 py-4 text-center  justify-center gap-2">
 
                             <a class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-yellow-100 text-yellow-600"
-                                href="{{ route('products.edit', $product->id) }}">Edit</a>
-                            <form action="{{ route('products.destroy', $product->id) }}" method="POST"
+                                href="{{ route('products.edit', $product->product_id) }}">Edit</a>
+                            <form action="{{ route('products.destroy', $product->product_id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button
@@ -208,7 +208,7 @@
                                     onclick="return confirm('Xóa sản phẩm này?')">Delete</button>
                             </form>
                             <a class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-[#ECFDF3] text-[#03A27E]"
-                                href="{{ route('products.show', $product->id) }}">View</a>
+                                href="{{ route('products.show', $product->product_id) }}">View</a>
 
                         </td>
                     </tr>

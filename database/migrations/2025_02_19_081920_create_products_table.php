@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();  // Khóa chính sẽ mặc định là cột 'id'
+            $table->bigIncrements('product_id'); // Nếu khóa chính là số nguyên
             $table->string('name', 255);
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
     
             // Khóa ngoại tham chiếu đến cột 'id' trong bảng categories
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('category_id')->references('category_id')->on('categories')->onDelete('cascade');
         });
     }
 

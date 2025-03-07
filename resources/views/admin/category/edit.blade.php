@@ -1,10 +1,10 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('content')
 <div class="container">
     <h2>Chỉnh sửa danh mục</h2>
 
-    <form action="{{ route('categories.update', $category->id) }}" method="POST">
+    <form action="{{ route('categories.update', $category->category_id) }}" method="POST">
         @csrf @method('PUT')
         <div class="form-group">
             <label for="name">Tên danh mục</label>

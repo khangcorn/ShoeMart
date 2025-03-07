@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('content')
     <div class="container">
@@ -53,7 +53,7 @@
                 <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
                     <option value="">Chọn Danh Mục</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                        <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
                             {{ $category->name }}
                         </option>
                     @endforeach

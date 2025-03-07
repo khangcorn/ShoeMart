@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign key cho product_id
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
 
             // Foreign key cho variant_id (nếu có)
             $table->foreign('variant_id')->references('variant_id')->on('product_variants')->onDelete('cascade');

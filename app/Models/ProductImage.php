@@ -14,10 +14,10 @@ class ProductImage extends Model
 
     public function products()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
-    public function variant()
+    public function variants()
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id', 'variant_id');
     }

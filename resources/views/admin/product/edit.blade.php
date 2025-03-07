@@ -1,8 +1,8 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('content')
     <div class="container">
-        <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -52,7 +52,7 @@
                 <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
                     <option value="">Chọn Danh Mục</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                        <option value="{{ $category->category_id }}" {{ old('category_id', $product->category_id) == $category->category_id ? 'selected' : '' }}>
                             {{ $category->name }}
                         </option>
                     @endforeach
