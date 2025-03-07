@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+<<<<<<< HEAD
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,5 +18,15 @@ class UserSeeder extends Seeder
             User::factory(20)->create();
         
     
+=======
+use Illuminate\Database\Seeder;
+use App\Models\User;
+
+class UserSeeder extends Seeder
+{
+    public function run()
+    {
+        User::factory(20)->create();
+>>>>>>> Toàn
     }
 }
