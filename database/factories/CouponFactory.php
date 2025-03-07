@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Coupon;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class CouponFactory extends Factory
 {
@@ -12,14 +13,15 @@ class CouponFactory extends Factory
     public function definition()
     {
         return [
-            'code' => $this->faker->unique()->bothify('COUP###'),
+            'code' => strtoupper(Str::random(10)),
             'discount_type' => $this->faker->randomElement(['fixed', 'percentage']),
             'discount_value' => $this->faker->randomFloat(2, 5, 50),
-            'expiration_date' => $this->faker->dateTimeBetween('+1 week', '+1 year')->format('Y-m-d'),
-            'usage_limit' => $this->faker->numberBetween(1, 100),
+            'max_discount_value' => $this->faker->optional()->randomFloat(2, 50, 200),
+            'expiration_date' => $this->faker->optional()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
+            'usage_limit' => $this->faker->optional()->numberBetween(10, 100),
             'usage_count' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'status' => 'active',
         ];
     }
 }
+

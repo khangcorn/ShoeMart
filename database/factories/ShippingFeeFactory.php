@@ -12,10 +12,10 @@ class ShippingFeeFactory extends Factory
     public function definition()
     {
         return [
-            'region' => $this->faker->city,
-            'fee' => $this->faker->randomFloat(2, 2, 20),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'province' => $this->faker->city,
+            'district' => $this->faker->optional()->city,
+            'ward' => $this->faker->optional()->streetName,
+            'fee' => $this->faker->randomFloat(2, 10000, 100000),
         ];
     }
 }

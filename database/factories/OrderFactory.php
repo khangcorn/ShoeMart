@@ -8,6 +8,7 @@ use App\Models\OrderStatus;
 use App\Models\ShippingFee;
 use App\Models\Coupon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class OrderFactory extends Factory
 {
@@ -15,23 +16,38 @@ class OrderFactory extends Factory
 
     public function definition()
     {
-        $user = User::inRandomOrder()->first();
-        $status = OrderStatus::inRandomOrder()->first();
-        $shipping = ShippingFee::inRandomOrder()->first();
-        $coupon = Coupon::inRandomOrder()->first();
+        // Lấy dữ liệu ngẫu nhiên nếu có, nếu không sẽ dùng factory
+        $user = optional(User::inRandomOrder()->first()) ?? User::factory()->create();
+        $status = optional(OrderStatus::inRandomOrder()->first()) ?? OrderStatus::factory()->create();
+        $shipping = optional(ShippingFee::inRandomOrder()->first()) ?? ShippingFee::factory()->create();
+        $coupon = optional(Coupon::inRandomOrder()->first());
 
-        $totalPrice = $this->faker->randomFloat(2, 50, 1000); // Tổng giá trị đơn hàng
-        $shippingFee = $shipping ? $shipping->fee : 0; // Phí ship
-        $discount = $coupon ? ($coupon->discount_type == 'percentage' ? $totalPrice * $coupon->discount_value / 100 : $coupon->discount_value) : 0;
+        // Tạo tổng giá trị đơn hàng ngẫu nhiên
+        $totalPrice = $this->faker->randomFloat(2, 50, 1000);
+        $shippingFee = $shipping->fee ?? 0;
+
+        // Tính giảm giá từ coupon (nếu có)
+        $discount = 0;
+        if ($coupon) {
+            $discount = $coupon->discount_type == 'percentage'
+                ? $totalPrice * $coupon->discount_value / 100
+                : $coupon->discount_value;
+        }
+
+        // Đảm bảo total không âm
+        $finalTotal = max(0, $totalPrice - $discount + $shippingFee);
 
         return [
-            'user_id' => $user ? $user->user_id : User::factory(), // Nếu không có user nào, tạo mới
+            'user_id' => $user->user_id,
+            'status_id' => $status->status_id,
+            'shipping_id' => $shipping->shipping_id,
+            'coupon_id' => $coupon->coupon_id ?? null,
+            'order_code' => strtoupper(Str::random(10)), // Mã đơn hàng duy nhất
             'total_price' => $totalPrice,
-            'total' => max(0, $totalPrice - $discount + $shippingFee), // Tổng tiền cuối cùng
-            'status_id' => $status ? $status->status_id : OrderStatus::factory(),
             'shipping_fee' => $shippingFee,
-            'shipping_id' => $shipping ? $shipping->shipping_id : ShippingFee::factory(),
-            'coupon_id' => $coupon ? $coupon->coupon_id : null,
+            'discount_amount' => $discount, // Lưu số tiền giảm giá
+            'total' => $finalTotal, // Tổng tiền cuối cùng
+            'payment_method' => $this->faker->randomElement(['cod', 'bank_transfer', 'credit_card', 'paypal']),
             'created_at' => now(),
             'updated_at' => now(),
         ];

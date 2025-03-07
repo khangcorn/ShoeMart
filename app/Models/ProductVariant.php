@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/ProductVariant.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,14 +9,18 @@ class ProductVariant extends Model
 {
     use HasFactory;
 
-    protected $table = 'product_variants';
     protected $primaryKey = 'variant_id';
-    public $timestamps = true;
+    protected $table = 'product_variants';
 
-    protected $fillable = ['product_id', 'size', 'color', 'stock', 'sold_quantity'];
+    protected $fillable = [
+        'product_id',
+        'price',
+        'price_sale',
+        'stock',
+    ];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 }

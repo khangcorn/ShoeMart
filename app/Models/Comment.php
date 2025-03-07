@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/Comment.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +13,7 @@ class Comment extends Model
     protected $primaryKey = 'comment_id';
     public $timestamps = true;
 
-    protected $fillable = ['product_id', 'user_id', 'content'];
+    protected $fillable = ['product_id', 'user_id', 'parent_id', 'content'];
 
     public function product()
     {
@@ -24,5 +23,16 @@ class Comment extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Quan hệ bình luận cha - con
+    public function parent()
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(Comment::class, 'parent_id');
     }
 }

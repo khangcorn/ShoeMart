@@ -15,10 +15,9 @@ class CreateProductVariantsTable extends Migration
             $table->unsignedBigInteger('product_id');
 
             $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
-            $table->string('size', 10)->nullable();
-            $table->string('color', 50)->nullable();
+            $table->decimal('price', 10, 2)->notNull();
+            $table->decimal('price_sale', 10, 2)->nullable(); // Giá khuyến mãi, có thể null
             $table->integer('stock')->default(0);
-            $table->integer('sold_quantity')->default(0);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

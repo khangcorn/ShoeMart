@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/ProductImage.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,14 +9,17 @@ class ProductImage extends Model
 {
     use HasFactory;
 
-    protected $table = 'product_images';
     protected $primaryKey = 'image_id';
-    public $timestamps = true;
+    protected $table = 'product_images';
 
-    protected $fillable = ['product_id', 'image_url'];
+    protected $fillable = [
+        'product_id',
+        'image_url',
+        'type',
+    ];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 }

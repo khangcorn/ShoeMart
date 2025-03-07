@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/ShippingFee.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,12 +11,26 @@ class ShippingFee extends Model
 
     protected $table = 'shipping_fees';
     protected $primaryKey = 'shipping_id';
-    public $timestamps = false;
+    public $timestamps = true;
 
-    protected $fillable = ['region', 'fee'];
+    protected $fillable = ['province', 'district', 'ward', 'fee'];
 
-    public function orders()
+    protected $casts = [
+        'fee' => 'decimal:2',
+    ];
+
+    public function scopeFilterByLocation($query, $province, $district = null, $ward = null)
     {
-        return $this->hasMany(Order::class, 'shipping_id');
+        $query->where('province', $province);
+
+        if ($district) {
+            $query->where('district', $district);
+        }
+
+        if ($ward) {
+            $query->where('ward', $ward);
+        }
+
+        return $query;
     }
 }

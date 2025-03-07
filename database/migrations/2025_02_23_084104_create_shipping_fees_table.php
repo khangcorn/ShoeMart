@@ -10,7 +10,9 @@ class CreateShippingFeesTable extends Migration
     {
         Schema::create('shipping_fees', function (Blueprint $table) {
             $table->id('shipping_id');
-            $table->string('region', 100);
+            $table->string('province', 100);
+            $table->string('district', 100)->nullable();
+            $table->string('ward', 100)->nullable();
             $table->decimal('fee', 10, 2);
             $table->timestamps();
         });
@@ -21,4 +23,3 @@ class CreateShippingFeesTable extends Migration
         Schema::dropIfExists('shipping_fees');
     }
 }
-

@@ -11,12 +11,15 @@ class UserAddressFactory extends Factory {
 
     public function definition(): array {
         return [
-           'user_id' => User::query()->inRandomOrder()->value('user_id') ?? User::factory(),
+            'user_id' => User::query()->inRandomOrder()->value('user_id') ?? User::factory(),
+            'recipient_name' => $this->faker->name,
+            'recipient_phone' => $this->faker->phoneNumber,
+            'recipient_email' => $this->faker->optional()->safeEmail,
             'province' => $this->faker->state,
             'district' => $this->faker->city,
             'ward' => $this->faker->streetName,
             'street_address' => $this->faker->address,
-            'is_default' => $this->faker->boolean,
+            'is_default' => $this->faker->boolean(20), // 20% địa chỉ mặc định
         ];
     }
 }
