@@ -80,119 +80,90 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        
         // Xác thực dữ liệu đầu vào
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'price_sale' => 'nullable|numeric|min:0|lt:price',
-            'stock' => 'required|integer|min:1',
             'category_id' => 'required|exists:categories,category_id',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'variants' => 'nullable|array',
             'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.stock' => 'required|integer|min:1',
-            'variants.*.attributes' => 'nullable|array',
-            'variants.*.attributes.*.name' => 'required|string',
-            'variants.*.attributes.*.value' => 'required|string',
             'variants.*.sizes' => 'nullable|array',
             'variants.*.sizes.*' => 'required|string',
-        ], [
-            'name.required' => 'Tên sản phẩm không được để trống.',
-            'price.required' => 'Vui lòng nhập giá sản phẩm.',
-            'price.numeric' => 'Giá phải là một số.',
-            'price.min' => 'Giá phải lớn hơn hoặc bằng 0.',
-            'price_sale.numeric' => 'Giá khuyến mãi phải là một số.',
-            'price_sale.min' => 'Giá khuyến mãi không được nhỏ hơn 0.',
-            'price_sale.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc.',
-            'stock.required' => 'Vui lòng nhập số lượng sản phẩm.',
-            'stock.integer' => 'Số lượng phải là một số nguyên.',
-            'category_id.required' => 'Vui lòng chọn danh mục.',
+            'variants.*.size_stock' => 'nullable|array',
+            'variants.*.color' => 'nullable|string',
         ]);
     
         // Tạo sản phẩm mới
-        $product = Product::create($request->only(['name', 'description', 'price', 'price_sale', 'stock', 'category_id']));
-
+        $product = Product::create($request->only(['name', 'description', 'price', 'price_sale', 'category_id']));
+    
+        $totalProductStock = 0; // Tổng stock của sản phẩm (tính từ biến thể)
+    
         // Thêm các biến thể cho sản phẩm
         if ($request->has('variants')) {
             foreach ($request->variants as $variantData) {
-                // Tạo biến thể
+                $totalVariantStock = 0; // Tổng stock của biến thể (tính từ size)
+    
+                // Tính tổng stock từ size
+                if (isset($variantData['sizes']) && is_array($variantData['sizes'])) {
+                    foreach ($variantData['sizes'] as $size) {
+                        $sizeStock = $variantData['size_stock'][$size] ?? 0;
+                        $totalVariantStock += $sizeStock;
+                    }
+                }
+    
+                // Tạo biến thể mà không lưu `stock`
                 $variant = $product->variants()->create([
                     'price' => $variantData['price'],
                     'price_sale' => $variantData['price_sale'] ?? null,
-                    'stock' => $variantData['stock'],
                 ]);
     
-                // Thêm các thuộc tính cho biến thể
-                if (isset($variantData['attributes'])) {
-                    foreach ($variantData['attributes'] as $attributeData) {
-                        // Tạo hoặc tìm thuộc tính
-                        $attribute = VariantAttribute::firstOrCreate(
-                            ['attribute_name' => $attributeData['name']] // Dùng attribute_name thay vì name
-                        );
+                // Cập nhật tổng stock sản phẩm
+                $totalProductStock += $totalVariantStock;
     
-                        // Thêm giá trị thuộc tính vào bảng variant_attribute_values
-                        $variant->variantAttributeValues()->create([  // Đảm bảo dùng đúng tên quan hệ
-                            'attribute_id' => $attribute->attribute_id, // Lưu attribute_id vào bảng variant_attribute_values
-                            'attribute_value' => $attributeData['value'],
-                            'stock' => $variantData['stock'], // Bạn có thể thay đổi nếu cần
-                        ]);
-                    }
+                // Lưu màu sắc mà không lưu stock
+                if (!empty($variantData['color'])) {
+                    $colorAttribute = VariantAttribute::firstOrCreate(['attribute_name' => 'color']);
+                    $variant->variantAttributeValues()->create([
+                        'attribute_id' => $colorAttribute->attribute_id,
+                        'attribute_value' => $variantData['color'],
+                        'stock' => $totalVariantStock, // Cập nhật stock của màu bằng tổng stock của biến thể
+                    ]);
                 }
-             // Thêm màu sắc (color) cho biến thể
-if (isset($variantData['color'])) {
-    // Tạo hoặc tìm thuộc tính màu sắc (color)
-    $colorAttribute = VariantAttribute::firstOrCreate([
-        'attribute_name' => 'color'
-    ]);
-
-    // Thêm giá trị màu sắc vào bảng variant_attribute_values
-    $variant->variantAttributeValues()->create([
-        'attribute_id' => $colorAttribute->attribute_id,
-        'attribute_value' => $variantData['color'],
-        'stock' => $variantData['stock'] ?? 0, // Hoặc bạn có thể thay đổi cách xử lý stock
-    ]);
-}
-
     
-                // Thêm kích thước (size) cho biến thể
+                // Lưu kích thước và stock của từng kích thước
                 if (isset($variantData['sizes']) && is_array($variantData['sizes'])) {
+                    $sizeAttribute = VariantAttribute::firstOrCreate(['attribute_name' => 'size']);
                     foreach ($variantData['sizes'] as $size) {
-                        $attribute = VariantAttribute::firstOrCreate([
-                            'attribute_name' => 'size'
-                        ]);
-    
-                        $variant->variantAttributeValues()->create([  // Đảm bảo dùng đúng tên quan hệ
-                            'attribute_id' => $attribute->attribute_id,
+                        $variant->variantAttributeValues()->create([
+                            'attribute_id' => $sizeAttribute->attribute_id,
                             'attribute_value' => $size,
-                            'stock' => $variantData['stock'], // Cũng có thể thay đổi nếu cần
+                            'stock' => $variantData['size_stock'][$size] ?? 0, // Cập nhật stock cho từng size
                         ]);
                     }
                 }
-    
-                // Thêm hình ảnh cho biến thể (nếu có)
-                if (isset($variantData['images']) && is_array($variantData['images'])) {
-                    foreach ($variantData['images'] as $image) {
-                        // Lưu ảnh và lấy đường dẫn
-                        $imagePath = $image->store('images', 'public');
-    
-                        // Lưu thông tin ảnh vào bảng ProductImage
-                        ProductImage::create([
-                            'product_id' => $product->product_id,
-                            'variant_id' => $variant->variant_id, // Gán ảnh cho biến thể
-                            'image_url' => $imagePath,
-                            'type' => 'gallery', // Loại ảnh là của biến thể
-                        ]);
-                    }
-                }
+                
+                // Cập nhật stock của biến thể bằng tổng stock từ các size
+                $variant->update(['stock' => $totalVariantStock]);
             }
         }
     
-        // Quay lại danh sách sản phẩm với thông báo thành công
+        // Cập nhật lại stock của sản phẩm với tổng stock từ các biến thể
+        $product->update(['stock' => $totalProductStock]);
+    
         return redirect()->route('products.index')->with('success', 'Sản phẩm đã được tạo thành công.');
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 
     

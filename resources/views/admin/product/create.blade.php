@@ -7,7 +7,7 @@
         <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
-            <!-- Tên sản phẩm, giá, giá sale, số lượng, danh mục -->
+            <!-- Main Product Fields -->
             <div>
                 <label for="name" class="block text-sm font-medium">Tên Sản Phẩm</label>
                 <input type="text" id="name" name="name"
@@ -38,32 +38,23 @@
             </div>
 
             <div>
-                <label for="stock" class="block text-sm font-medium">Số Lượng</label>
-                <input type="number" id="stock" name="stock"
-                    class="w-full p-2 border rounded-lg @error('stock') border-red-500 @enderror"
-                    value="{{ old('stock') }}">
-                @error('stock')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+                <label class="block text-sm font-medium">Tổng Số Lượng</label>
+                <p id="total_stock" class="font-bold text-lg">0</p>
+                <input type="hidden" name="stock" id="total_stock_input">
             </div>
 
             <div class="form-group">
                 <label for="category_id">Danh Mục</label>
-                <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
+                <select class="form-control" id="category_id" name="category_id">
                     <option value="">Chọn Danh Mục</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
+                        <option value="{{ $category->category_id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
-                @error('category_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
             </div>
 
             <!-- Variant Fields -->
-            <div id="variant_fields"></div> <!-- Container to hold variant groups -->
+            <div id="variant_fields"></div>
             <button type="button" class="btn btn-primary" id="add_variant_btn">Thêm Biến Thể</button>
 
             <button type="submit" class="btn btn-success mt-2">Lưu</button>
@@ -75,91 +66,87 @@
         document.addEventListener('DOMContentLoaded', function () {
             const addVariantBtn = document.getElementById('add_variant_btn');
             const variantFieldsContainer = document.getElementById('variant_fields');
-            let variantIndex = 0;  // Counter for variants
+            let variantIndex = 0;
 
             addVariantBtn.addEventListener('click', function () {
-                // Create new variant group
                 const newVariant = document.createElement('div');
                 newVariant.classList.add('variant', 'mt-3');
 
-                // Add HTML for the new variant
                 newVariant.innerHTML = `
                     <div class="form-group">
-                        <label for="variant_price_${variantIndex}">Giá</label>
+                        <label>Giá</label>
                         <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
                     </div>
-
-                    <div class="form-group">
-                        <label for="variant_price_sale_${variantIndex}">Giá Khuyến Mãi</label>
+                     <div class="form-group">
+                        <label>Giá Khuyến Mãi</label>
                         <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
                     </div>
 
                     <div class="form-group">
-                        <label for="variant_stock_${variantIndex}">Số Lượng</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="">
+                        <label>Màu Sắc</label>
+                        <select class="form-control" name="variants[${variantIndex}][color]">
+                            <option value="">Chọn Màu</option>
+                            <option value="Trắng">Trắng</option>
+                            <option value="Đen">Đen</option>
+                            <option value="Xanh">Xanh</option>
+                            <option value="Đỏ">Đỏ</option>
+                            <option value="Vàng">Vàng</option>
+                        </select>
                     </div>
 
-                    <!-- Color selection -->
                     <div class="form-group">
-                        <label for="variant_color_${variantIndex}">Màu Sắc</label>
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" name="variants[${variantIndex}][color]" value="Trắng">
-                            <label class="form-check-label">Trắng</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" name="variants[${variantIndex}][color]" value="Đen">
-                            <label class="form-check-label">Đen</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" name="variants[${variantIndex}][color]" value="Vàng">
-                            <label class="form-check-label">Vàng</label>
+                        <label>Kích Thước</label>
+                        <div class="size-options">
+                            ${[39, 40, 41, 42, 43].map(size => `
+                                <div>
+                                    <input type="checkbox" name="variants[${variantIndex}][sizes][]" value="${size}" class="size-checkbox">
+                                    <label>${size}</label>
+                                    <input type="number" class="size-stock" name="variants[${variantIndex}][size_stock][${size}]" value="0" min="0" disabled>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
 
-                    <!-- Size selection -->
-                    <div class="form-group">
-                        <label for="variant_sizes_${variantIndex}">Kích Thước</label>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="variants[${variantIndex}][sizes][]" value="39">
-                            <label class="form-check-label">39</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="variants[${variantIndex}][sizes][]" value="40">
-                            <label class="form-check-label">40</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="variants[${variantIndex}][sizes][]" value="41">
-                            <label class="form-check-label">41</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="variants[${variantIndex}][sizes][]" value="42">
-                            <label class="form-check-label">42</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="variants[${variantIndex}][sizes][]" value="43">
-                            <label class="form-check-label">43</label>
-                        </div>
-                    </div>
-
-                    <!-- Image upload -->
                     <div class="form-group">
                         <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
                         <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>
-                        <div id="variant_images_preview_${variantIndex}" class="mt-2"></div>
                     </div>
 
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(${variantIndex})">Xóa Biến Thể</button>
+                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
                 `;
-
-                // Append the new variant group
                 variantFieldsContainer.appendChild(newVariant);
+                variantIndex++;
+            });
 
-                variantIndex++;  // Increment the variant counter
+            document.addEventListener('change', function (event) {
+                if (event.target.matches('.size-checkbox')) {
+                    const sizeInput = event.target.nextElementSibling.nextElementSibling;
+                    sizeInput.disabled = !event.target.checked;
+                    updateTotalStock();
+                }
+            });
+
+            document.addEventListener('input', function (event) {
+                if (event.target.matches('.size-stock')) {
+                    updateTotalStock();
+                }
             });
         });
 
-        function removeVariant(index) {
-            document.querySelector(`#variant_fields .variant:nth-child(${index + 1})`).remove();
+        function updateTotalStock() {
+            let totalStock = 0;
+            document.querySelectorAll('.size-stock').forEach(input => {
+                if (!input.disabled) {
+                    totalStock += parseInt(input.value) || 0;
+                }
+            });
+            document.getElementById('total_stock').innerText = totalStock;
+            document.getElementById('total_stock_input').value = totalStock;
+        }
+
+        function removeVariant(button) {
+            button.parentElement.remove();
+            updateTotalStock();
         }
     </script>
 @endsection

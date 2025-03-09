@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');  // Khóa ngoại tham chiếu đến products.product_id
             $table->decimal('price', 10, 2)->nullable();
             $table->decimal('price_sale', 10, 2)->nullable();
-            $table->integer('stock');
+            $table->integer('stock')->nullable();
             $table->timestamps();
         
             // Khóa ngoại tham chiếu đến product_id trong bảng products

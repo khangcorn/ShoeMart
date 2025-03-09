@@ -52,7 +52,7 @@ class CategoryController extends Controller
             'parent_id' => $request->parent_id ?? null, // Cẩn thận với `parent_id`
         ]);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('categories.index')
             ->with('success', 'Category created successfully');
     }
 

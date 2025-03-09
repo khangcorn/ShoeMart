@@ -18,7 +18,7 @@ class CreateVariantAttributeValuesTable extends Migration
             $table->unsignedBigInteger('variant_id');  // Khóa ngoại tham chiếu đến product_variants.variant_id
             $table->unsignedBigInteger('attribute_id');  // Khóa ngoại tham chiếu đến variant_attributes.attribute_id
             $table->string('attribute_value');  // Giá trị thuộc tính
-            $table->integer('stock')->default(0);  // Số lượng tồn kho cho từng size
+            $table->integer('stock')->nullable();
             $table->timestamps();
         
             // Thiết lập khóa ngoại cho variant_id
