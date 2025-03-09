@@ -28,13 +28,14 @@ Route::get('/products/{id}', [HomeController::class, 'show'])->name('products.de
 
 Route::prefix('admin')->group(function() {
     Route::resource('products', ProductController::class);
+    Route::resource('categories', CategoryController::class);
 });
 
 
 
 
 
-Route::resource('categories', CategoryController::class);
+
 
 
 
