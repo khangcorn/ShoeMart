@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('phone', 15)->nullable();
             $table->text('address')->nullable();
             $table->timestamps();
-
         });
     }
 
