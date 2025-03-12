@@ -237,95 +237,142 @@ class ProductController extends Controller
             foreach ($request->variants as $index => $variantData) {
                 // Kiểm tra nếu có trường 'delete' trong variant
                 if (!empty($variantData['delete']) && isset($variantData['variant_id'])) {
+                    // Xác nhận variant_id và tìm biến thể
                     $variant = ProductVariant::find($variantData['variant_id']);
+                    
                     if ($variant) {
-                        $variant->attributes()->delete(); // Xóa thuộc tính
-                        $variant->images()->delete(); // Xóa hình ảnh
-                        $variant->delete(); // Xóa biến thể
+                        // Ghi log để kiểm tra quá trình xóa
+    
+                        // Xóa tất cả các thuộc tính liên quan đến biến thể
+                        $variant->attributes()->delete();
+    
+                        // Xóa tất cả hình ảnh liên quan đến biến thể
+                        $variant->images->each(function ($image) {
+                            if (Storage::exists('public/images/' . basename($image->image_url))) {
+                                Storage::delete('public/images/' . basename($image->image_url)); // Xóa ảnh trong storage
+                            }
+                            $image->delete(); // Xóa ảnh khỏi cơ sở dữ liệu
+                        });
+    
+                        // Xóa biến thể khỏi cơ sở dữ liệu
+                        $variant->delete();
                     }
-                    continue;
+                    continue; // Bỏ qua biến thể này sau khi xóa
                 }
     
-                // Tìm biến thể nếu có
-                $variant = ProductVariant::where('variant_id', $variantData['variant_id'] ?? null)
-                    ->where('product_id', $product->product_id)
-                    ->first();
+                // Kiểm tra nếu variant_id tồn tại trong request
+                $variantId = $variantData['variant_id'] ?? null;
+                $variant = null;
     
-                if ($variant) {
-                    // Cập nhật thông tin biến thể
-                    $variant->update([
-                        'price' => $variantData['price'],
-                        'price_sale' => $variantData['price_sale'] ?? null,
-                        'color' => $variantData['color'] ?? null,
-                    ]);
+                // Nếu có variant_id thì tìm, nếu không có thì tạo mới
+                if ($variantId) {
+                    $variant = ProductVariant::find($variantId);
+                }
     
-                    // Cập nhật kích thước và tồn kho
-                    $totalColorStock = 0; // Biến để lưu tổng stock của màu
+                // Nếu không tìm thấy, tạo mới biến thể
+                if (!$variant) {
+                    $variant = new ProductVariant();
+                    $variant->product_id = $product->product_id; // Gán product_id
+                }
     
-                    if (isset($variantData['sizes']) && isset($variantData['size_stock'])) {
-                        foreach ($variantData['sizes'] as $size) {
-                            $newStock = $variantData['size_stock'][$size] ?? 0;
+                // Gán thông tin biến thể cho đối tượng variant
+                $variant->fill([
+                    'price' => $variantData['price'],
+                    'price_sale' => $variantData['price_sale'] ?? null,
+                    'color' => $variantData['color'] ?? null,
+                ]);
     
-                            // Tìm hoặc tạo mới thuộc tính size
-                            $attribute = VariantAttribute::updateOrCreate(
-                                ['attribute_name' => 'size'],
-                                ['attribute_id' => VariantAttribute::firstOrCreate(['attribute_name' => 'size'])->id]
-                            );
+                // Lưu biến thể mới hoặc cập nhật
+                $variant->save();
     
-                            // Kiểm tra xem giá trị thuộc tính đã tồn tại chưa
-                            $variantAttributeValue = VariantAttributeValue::where('variant_id', $variant->variant_id)
-                                ->where('attribute_id', $attribute->attribute_id)
-                                ->where('attribute_value', $size)
-                                ->first();
+                // Cập nhật kích thước và tồn kho
+                $totalColorStock = 0; // Biến để lưu tổng stock của màu
     
-                            if ($variantAttributeValue) {
-                                $variantAttributeValue->update(['stock' => $newStock]);
-                            } else {
-                                VariantAttributeValue::create([
-                                    'variant_id' => $variant->variant_id,
-                                    'attribute_id' => $attribute->attribute_id,
-                                    'attribute_value' => $size,
-                                    'stock' => $newStock
-                                ]);
-                            }
+                if (isset($variantData['sizes']) && isset($variantData['size_stock'])) {
+                    foreach ($variantData['sizes'] as $size) {
+                        $newStock = $variantData['size_stock'][$size] ?? 0;
     
-                            // Cộng dồn số lượng tồn kho cho màu
-                            $totalColorStock += $newStock;
-                        }
-                    }
+                        // Kiểm tra nếu size có tồn tại trước
+                        $attribute = VariantAttribute::firstOrCreate(
+                            ['attribute_name' => 'size'],
+                            ['attribute_name' => 'size']
+                        );
     
-                    // Cập nhật màu sắc nếu có thay đổi
-                    if ($variantData['color']) {
-                        $colorAttribute = VariantAttribute::firstOrCreate(['attribute_name' => 'color']);
-    
-                        // Kiểm tra xem màu có tồn tại trong bản ghi variant_attribute_value không
-                        $colorAttributeValue = VariantAttributeValue::where('variant_id', $variant->variant_id)
-                            ->where('attribute_id', $colorAttribute->attribute_id)
+                        // Cập nhật hoặc tạo mới thuộc tính size cho biến thể
+                        $variantAttributeValue = VariantAttributeValue::where('variant_id', $variant->variant_id)
+                            ->where('attribute_id', $attribute->attribute_id)
+                            ->where('attribute_value', $size)
                             ->first();
     
-                        if ($colorAttributeValue) {
-                            // Nếu màu đã tồn tại, cập nhật lại màu sắc và tồn kho
-                            $colorAttributeValue->update([
-                                'attribute_value' => $variantData['color'],
-                                'stock' => $totalColorStock
-                            ]);
+                        if ($variantAttributeValue) {
+                            $variantAttributeValue->update(['stock' => $newStock]);
                         } else {
-                            // Nếu không có màu cũ, tạo mới bản ghi màu
                             VariantAttributeValue::create([
                                 'variant_id' => $variant->variant_id,
-                                'attribute_id' => $colorAttribute->attribute_id,
-                                'attribute_value' => $variantData['color'],
-                                'stock' => $totalColorStock
+                                'attribute_id' => $attribute->attribute_id,
+                                'attribute_value' => $size,
+                                'stock' => $newStock
                             ]);
                         }
     
-                        // Cập nhật tồn kho của biến thể bằng tổng tồn kho của màu
-                        $variant->update(['stock' => $totalColorStock]);
+                        // Cộng dồn số lượng tồn kho cho màu
+                        $totalColorStock += $newStock;
+                    }
+                }
+    
+                // Cập nhật màu sắc nếu có thay đổi
+                if (!empty($variantData['color'])) {
+                    $colorAttribute = VariantAttribute::firstOrCreate(['attribute_name' => 'color']);
+    
+                    // Kiểm tra nếu màu đã tồn tại trong bản ghi variant_attribute_value
+                    $colorAttributeValue = VariantAttributeValue::where('variant_id', $variant->variant_id)
+                        ->where('attribute_id', $colorAttribute->attribute_id)
+                        ->first();
+    
+                    if ($colorAttributeValue) {
+                        $colorAttributeValue->update([
+                            'attribute_value' => $variantData['color'],
+                            'stock' => $totalColorStock
+                        ]);
+                    } else {
+                        VariantAttributeValue::create([
+                            'variant_id' => $variant->variant_id,
+                            'attribute_id' => $colorAttribute->attribute_id,
+                            'attribute_value' => $variantData['color'],
+                            'stock' => $totalColorStock
+                        ]);
                     }
     
-                    // Cộng dồn tồn kho của tất cả các màu vào tổng tồn kho sản phẩm
-                    $totalProductStock += $totalColorStock;
+                    // Cập nhật tồn kho của biến thể bằng tổng tồn kho của màu
+                    $variant->update(['stock' => $totalColorStock]);
                 }
+    
+                // Cập nhật ảnh mới cho biến thể (nếu có)
+                if ($request->hasFile("variants.{$index}.images")) {
+                    // Xóa ảnh cũ khỏi storage và cơ sở dữ liệu
+                    $variant->images->each(function ($image) {
+                        if (Storage::exists('public/images/' . basename($image->image_url))) {
+                            Storage::delete('public/images/' . basename($image->image_url));
+                        }
+                        $image->delete();
+                    });
+    
+                    // Lưu ảnh mới
+                    foreach ($request->file("variants.{$index}.images") as $imageFile) {
+                        // Lưu ảnh mới vào thư mục và cơ sở dữ liệu
+                        $imagePath = $imageFile->store('public/images');
+    
+                        // Lưu ảnh vào bảng 'product_images' hoặc bảng tương ứng
+                        $variant->images()->create([
+                            'image_url' => $imagePath,
+                            'product_id' => $product->product_id, // Đảm bảo truyền 'product_id'
+                        ]);
+                    }
+                }
+                
+    
+                // Cộng dồn tồn kho của tất cả các màu vào tổng tồn kho sản phẩm
+                $totalProductStock += $totalColorStock;
             }
         }
     
@@ -349,6 +396,11 @@ class ProductController extends Controller
     
     
     
+    
+    
+    
+    
+    
 /**
  * Xóa sản phẩm.
  */
@@ -357,47 +409,80 @@ public function destroy($id)
     // Tìm sản phẩm cần xóa
     $product = Product::findOrFail($id);
 
-    // Xóa các hình ảnh liên quan đến sản phẩm và biến thể
-    foreach ($product->images as $image) {
-        Storage::delete('public/images/' . basename($image->image_url));
-        $image->delete();
-    }
-
-    foreach ($product->variants as $variant) {
-        foreach ($variant->images as $image) {
+    // Kiểm tra và xóa các hình ảnh liên quan đến sản phẩm chính (nếu có)
+    if ($product->images) {
+        foreach ($product->images as $image) {
+            // Xóa hình ảnh từ storage
             Storage::delete('public/images/' . basename($image->image_url));
+            // Xóa bản ghi hình ảnh trong database
             $image->delete();
         }
-        foreach ($variant->attributes as $attribute) {
-            $attribute->delete();
-        }
-        $variant->delete();
     }
 
-    // Xóa sản phẩm
+    // Kiểm tra và xóa các biến thể và hình ảnh của biến thể (nếu có)
+    if ($product->variants) {
+        foreach ($product->variants as $variant) {
+            // Kiểm tra và xóa hình ảnh liên quan đến biến thể (nếu có)
+            if ($variant->images) {
+                foreach ($variant->images as $image) {
+                    Storage::delete('public/images/' . basename($image->image_url));
+                    $image->delete();
+                }
+            }
+
+            // Kiểm tra và xóa các thuộc tính liên quan đến biến thể (nếu có)
+            if ($variant->attributes) {
+                foreach ($variant->attributes as $attribute) {
+                    $attribute->delete();
+                }
+            }
+
+            // Xóa biến thể
+            $variant->delete();
+        }
+    }
+
+    // Xóa sản phẩm chính
     $product->delete();
 
+    // Quay lại trang danh sách sản phẩm với thông báo thành công
     return redirect()->route('products.index')->with('success', 'Product deleted successfully');
 }
-
-public function destroyVariant($id)
+public function deleteVariant($product_id, $variant_id)
 {
-    $variant = ProductVariant::findOrFail($id);
+    // Tìm sản phẩm theo product_id
+    $product = Product::findOrFail($product_id);
+    
+    // Tìm biến thể liên quan đến sản phẩm
+    $variant = $product->variants()->findOrFail($variant_id);
+
+    // Xóa tất cả hình ảnh liên quan nếu có
+    if ($variant->images->isNotEmpty()) {
+        $imagePaths = $variant->images->pluck('image_url')->toArray();
+        
+        // Xóa hình ảnh khỏi storage
+        Storage::delete($imagePaths);
+
+        // Xóa ảnh khỏi database
+        $variant->images()->delete();
+    }
 
     // Xóa tất cả thuộc tính liên quan
-    $variant->attributes()->delete();
-
-    // Xóa tất cả hình ảnh liên quan
-    foreach ($variant->images as $image) {
-        Storage::delete('public/images/' . basename($image->image_url));
-        $image->delete();
-    }
+    $variant->variantAttributeValues()->delete();
 
     // Xóa biến thể
     $variant->delete();
 
-    return response()->json(['success' => true, 'message' => 'Biến thể đã được xóa']);
+    // Trả về trang chỉnh sửa sản phẩm với thông báo thành công
+    return redirect()->route('products.edit', $product_id)->with('success', 'Biến thể đã được xóa thành công.');
 }
+
+
+
+
+
+
+
 
 
 }
