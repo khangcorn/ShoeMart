@@ -61,6 +61,11 @@
 
   
   </header>
-  <div class="h-14 bg-gray-100"></div>
+  <div class="h-10 bg-gray-100 flex items-center justify-center">
+    <p class="text-sm mt-3 text-gray-500">
+        Free Standard Delivery & 30-Day Free Returns
+    </p>
+</div>
+
 
   
