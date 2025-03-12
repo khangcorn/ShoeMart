@@ -1,149 +1,165 @@
 @extends('admin.layout')
 
 @section('content')
-    <div class="container">
-        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">Chỉnh Sửa Sản Phẩm</h1>
+
+        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             @method('PUT')
 
-        <!-- Product Fields -->
-        <div>
-            <label for="name" class="block text-sm font-medium">Product Name</label>
-            <input type="text" id="name" name="name" value="{{ old('name', $product->name) }}" class="text-black mt-1 block w-full border rounded-lg p-2 @error('name') border-red-500 @enderror">
-            @error('name')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="description" class="block text-sm font-medium">Description</label>
-            <textarea id="description" name="description" class="text-black mt-1 block w-full border rounded-lg p-2 @error('description') border-red-500 @enderror">{{ old('description', $product->description) }}</textarea>
-            @error('description')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="price" class="block text-sm font-medium">Price</label>
-            <input type="number" id="price" name="price" value="{{ old('price', $product->price) }}" class="text-black mt-1 block w-full border rounded-lg p-2 @error('price') border-red-500 @enderror">
-            @error('price')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="price_sale" class="block text-sm font-medium">Sale Price</label>
-            <input type="number" id="price_sale" name="price_sale" value="{{ old('price_sale', $product->price_sale) }}" class="text-black mt-1 block w-full border rounded-lg p-2 @error('price_sale') border-red-500 @enderror">
-            @error('price_sale')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="stock" class="block text-sm font-medium">Stock</label>
-            <input type="number" id="stock" name="stock" value="{{ old('stock', $product->stock) }}" class="text-black mt-1 block w-full border rounded-lg p-2 @error('stock') border-red-500 @enderror">
-            @error('stock')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-            <div class="form-group">
-                <label for="category_id">Danh Mục</label>
-                <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
-                    <option value="">Chọn Danh Mục</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->category_id }}" {{ old('category_id', $product->category_id) == $category->category_id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('category_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
+            <!-- Main Product Fields -->
+            <div>
+                <label for="name" class="block text-sm font-medium">Tên Sản Phẩm</label>
+                <input type="text" id="name" name="name"
+                    class="w-full p-2 border rounded-lg @error('name') border-red-500 @enderror"
+                    value="{{ old('name', $product->name) }}">
+                @error('name')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+                <div>
+                    <label for="price" class="block text-sm font-medium">Giá</label>
+                    <input type="number" id="price" name="price"
+                        class="w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
+                        value="{{ old('price', $product->price) }}">
+                    @error('price')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+                <div>
+                    <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
+                    <input type="number" id="price_sale" name="price_sale"
+                        class="w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
+                        value="{{ old('price_sale', $product->price_sale) }}">
+                    @error('price_sale')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+    
+    
+                <div class="form-group">
+                    <label for="category_id">Danh Mục</label>
+                    <select class="form-control" id="category_id" name="category_id">
+                        <option value="">Chọn Danh Mục</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->category_id }}" {{ $category->category_id == $product->category_id ? 'selected' : '' }}>{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+    
+    
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Tổng Số Lượng</label>
+                <p id="total_stock" class="font-bold text-lg">{{ $product->stock }}</p>
+                <input type="hidden" name="stock" id="total_stock_input" value="{{ $product->stock }}">
             </div>
 
             <!-- Variant Fields -->
-            <!-- Variant Fields -->
-            <div id="variants">
-                @foreach ($product->variants as $index => $variant)
-                    <div class="variant mt-3">
-                        <hr>
-                        
-                        <!-- Ẩn ID biến thể để gửi lên request -->
-                        <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant->variant_id }}">
+            <div id="variant_fields">
+                @foreach($product->variants as $index => $variant)
+                <div class="variant mt-3 border p-4 rounded-lg shadow-md">
+                    <h2 class="font-bold text-lg">Biến thể {{ $index + 1 }}</h2>
             
-                        <div class="form-group">
-                            <label for="variant_price_{{ $index }}">Giá</label>
-                            <input type="number" class="form-control" name="variants[{{ $index }}][price]" value="{{ old('variants.' . $index . '.price', $variant->price) }}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="variant_price_sale_{{ $index }}">Giá Khuyến Mãi</label>
-                            <input type="number" class="form-control" name="variants[{{ $index }}][price_sale]" value="{{ old('variants.' . $index . '.price_sale', $variant->price_sale) }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="variant_stock_{{ $index }}">Số Lượng</label>
-                            <input type="number" class="form-control" name="variants[{{ $index }}][stock]" value="{{ old('variants.' . $index . '.stock', $variant->stock) }}" required>
-                        </div>
+                    <!-- Thêm variant_id -->
+                    <input type="hidden" name="variants[{{ $index }}][variant_id]" value="{{ $variant->variant_id }}">
             
-                        <!-- Attribute Fields -->
-                        @foreach ($variant->attributes as $attributeIndex => $attribute)
-                            <div class="form-group">
-                                <label for="attribute_name_{{ $index }}_{{ $attributeIndex }}">Tên biến thể</label>
-                                <input type="text" class="form-control" name="variants[{{ $index }}][attributes][{{ $attributeIndex }}][name]" value="{{ old('variants.' . $index . '.attributes.' . $attributeIndex . '.name', $attribute->attribute_name) }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="attribute_value_{{ $index }}_{{ $attributeIndex }}">Giá trị biến thể</label>
-                                <input type="text" class="form-control" name="variants[{{ $index }}][attributes][{{ $attributeIndex }}][value]" value="{{ old('variants.' . $index . '.attributes.' . $attributeIndex . '.value', $attribute->attribute_value) }}" required>
-                            </div>
-                        @endforeach
+                    <div class="form-group">
+                        <label>Giá</label>
+                        <input type="number" class="form-control" name="variants[{{ $index }}][price]" value="{{ $variant->price }}">
+                    </div>
             
-                        <!-- Variant Images -->
-                        <div class="form-group">
-                            <label for="variant_images_{{ $index }}">Hình Ảnh Biến Thể</label>
-                            <input type="file" class="form-control" name="variants[{{ $index }}][images][]" multiple>
-                            @if ($variant->images->isNotEmpty())
-                            <div class="mt-2">
-                                @foreach ($variant->images as $image)
-                                    <img src="{{ asset('storage/' . ltrim($image->image_url, '/storage/')) }}" alt="Hình ảnh biến thể" width="100">
-                                @endforeach
-                            </div>
-                        @endif
-                        
-                        </div>
-            
-                        <!-- Delete Button -->
-                        <div class="form-group">
-                            <button type="button" class="btn btn-danger delete-variant" data-index="{{ $index }}">Xóa Biến Thể</button>
-                            <input type="hidden" name="variants[{{ $index }}][delete]" value="0">
+                    <div class="form-group">
+                        <label>Giá Khuyến Mãi</label>
+                        <input type="number" class="form-control" name="variants[{{ $index }}][price_sale]" value="{{ $variant->price_sale }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Màu Sắc</label>
+                        <select class="form-control" name="variants[{{ $index }}][color]">
+                            <option value="">Chọn Màu</option>
+                            @foreach (['Trắng', 'Đen', 'Xanh', 'Đỏ', 'Vàng'] as $color)
+                                <option value="{{ $color }}" 
+                                    {{ $variant->variantAttributeValues->where('attribute_id', 1)->where('attribute_value', $color)->isNotEmpty() ? 'selected' : '' }}>
+                                    {{ $color }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Kích Thước & Số Lượng</label>
+                        <div class="size-options grid grid-cols-3 gap-2">
+                            @foreach([39, 40, 41, 42, 43] as $size)
+                                @php
+                                    $sizeStock = $variant->variantAttributeValues->where('attribute_value', $size)->first()->stock ?? 0;
+                                @endphp
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" name="variants[{{ $index }}][sizes][]" value="{{ $size }}" class="size-checkbox" 
+                                        {{ $sizeStock > 0 ? 'checked' : '' }}>
+                                    <label>{{ $size }}</label>
+                                    <input type="number" class="size-stock p-1 border rounded-lg" 
+                                        name="variants[{{ $index }}][size_stock][{{ $size }}]" 
+                                        value="{{ $sizeStock }}" min="0" {{ $sizeStock > 0 ? '' : 'disabled' }}>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-                @endforeach
-            </select>
-            @error('category_id')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
+            
+                    <div class="form-group">
+                        <label>Hình Ảnh Biến Thể</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            @foreach($variant->images as $image)
+                                <div class="relative">
+                                    <img src="{{ asset($image->image_url) }}" class="w-full h-20 object-cover rounded-lg border">
+                                    <input type="checkbox" name="variants[{{ $index }}][remove_images][]" value="{{ $image->image_id }}"> Xóa
+                                </div>
+                            @endforeach
+                        </div>
+                        <input type="file" class="form-control mt-2" name="variants[{{ $index }}][images][]" multiple>
+                    </div>
+            
+                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
+                </div>
+            @endforeach
+            
+            </div>
 
+            <!-- Thêm Biến Thể -->
+            <button type="button" class="btn btn-primary" id="add_variant_button">Thêm Biến Thể</button>
 
-
-            <button type="submit" class="btn btn-success mt-2">Cập nhật</button>
+            <button type="submit" class="btn btn-success mt-2">Cập Nhật</button>
             <a href="{{ route('products.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
         </form>
     </div>
 
-        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">Update</button>
-        <a href="{{ route('products.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg">Back</a>
-    </form>
     <script>
-        tinymce.init({
-            selector: '#description',
-            plugins: 'advlist autolink lists link image charmap print preview anchor',
-            toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | removeformat',
-            menubar: false,
-            height: 300
+        // Kích hoạt hoặc vô hiệu hóa input số lượng khi checkbox size được chọn
+        document.querySelectorAll('.size-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                let input = this.closest('div').querySelector('.size-stock');
+                input.disabled = !this.checked;
+            });
+        });
+
+        // Xóa biến thể
+        function removeVariant(button) {
+            button.closest('.variant').remove();
+        }
+
+        // Thêm biến thể mới
+        document.getElementById('add_variant_button').addEventListener('click', function() {
+            const newVariant = document.createElement('div');
+            newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
+            newVariant.innerHTML = `
+    <div class="form-group">
+        <label>Giá</label>
+        <input type="number" class="form-control" name="variants[][price]" value="">
+    </div>
+`;
+
+            document.getElementById('variant_fields').appendChild(newVariant);
         });
     </script>
-</div>
 @endsection
