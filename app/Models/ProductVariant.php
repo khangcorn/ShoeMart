@@ -18,7 +18,7 @@ class ProductVariant extends Model
     // Quan hệ với bảng VariantAttribute (Mỗi biến thể có nhiều thuộc tính như màu sắc, kích thước)
     public function variantAttributeValues()
     {
-        return $this->hasMany(VariantAttributeValue::class, 'variant_id', 'variant_id');
+        return $this->hasMany(VariantAttributeValues::class, 'variant_id', 'variant_id');
     }
 
     // Quan hệ với bảng ProductImage (Mỗi biến thể có nhiều ảnh)

@@ -14,7 +14,7 @@ class VariantAttributeFactory extends Factory {
 
     public function definition(): array {
         return [
-            'variant_id' => ProductVariant::inRandomOrder()->first()?->variant_id,
+
             'attribute_name' => $this->faker->randomElement(['Size', 'Color', 'Material']),
         ];
     }

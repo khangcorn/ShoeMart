@@ -17,7 +17,7 @@ class CouponFactory extends Factory
             'discount_type' => $this->faker->randomElement(['fixed', 'percentage']),
             'discount_value' => $this->faker->randomFloat(2, 5, 50),
             'max_discount_value' => $this->faker->optional()->randomFloat(2, 50, 200),
-            'expiration_date' => $this->faker->optional()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
+            'expiration_date' => optional($this->faker->optional()->dateTimeBetween('now', '+1 year'))->format('Y-m-d') ?? now()->addYear()->format('Y-m-d'),
             'usage_limit' => $this->faker->optional()->numberBetween(10, 100),
             'usage_count' => 0,
             'status' => 'active',

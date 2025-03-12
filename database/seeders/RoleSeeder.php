@@ -9,6 +9,8 @@ class RoleSeeder extends Seeder
 {
     public function run()
     {
+        Role::query()->delete();
+
         Role::factory(5)->create();
     }
 }
