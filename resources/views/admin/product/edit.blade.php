@@ -220,7 +220,7 @@
                     if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
     
                     // Delete the variant using AJAX with CSRF token
-                    fetch(`/products/${productId}/variants/${variantId}`, {
+                    fetch(`/admin/products/${productId}/variants/${variantId}`, {
                         method: "DELETE",
                         headers: {
                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
@@ -229,16 +229,19 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            // Xóa biến thể trên giao diện
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        alert("Có lỗi xảy ra khi xóa biến thể.");
-                    });
+            if (data.success) {
+                alert(data.message);
+                 
+                event.target.closest(".variant").remove();
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            } else {
+                alert(data.message);
+            }
+        })
+        
                 });
             });
         });
