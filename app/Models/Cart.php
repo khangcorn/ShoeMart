@@ -12,7 +12,8 @@ class Cart extends Model
     protected $primaryKey = 'cart_id';
 
     protected $fillable = [
-        'user_id', 'session_id'
+        'user_id', 
+        // 'session_id'
     ];
 
     public function user()
@@ -20,8 +21,9 @@ class Cart extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function cartDetails()
+    public function details()
     {
         return $this->hasMany(CartDetail::class, 'cart_id');
     }
 }
+

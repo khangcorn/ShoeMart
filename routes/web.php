@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -34,4 +35,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
 Route::resource('product_variants', ProductVariantController::class);
+
+Route::get('/cart', [CartController::class, 'showCart'])->name('cart.show');
+
 

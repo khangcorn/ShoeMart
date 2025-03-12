@@ -13,25 +13,25 @@ class CartSeeder extends Seeder
         Cart::insert([
             [
                 'user_id'    => 1,
-                'session_id' => null,
+                // 'session_id' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'user_id'    => 2,
-                'session_id' => null,
+                // 'session_id' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'user_id'    => null,
-                'session_id' => Str::random(10),
+                // 'session_id' => Str::random(10),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'user_id'    => null,
-                'session_id' => Str::random(10),
+                // 'session_id' => Str::random(10),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
