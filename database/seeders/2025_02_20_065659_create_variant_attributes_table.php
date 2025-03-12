@@ -13,21 +13,17 @@ return new class extends Migration
     {
         Schema::create('variant_attributes', function (Blueprint $table) {
             $table->id('attribute_id');  // Cột khóa chính
-            $table->unsignedBigInteger('variant_id');  // Cột khóa ngoại tham chiếu đến variant_id trong bảng product_variants
-            $table->string('attribute_name');
-            $table->string('attribute_value');
+            $table->string('attribute_name');  // Tên thuộc tính như "Màu sắc", "Kích thước"
             $table->timestamps();
-    
-            // Thiết lập khóa ngoại cho variant_id
-            $table->foreign('variant_id')->references('variant_id')->on('product_variants')->onDelete('cascade');
         });
     }
-    
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
+        Schema::dropIfExists('variant_attribute_values');
         Schema::dropIfExists('variant_attributes');
     }
 };

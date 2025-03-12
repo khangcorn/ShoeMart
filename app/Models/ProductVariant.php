@@ -11,19 +11,22 @@ class ProductVariant extends Model
     protected $keyType = 'int';  // Kiểu dữ liệu của variant_id là int
     protected $fillable = ['product_id', 'price', 'price_sale', 'stock'];
 
-   // In the ProductVariant model
-public function products()
-{
-    return $this->belongsTo(Product::class, 'product_id');
-}
-
-    public function attributes()
+    // Quan hệ với bảng Product
+    public function product()
     {
-        return $this->hasMany(VariantAttribute::class, 'variant_id', 'variant_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
+
+    // Quan hệ với bảng VariantAttribute (Mỗi biến thể có nhiều thuộc tính như màu sắc, kích thước)
+    public function variantAttributeValues()
+    {
+        return $this->hasMany(VariantAttributeValue::class, 'variant_id', 'variant_id');
+    }
+
+    // Quan hệ với bảng ProductImage (Mỗi biến thể có nhiều ảnh)
     public function images()
-{
-    return $this->hasMany(ProductImage::class, 'variant_id');
-}
+    {
+        return $this->hasMany(ProductImage::class, 'variant_id', 'variant_id');
+    }
 }
 

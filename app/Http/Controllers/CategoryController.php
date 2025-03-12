@@ -15,11 +15,15 @@ class CategoryController extends Controller
         $categories = Category::all();
         return view('admin.category.index', compact('categories'));
     }
+
+    /**
+     * Hiển thị form tạo danh mục mới.
+     */
     public function create()
     {
+        // Optionally, pass parent categories if needed
         $categories = Category::all();
-        return view('admin.category.create ', compact('categories'));
-        
+        return view('admin.category.create', compact('categories'));
     }
 
     /**
@@ -42,15 +46,14 @@ class CategoryController extends Controller
             'name.unique' => 'Tên danh mục đã tồn tại, vui lòng chọn tên khác.',
             'name.regex' => 'Tên danh mục không được chứa số.',
         ]);
-    
 
         $category = Category::create([
             'name' => $request->name,
-            'parent_id' => $request->parent_id,
+            'parent_id' => $request->parent_id ?? null, // Cẩn thận với `parent_id`
         ]);
 
         return redirect()->route('categories.index')
-        ->with('success','Product updated successfully');
+            ->with('success', 'Category created successfully');
     }
 
     /**
@@ -63,41 +66,31 @@ class CategoryController extends Controller
     }
 
     /**
-     * Cập nhật danh mục.
+     * Hiển thị form chỉnh sửa danh mục.
      */
     public function edit($id)
     {
-        $category = Category::find($id);
-        
-        // If the category doesn't exist, return an error or redirect
-        if (!$category) {
-            return redirect()->route('categories.index')->with('error', 'Category not found');
-        }
+        $category = Category::findOrFail($id); // Sử dụng `findOrFail` để tự động xử lý lỗi nếu không tìm thấy
 
-        return view('category.edit', compact('category'));
+        return view('admin.category.edit', compact('category'));
     }
 
+    /**
+     * Cập nhật danh mục.
+     */
     public function update(Request $request, $id)
     {
-        // Validate incoming data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            // Add any other validation rules here
         ]);
 
-        // Find the category by ID
-        $category = Category::find($id);
+        $category = Category::findOrFail($id); // Sử dụng `findOrFail`
 
-        if (!$category) {
-            return redirect()->route('categories.index')->with('error', 'Category not found');
-        }
-
-        // Update the category with validated data
         $category->update($validated);
 
-        // Redirect to the categories index or show a success message
         return redirect()->route('categories.index')->with('success', 'Category updated successfully');
     }
+
     /**
      * Xóa danh mục.
      */
@@ -106,6 +99,6 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully');
     }
 }

@@ -228,7 +228,7 @@
                                     onclick="return confirm('Xóa sản phẩm này?')">Delete</button>
                             </form>
                             <a class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-[#ECFDF3] text-[#03A27E]"
-                                href="{{ route('products.show', $product->product_id) }}">View</a>
+                            href="{{ route('products.show', ['product' => $product->product_id]) }}">View</a>
 
                         </td>
                     </tr>
