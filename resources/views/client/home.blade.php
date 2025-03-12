@@ -3,7 +3,7 @@
 @section('title', 'Trang chủ')
 
 @section('content')
-    <div class="container">
+    {{-- <div class="container">
         <h1 class="my-4">Danh sách sản phẩm</h1>
         <div class="row">
             @foreach($products as $product)
@@ -27,5 +27,5 @@
         <div class="d-flex justify-content-center mt-4">
             {{ $products->links() }}
         </div>
-    </div>
+    </div> --}}
 @endsection
