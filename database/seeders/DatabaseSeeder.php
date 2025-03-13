@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
 
             // 3️⃣ Seed user
             UserSeeder::class,
+            UserAddress::class,
 
             // 4️⃣ Gán role cho user
             UserRoleSeeder::class,
