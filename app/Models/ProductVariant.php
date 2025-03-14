@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
 {
-    protected $primaryKey = 'variant_id'; // Đảm bảo đúng khóa chính là variant_id
-    public $incrementing = true;  // Đảm bảo tự động tăng
-    protected $keyType = 'int';  // Kiểu dữ liệu của variant_id là int
-    protected $fillable = ['product_id', 'price', 'price_sale', 'stock'];
+    use HasFactory;
 
     // Quan hệ với bảng Product
     public function product()
@@ -20,7 +18,7 @@ class ProductVariant extends Model
     // Quan hệ với bảng VariantAttribute (Mỗi biến thể có nhiều thuộc tính như màu sắc, kích thước)
     public function variantAttributeValues()
     {
-        return $this->hasMany(VariantAttributeValue::class, 'variant_id', 'variant_id');
+        return $this->hasMany(VariantAttributeValues::class, 'variant_id', 'variant_id');
     }
 
     // Quan hệ với bảng ProductImage (Mỗi biến thể có nhiều ảnh)

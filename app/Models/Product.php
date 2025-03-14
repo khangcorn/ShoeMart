@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
-{
+class Product extends Model {
     use HasFactory;
 
     // Tên bảng nếu không phải bảng mặc định (products)
