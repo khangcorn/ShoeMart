@@ -4,8 +4,8 @@
 
 @section('content')
 
-    <div class="container">
-        <h1 class="my-4">Danh sách sản phẩm</h1>
+    <div class=" mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+        {{-- <h1 class="my-4">Danh sách sản phẩm</h1> --}}
         <div class="row">
             @foreach($products as $product)
                 @php
@@ -30,7 +30,7 @@
                 </div>
             @endforeach
 
-    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8  ">
+    <div class="  ">
         <div class="">
             <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_1704,c_limit/e0b60c2f-d245-42e9-86ca-f7ea95ba6d45/nike-just-do-it.jpg"
                 alt="">
@@ -109,5 +109,6 @@
        
         
         </div>
+    </div>
 @endsection
 
