@@ -111,27 +111,3 @@
         </div>
 @endsection
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var swiper = new Swiper(".mySwiper", {
-        slidesPerView: 3,  // Hiển thị 3 sản phẩm chính
-        spaceBetween: 20,  // Khoảng cách giữa các sản phẩm
-        loop: true,  // Cho phép lặp vô hạn
-        centeredSlides: true, // Canh giữa
-        navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-        },
-        pagination: {
-            el: ".swiper-pagination",
-            clickable: true,
-        },
-        breakpoints: {
-            768: { slidesPerView: 3 }, // Tablet
-            1024: { slidesPerView: 3 }, // Desktop
-            1400: { slidesPerView: 3.5 }, // Rìa sản phẩm thứ 4
-        },
-    });
-});
-
-</script>
