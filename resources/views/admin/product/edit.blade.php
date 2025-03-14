@@ -116,7 +116,8 @@
                         <input type="file" class="form-control mt-2" name="variants[{{ $index }}][images][]" multiple>
                     </div>
 
-                    <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}">Xóa Biến Thể</button>
+                    <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}" data-product-id="{{ $product->product_id }}">Xóa Biến Thể</button>
+
                 </div>
                 @endforeach
             </div>
@@ -130,121 +131,128 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const addVariantButton = document.getElementById('add_variant_button');
-            const variantFieldsContainer = document.getElementById('variant_fields');
-            let variantIndex = {{ count($product->variants) }}; // Khởi tạo index từ số lượng biến thể hiện tại
-            
-            // Define productId
-            const productId = {{ $product->product_id }}; // Assuming $product is available in the Blade view
+      document.addEventListener('DOMContentLoaded', function () {
+    const addVariantButton = document.getElementById('add_variant_button');
+    const variantFieldsContainer = document.getElementById('variant_fields');
+    let variantIndex = {{ count($product->variants) }}; // Khởi tạo index từ số lượng biến thể hiện tại
     
-            // Lắng nghe sự kiện nhấn nút "Thêm Biến Thể"
-            addVariantButton.addEventListener('click', function () {
-                const newVariant = document.createElement('div');
-                newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
-    
-                newVariant.innerHTML = `
-                    <!-- Giá -->
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
-                    </div>
-    
-                    <!-- Giá Khuyến Mãi -->
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
-                    </div>
-    
-                    <!-- Màu Sắc -->
-                    <div class="form-group">
-                        <label>Màu Sắc</label>
-                        <select class="form-control" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn Màu</option>
-                            <option value="Trắng">Trắng</option>
-                            <option value="Đen">Đen</option>
-                            <option value="Xanh">Xanh</option>
-                            <option value="Đỏ">Đỏ</option>
-                            <option value="Vàng">Vàng</option>
-                        </select>
-                    </div>
-    
-                    <!-- Kích Thước -->
-                    <div class="form-group">
-                        <label>Kích Thước</label>
-                        <div class="size-options">
-                            ${[39, 40, 41, 42, 43].map(size => `
-                                <div>
-                                    <input type="checkbox" name="variants[${variantIndex}][sizes][]" value="${size}" class="size-checkbox">
-                                    <label>${size}</label>
-                                    <input type="number" class="size-stock" name="variants[${variantIndex}][size_stock][${size}]" value="0" min="0" disabled>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-    
-                    <!-- Hình Ảnh Biến Thể -->
-                   <div class="form-group">
-                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
-                        <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>
-                    </div>
-    
-                    <!-- Nút Xóa Biến Thể -->
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
-                `;
-    
-                // Thêm biến thể mới vào container
-                variantFieldsContainer.appendChild(newVariant);
-                variantIndex++;
-            });
-    
-            // Xử lý thay đổi checkbox Kích Thước
-            document.addEventListener('change', function (event) {
-                if (event.target.matches('.size-checkbox')) {
-                    const sizeInput = event.target.closest('div').querySelector('.size-stock');
-                    sizeInput.disabled = !event.target.checked;
-                }
-            });
-    
-            // Define the removeVariant function
-            window.removeVariant = function(button) {
-                const variantElement = button.closest('.variant');
-                variantElement.remove();
-            };
-    
-            // Handle the delete button click event for removing variants
-            document.querySelectorAll(".delete-variant").forEach(button => {
-                button.addEventListener("click", function () {
-                    const variantId = this.getAttribute("data-variant-id");
-    
-                    if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
-    
-                    // Delete the variant using AJAX with CSRF token
-                    fetch(`/admin/products/${productId}/variants/${variantId}`, {
-                        method: "DELETE",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                            "Content-Type": "application/json",
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-            if (data.success) {
-                alert(data.message);
-                 
-                event.target.closest(".variant").remove();
+    // Define productId
+    const productId = {{ $product->product_id }}; // Assuming $product is available in the Blade view
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
-            } else {
-                alert(data.message);
+    // Lắng nghe sự kiện nhấn nút "Thêm Biến Thể"
+    addVariantButton.addEventListener('click', function () {
+        const newVariant = document.createElement('div');
+        newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
+    
+        newVariant.innerHTML = `
+            <!-- Giá -->
+            <div class="form-group">
+                <label>Giá</label>
+                <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
+            </div>
+
+            <!-- Giá Khuyến Mãi -->
+            <div class="form-group">
+                <label>Giá Khuyến Mãi</label>
+                <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
+            </div>
+
+            <!-- Màu Sắc -->
+            <div class="form-group">
+                <label>Màu Sắc</label>
+                <select class="form-control" name="variants[${variantIndex}][color]">
+                    <option value="">Chọn Màu</option>
+                    <option value="Trắng">Trắng</option>
+                    <option value="Đen">Đen</option>
+                    <option value="Xanh">Xanh</option>
+                    <option value="Đỏ">Đỏ</option>
+                    <option value="Vàng">Vàng</option>
+                </select>
+            </div>
+
+            <!-- Kích Thước -->
+            <div class="form-group">
+                <label>Kích Thước</label>
+                <div class="size-options">
+                    ${[39, 40, 41, 42, 43].map(size => `
+                        <div>
+                            <input type="checkbox" name="variants[${variantIndex}][sizes][]" value="${size}" class="size-checkbox">
+                            <label>${size}</label>
+                            <input type="number" class="size-stock" name="variants[${variantIndex}][size_stock][${size}]" value="0" min="0" disabled>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Hình Ảnh Biến Thể -->
+            <div class="form-group">
+                <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
+                <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>
+            </div>
+
+            <!-- Nút Xóa Biến Thể -->
+            <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
+        `;
+
+        // Thêm biến thể mới vào container
+        variantFieldsContainer.appendChild(newVariant);
+        variantIndex++;
+    });
+
+    // Xử lý thay đổi checkbox Kích Thước
+    document.addEventListener('change', function (event) {
+        if (event.target.matches('.size-checkbox')) {
+            const sizeInput = event.target.closest('div').querySelector('.size-stock');
+            sizeInput.disabled = !event.target.checked;
+        }
+    });
+
+    // Define the removeVariant function
+    window.removeVariant = function(button) {
+        const variantElement = button.closest('.variant');
+        variantElement.remove();
+    };
+
+    // Handle the delete button click event for removing variants
+    document.querySelectorAll(".delete-variant").forEach(button => {
+        button.addEventListener("click", function () {
+            const variantId = this.getAttribute("data-variant-id");
+            const productId = this.getAttribute("data-product-id"); // Lấy productId từ data attribute
+            
+            // Kiểm tra nếu productId không hợp lệ
+            if (!productId || !variantId) {
+                alert("Có lỗi xảy ra. Product ID hoặc Variant ID không hợp lệ.");
+                return;
             }
-        })
-        
-                });
-            });
+
+            // Kiểm tra xác nhận xóa
+            if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
+
+            // Gửi yêu cầu xóa qua AJAX với CSRF token
+            fetch(`/admin/products/${productId}/variants/${variantId}/delete`, {
+                method: "POST", // Laravel không hỗ trợ DELETE tốt => dùng POST
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "Content-Type": "application/json",
+                }
+            })
+            .then(response => response.json()) // Chuyển response thành JSON
+            .then(data => {
+                if (data.success) {
+                    alert("✅ " + data.message);
+
+                    // Tải lại trang sau khi xóa thành công
+                    location.reload(); // Reload lại trang để biến thể biến mất
+                } else {
+                    alert("❌ " + data.message);
+                }
+            })
+            .catch(error => console.error("Lỗi khi xóa biến thể:", error));
         });
+    });
+});
+
     </script>
+    
     
 @endsection

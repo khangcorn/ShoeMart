@@ -60,7 +60,9 @@ Route::prefix('admin')->group(function() {
     Route::resource('categories', CategoryController::class);
 });
 // Định nghĩa route DELETE để xóa biến thể
-Route::delete('/admin/products/{product_id}/variants/{variant_id}', [ProductController::class, 'deleteVariant']);
+Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
+    ->name('products.variants.delete');
+
 
 
 

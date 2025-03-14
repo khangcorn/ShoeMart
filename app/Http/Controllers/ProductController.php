@@ -448,33 +448,44 @@ public function destroy($id)
     // Quay lại trang danh sách sản phẩm với thông báo thành công
     return redirect()->route('products.index')->with('success', 'Product deleted successfully');
 }
-public function deleteVariant($product_id, $variant_id)
+public function deleteVariant(Request $request, $product_id, $variant_id)
 {
-    // Tìm sản phẩm theo product_id
-    $product = Product::findOrFail($product_id);
-    
-    // Tìm biến thể liên quan đến sản phẩm
-    $variant = $product->variants()->findOrFail($variant_id);
-
-    // Xóa tất cả hình ảnh liên quan nếu có
-    if ($variant->images->isNotEmpty()) {
-        $imagePaths = $variant->images->pluck('image_url')->toArray();
+    try {
+        // Tìm sản phẩm theo product_id
+        $product = Product::findOrFail($product_id);
         
-        // Xóa hình ảnh khỏi storage
-        Storage::delete($imagePaths);
+        // Tìm biến thể liên quan đến sản phẩm
+        $variant = $product->variants()->findOrFail($variant_id);
 
-        // Xóa ảnh khỏi database
-        $variant->images()->delete();
+        // Xóa tất cả hình ảnh liên quan nếu có
+        if ($variant->images->isNotEmpty()) {
+            $imagePaths = $variant->images->pluck('image_url')->toArray();
+            
+            // Xóa hình ảnh khỏi storage
+            Storage::delete($imagePaths);
+
+            // Xóa ảnh khỏi database
+            $variant->images()->delete();
+        }
+
+        // Xóa tất cả thuộc tính liên quan
+        $variant->variantAttributeValues()->delete();
+
+        // Xóa biến thể
+        $variant->delete();
+
+        // Trả về JSON thay vì redirect
+        return response()->json([
+            'success' => true,
+            'message' => 'Biến thể đã được xóa thành công.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Lỗi khi xóa biến thể: ' . $e->getMessage()
+        ], 500);
     }
-
-    // Xóa tất cả thuộc tính liên quan
-    $variant->variantAttributeValues()->delete();
-
-    // Xóa biến thể
-    $variant->delete();
-
-    // Trả về trang chỉnh sửa sản phẩm với thông báo thành công
-    return redirect()->route('products.edit', $product_id)->with('success', 'Biến thể đã được xóa thành công.');
 }
 
 
