@@ -80,6 +80,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+       
         // Xác thực dữ liệu đầu vào
         $request->validate([
             'name' => 'required|string|max:255',
