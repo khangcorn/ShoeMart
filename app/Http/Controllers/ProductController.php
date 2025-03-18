@@ -103,6 +103,10 @@ class ProductController extends Controller
         // Tạo sản phẩm mới
         $product = Product::create($request->only(['name', 'description', 'price', 'price_sale', 'category_id']));
 
+
+
+        // dd($product);
+
         $totalProductStock = 0; // Tổng stock của sản phẩm (tính từ biến thể)
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $image) {
@@ -191,7 +195,7 @@ class ProductController extends Controller
         $product->update(['stock' => $totalProductStock]);
     
         return redirect()->route('products.index')->with('success', 'Sản phẩm đã được tạo thành công.');
-       
+     
 
     }
     
