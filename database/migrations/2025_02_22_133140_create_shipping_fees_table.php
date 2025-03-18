@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('shipping_fees', function (Blueprint $table) {
-            $table->id('id'); // Tạo cột shipping_id là khóa chính
+            $table->id('shipping_id'); // Tạo cột shipping_id là khóa chính
             $table->string('province', 100); // Tỉnh thành
             $table->string('district', 100)->nullable(); // Quận huyện (tùy chọn)
             $table->string('ward', 100)->nullable(); // Phường xã (tùy chọn)

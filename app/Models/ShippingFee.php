@@ -12,6 +12,9 @@ class ShippingFee extends Model
     // Tên bảng (nếu tên bảng không theo chuẩn Laravel)
     protected $table = 'shipping_fees';
 
+    // Chỉ định khóa chính là 'shipping_id'
+    protected $primaryKey = 'shipping_id';  // Thêm dòng này để chỉ định khóa chính
+
     // Các thuộc tính có thể gán giá trị
     protected $fillable = [
         'province',
@@ -25,5 +28,7 @@ class ShippingFee extends Model
         'created_at',
         'updated_at',
     ];
-}
 
+    // Nếu khóa chính không tự động tăng (auto-increment), bạn cần khai báo
+    public $incrementing = true; // Đảm bảo auto-increment vẫn được sử dụng
+}

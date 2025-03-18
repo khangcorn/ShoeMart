@@ -13,7 +13,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('coupons', function (Blueprint $table) {
-            $table->id('id'); // Tạo cột coupon_id là khóa chính
+            $table->id('coupon_id'); // Tạo cột coupon_id là khóa chính
             $table->string('code', 50)->unique(); // Mã giảm giá, duy nhất
             $table->enum('discount_type', ['fixed', 'percentage']); // Loại giảm giá
             $table->decimal('discount_value', 10, 2); // Giá trị giảm giá

@@ -4,108 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Coupon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            font-size: 28px;
+            color: #333;
         }
         .form-container {
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 600px;
-            margin: 0 auto;
+            margin: 30px auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
         }
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 500;
+            color: #555;
         }
         input, select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
         button {
-            background-color: #4caf50;
+            background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            font-size: 16px;
         }
         button:hover {
             background-color: #45a049;
         }
-        .form-group {
-            margin-bottom: 15px;
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+            color: #555;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
 <h2>Add New Coupon</h2>
-<a href="{{ route('coupon.index') }}">Quay về trang Coupons Table</a>
+<a href="{{ route('coupon.index') }}">Back to Coupons Table</a>
+
 <div class="form-container">
     <form action="{{ route('coupon.store') }}" method="POST">
         @csrf
-        <!-- Coupon Code -->
         <div class="form-group">
             <label for="code">Coupon Code:</label>
-            <input type="text" id="code" name="code" placeholder="nhập code" required>
+            <input type="text" id="code" name="code" placeholder="Enter coupon code" required>
         </div>
-
-        <!-- Discount Type -->
         <div class="form-group">
             <label for="discount_type">Discount Type:</label>
             <select id="discount_type" name="discount_type" required>
-                <option value="fixed">Fixed (đơn giá giảm cố định)</option>
-                <option value="percentage">Percentage (giảm theo phần trăm)</option>
+                <option value="fixed">Fixed</option>
+                <option value="percentage">Percentage</option>
             </select>
         </div>
-
-        <!-- Discount Value -->
         <div class="form-group">
-            <label for="discount_value">Discount Value(%):</label>
-            <input placeholder="Discount Value:" type="number" id="discount_value" name="discount_value" step="1" required min="1" 
-            max="100" >
+            <label for="discount_value">Discount Value (%):</label>
+            <input type="number" id="discount_value" name="discount_value" required min="1" max="100">
         </div>
-
-        <!-- Max Discount Value (optional) -->
         <div class="form-group">
             <label for="max_discount_value">Max Discount Value (optional):</label>
-            <input placeholder="Max Discount Value (optional):" type="number" id="max_discount_value" name="max_discount_value"  step="1" required min="1" 
-            max="100">
+            <input type="number" id="max_discount_value" name="max_discount_value" min="1">
         </div>
-
-        <!-- Expiration Date -->
         <div class="form-group">
             <label for="expiration_date">Expiration Date:</label>
             <input type="date" id="expiration_date" name="expiration_date" required>
         </div>
-
-        <!-- Usage Limit -->
         <div class="form-group">
             <label for="usage_limit">Usage Limit:</label>
-            <input placeholder="Usage Limit:" type="number" id="usage_limit" name="usage_limit" required min="0">
+            <input type="number" id="usage_limit" name="usage_limit" required min="1">
         </div>
-
-        <!-- Usage Count (default is 0) -->
-        <div class="form-group">
-            <label for="usage_count">Usage Count (default: 0):</label>
-            <input type="number" id="usage_count" name="usage_count" value="0" disabled>
-        </div>
-
-        <!-- Status -->
         <div class="form-group">
             <label for="status">Status:</label>
             <select id="status" name="status" required>
@@ -114,8 +111,6 @@
                 <option value="disabled">Disabled</option>
             </select>
         </div>
-
-        <!-- Submit Button -->
         <button type="submit">Add Coupon</button>
     </form>
 </div>

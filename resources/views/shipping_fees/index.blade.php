@@ -2,17 +2,17 @@
 
 @section('content')
 <div class="container">
-    <h2>Shipping Fees</h2>
-    <a href="{{ route('shipping_fees.create') }}" class="btn btn-primary">Add New</a>
-    
+    <h2 class="my-4 text-center">Shipping Fees</h2>
+    <a href="{{ route('shipping_fees.create') }}" class="btn btn-primary mb-3">Add New Shipping Fee</a>
+
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
     <table class="table table-bordered mt-3">
-        <thead>
+        <thead class="table-dark">
             <tr>
-                <th>ID</th>
+                <th>Shipping ID</th>
                 <th>Province</th>
                 <th>District</th>
                 <th>Ward</th>
@@ -23,18 +23,17 @@
         <tbody>
             @foreach ($shippingFees as $fee)
                 <tr>
-                    <td>{{ $fee->id }}</td>
+                    <td>{{ $fee->shipping_id }}</td>
                     <td>{{ $fee->province }}</td>
                     <td>{{ $fee->district }}</td>
                     <td>{{ $fee->ward }}</td>
                     <td>{{ number_format($fee->fee, 2) }}</td>
                     <td>
-                        <a href="{{ route('shipping_fees.edit', $fee->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('shipping_fees.destroy', $fee->id) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('shipping_fees.edit', $fee->shipping_id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="{{ route('shipping_fees.destroy', $fee->shipping_id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure?');">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
                         </form>
                     </td>
                 </tr>

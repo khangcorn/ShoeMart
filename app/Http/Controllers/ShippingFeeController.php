@@ -29,16 +29,16 @@ class ShippingFeeController extends Controller
 
         ShippingFee::create($request->all());
 
-        return redirect()->route('shipping_fees.index')->with('success', 'thêm mới thành công.');
+        return redirect()->route('shipping_fees.index')->with('success', 'Thêm mới thành công.');
     }
 
-    public function edit($id)
+    public function edit($shipping_id) // Thay $id thành $shipping_id
     {
-        $shippingFee = ShippingFee::findOrFail($id);
+        $shippingFee = ShippingFee::findOrFail($shipping_id); // Sử dụng shipping_id thay cho id
         return view('shipping_fees.edit', compact('shippingFee'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $shipping_id) // Thay $id thành $shipping_id
     {
         $request->validate([
             'province' => 'required|string|max:100',
@@ -47,17 +47,17 @@ class ShippingFeeController extends Controller
             'fee' => 'required|numeric|min:0',
         ]);
 
-        $shippingFee = ShippingFee::findOrFail($id);
+        $shippingFee = ShippingFee::findOrFail($shipping_id); // Sử dụng shipping_id thay cho id
         $shippingFee->update($request->all());
 
-        return redirect()->route('shipping_fees.index')->with('success', 'sửa thành công.');
+        return redirect()->route('shipping_fees.index')->with('success', 'Sửa thành công.');
     }
 
-    public function destroy($id)
+    public function destroy($shipping_id) // Thay $id thành $shipping_id
     {
-        $shippingFee = ShippingFee::findOrFail($id);
+        $shippingFee = ShippingFee::findOrFail($shipping_id); // Sử dụng shipping_id thay cho id
         $shippingFee->delete();
 
-        return redirect()->route('shipping_fees.index')->with('success', 'xóa thành công.');
+        return redirect()->route('shipping_fees.index')->with('success', 'Xóa thành công.');
     }
 }

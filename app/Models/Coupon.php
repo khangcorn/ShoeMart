@@ -12,6 +12,9 @@ class Coupon extends Model
     // Tên bảng (nếu tên bảng không theo chuẩn Laravel)
     protected $table = 'coupons';
 
+    // Chỉ định khóa chính là 'coupon_id'
+    protected $primaryKey = 'coupon_id';  // Thêm dòng này để chỉ định khóa chính là 'coupon_id'
+
     // Các thuộc tính có thể gán giá trị
     protected $fillable = [
         'code',
@@ -30,4 +33,7 @@ class Coupon extends Model
         'created_at',
         'updated_at',
     ];
+
+    // Nếu khóa chính không tự động tăng (auto-increment), bạn cần khai báo
+    public $incrementing = true; // Đảm bảo auto-increment vẫn được sử dụng
 }
