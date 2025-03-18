@@ -19,6 +19,15 @@
                 @enderror
 
                 <div>
+                    <label for="description" class="block text-sm font-medium">Mô tả</label>
+                    <input type="text" id="description" name="description"
+                        class="w-full p-2 border rounded-lg @error('description') border-red-500 @enderror"
+                        value="{{ old('description', $product->description) }}">
+                    @error('description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
                     <label for="price" class="block text-sm font-medium">Giá</label>
                     <input type="number" id="price" name="price"
                         class="w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
@@ -47,6 +56,30 @@
                         @endforeach
                     </select>
                 </div>
+                <div>
+                    <label for="product_images" class="block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
+                    <input type="file" id="product_images" name="product_images[]" multiple
+                        class="w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
+                
+                    @error('product_images')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <!-- Hiển thị ảnh của sản phẩm chính -->
+                @if(isset($product) && $product->images->where('variant_id', null)->count() > 0)
+                    <div class="mt-4">
+                        <p class="text-sm font-medium">Ảnh Sản Phẩm Chính:</p>
+                        <div class="flex gap-2">
+                            @foreach($product->images->where('variant_id', null) as $image)
+                                <div class="relative">
+                                    <img src="{{ asset($image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
+                                    <button type="button" class="absolute top-0 right-0 bg-red-500 text-white p-1 text-xs rounded remove-image" data-image-id="{{ $image->image_id }}">X</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div>
