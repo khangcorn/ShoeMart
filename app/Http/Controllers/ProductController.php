@@ -102,23 +102,27 @@ class ProductController extends Controller
     
         // Tạo sản phẩm mới
         $product = Product::create($request->only(['name', 'description', 'price', 'price_sale', 'category_id']));
+
+
+
         // dd($product);
+
         $totalProductStock = 0; // Tổng stock của sản phẩm (tính từ biến thể)
-    
-        // Lưu ảnh cho sản phẩm chính
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('public/images'); // Lưu ảnh vào storage
-                $imageUrl = str_replace('public/', 'storage/', $imagePath); // Chuyển đường dẫn storage
-    
+        if ($request->hasFile('product_images')) {
+            foreach ($request->file('product_images') as $image) {
+                $imagePath = $image->store('public/images'); 
+                $imageUrl = str_replace('public/', 'storage/', $imagePath);
+        
                 $product->images()->create([
                     'image_url' => $imageUrl,
-                    'type' => 'gallery',
-                    'variant_id' => null, // Ảnh của sản phẩm chính
+                    'type' => 'main', // Ảnh chính của sản phẩm
+                    'variant_id' => null, 
                 ]);
             }
         }
     
+        // Lưu ảnh cho sản phẩm chính
+
         // Thêm các biến thể cho sản phẩm
         if ($request->has('variants')) {
             foreach ($request->variants as $variantData) {
@@ -181,6 +185,9 @@ class ProductController extends Controller
                         }
                     }
                 }
+             
+                
+                
             }
         }
     
@@ -230,11 +237,30 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
     
         // Cập nhật thông tin sản phẩm chính
-        $product->update($request->only(['name', 'price', 'price_sale', 'stock', 'category_id']));
+        $product->update($request->only(['name', 'description', 'price', 'price_sale', 'stock', 'category_id']));
     
         // Biến để lưu tổng tồn kho của tất cả các màu sắc
         $totalProductStock = 0;
+        if ($request->hasFile('product_images')) {
+            // Xóa ảnh cũ trong storage và database
+            $product->images->each(function ($image) {
+                if (Storage::exists('public/images/' . basename($image->image_url))) {
+                    Storage::delete('public/images/' . basename($image->image_url));
+                }
+                $image->delete();
+            });
     
+            // Upload ảnh mới
+            foreach ($request->file('product_images') as $imageFile) {
+                $imagePath = $imageFile->store('public/images');
+                $product->images()->create([
+                    'image_url' => str_replace('public/', 'storage/', $imagePath),
+                    'product_id' => $product->product_id, // Gán ID sản phẩm
+                    'variant_id' => null, // Ảnh của sản phẩm chính
+                    'type' => 'main'
+                ]);
+            }
+        }
         // Kiểm tra và cập nhật biến thể
         if ($request->has('variants')) {
             foreach ($request->variants as $index => $variantData) {
