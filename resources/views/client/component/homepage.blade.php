@@ -1,4 +1,4 @@
-
+{{-- 
 
 
 @section('title', 'Homepage')
@@ -48,4 +48,4 @@
         slider.scrollBy({ left: 200, behavior: "smooth" });
     });
 </script>
-@endsection
+@endsection --}}
