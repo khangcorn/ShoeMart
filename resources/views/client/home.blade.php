@@ -42,7 +42,6 @@
                     <p class="card-text">Giá: {{ number_format($displayPrice, 0, ',', '.') }} VND</p>
                     <a href="{{ route('products.detail', ['id' => $product->product_id]) }}" class="btn btn-primary">Xem chi tiết</a>
                 </div>
->>>>>>> b41e8d3ab5fa452b71ab771bc031987304c31a93
             </div>
         </div>
         @endforeach
@@ -73,7 +72,6 @@
                 <button class="mt-4 font-semibold px-3 py-2 text-white bg-black rounded-full">Shop Kids'</button>
             </div>
         </div>
-<<<<<<< HEAD
         {{-- <h1 class="my-4">Danh sách sản phẩm</h1> --}}
       
         <div class="container">
@@ -138,7 +136,7 @@
         </div>
     </div>
 @endsection
-=======
+
     </div>
 
     <div class="container">
@@ -166,7 +164,7 @@
                     </div>
                 @endforeach
             </div>
->>>>>>> b41e8d3ab5fa452b71ab771bc031987304c31a93
+
 
             <!-- Nút điều hướng -->
             <div class="swiper-button-next"></div>
