@@ -55,28 +55,12 @@
                         Kids'</button>
                 </div>
             </div>
-
-
-
-            {{-- <h1 class="my-4">Danh sách sản phẩm</h1> --}}
-
-
-
-            <!-- Phân trang -->
             <div class="d-flex justify-content-center mt-4">
                 {{ $products->links() }}
             </div>
         </div>
         <div class=" mx-auto max-w-screen-xl  px-4 sm:px-6 lg:px-8">
-            {{-- <h1 class="my-4">Danh sách sản phẩm</h1> --}}
-
-
-
             <div class="  ">
-             
-
-
-
                 <!-- Phân trang -->
                 <div class="d-flex justify-content-center mt-4">
                     {{ $products->links() }}
