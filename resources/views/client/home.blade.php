@@ -7,28 +7,7 @@
     <div class=" mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         {{-- <h1 class="my-4">Danh sách sản phẩm</h1> --}}
         <div class="row">
-            @foreach($products as $product)
-                @php
-                    // Lấy biến thể đầu tiên nếu có
-                    $variant = $product->variants->first();
-                    // Lấy giá của biến thể nếu có, nếu không thì lấy giá sản phẩm
-                    $displayPrice = $variant ? $variant->price : $product->price;
-                    // Lấy ảnh của biến thể nếu có, nếu không thì lấy ảnh sản phẩm
-                    $image = $variant && $variant->images->isNotEmpty() ? $variant->images->first()->image_url : ($product->images->isNotEmpty() ? $product->images->first()->image_url : 'default.jpg');
-                @endphp
-
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="{{ asset('storage/' . ltrim($image, '/storage/')) }}" class="card-img-top">
-
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $product->name }}</h5>
-                            <p class="card-text">Giá: {{ number_format($displayPrice, 0, ',', '.') }} VND</p>
-                            <a href="{{ route('products.detail', ['id' => $product->product_id]) }}" class="btn btn-primary">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+            
 
     <div class="  ">
         <div class="">
@@ -71,32 +50,51 @@
         <div class="container">
             <p class="text-center text-2xl font-bold mb-4">The Latest & Greatest</p>
         
-            <div class="swiper mySwiper">
-                <div class="swiper-wrapper">
-                    @foreach ($products->take(10) as $product)
-                        <div class="swiper-slide">
-                            <div class="card">
-                                <img src="{{ asset('./storage/' . ($product->images->first()?->image_url ?? 'default.jpg')) }}" class="card-img-top">
+          <div class="grid grid-cols-6 gap-2">
+            @foreach($products as $product)
+            @php
+                // Lấy biến thể đầu tiên nếu có
+                $variant = $product->variants->first();
+                
+                // Lấy giá khuyến mãi, nếu không có thì lấy giá gốc
+                $displayPrice = $variant && $variant->price_sale ? $variant->price_sale : ($variant ? $variant->price : $product->price);
+                $originalPrice = $variant ? $variant->price : $product->price;
+        
+                // Lấy ảnh của biến thể nếu có, nếu không thì lấy ảnh sản phẩm
+                $image = $variant && $variant->images->isNotEmpty() ? 
+                    $variant->images->first()->image_url : 
+                    ($product->images->isNotEmpty() ? $product->images->first()->image_url : 'default.jpg');
+            
+            @endphp
+      
 
+            <div class="col-md-4 mb-4">
+                <div class="card">
+
+                    <img src="{{ asset('storage/' . $image) }}" class="card-img-top">
+
+                    <div class="space-y-2">
+                        <p class="font-semibold">{{ $product->name }}</p>
+                        <p class="text-gray-300">Product category</p>
         
-                                <div class="">
-                                    <h5 class="text-black text-sm">{{ $product->name }}</h5>
-                                    <p class="text-gray-400 text-sm">Category</p>
-                                    <h5 class="text-black text-sm"> {{ number_format($product->price, 0, ',', '.') }} đ</h5>
-                                    {{-- <a href="{{ route('products.detail', ['id' => $product->product_id]) }}" class="btn btn-primary">Xem chi tiết</a> --}}
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                        @if ($variant && $variant->price_sale && $variant->price_sale < $variant->price)
+                            <p class=" font-semibold">
+                                {{ number_format($displayPrice, 0, ',', '.') }} đ
+                                {{-- <span class="text-gray-500 line-through ml-2">
+                                    {{ number_format($originalPrice, 0, ',', '.') }} đ
+                                </span> --}}
+                            </p>
+                        @else
+                            <p class="font-semibold">{{ number_format($displayPrice, 0, ',', '.') }} đ</p>
+                        @endif
+                        
+                        {{-- <a href="{{ route('products.detail', ['id' => $product->product_id]) }}" class="btn btn-primary">Xem chi tiết</a> --}}
+                    </div>
                 </div>
-        {{-- commit test --}}
-                <!-- Nút điều hướng -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-        
-                <!-- Pagination -->
-                <div class="swiper-pagination"></div>
             </div>
+        @endforeach
+        
+          </div>
         </div>
         
         <!-- Phân trang -->
