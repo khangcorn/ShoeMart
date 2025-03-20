@@ -142,7 +142,7 @@
                         <div class="grid grid-cols-3 gap-2">
                             @foreach($variant->images as $image)
                                 <div class="relative">
-                                    <img src="{{ asset($image->image_url) }}" class="w-full h-20 object-cover rounded-lg border">
+                                    <img src="{{ asset('' . $image->image_url) }}" alt="Hình ảnh biến thể" width="100">
                                 </div>
                             @endforeach
                         </div>
