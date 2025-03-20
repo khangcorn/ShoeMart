@@ -243,20 +243,22 @@ class ProductController extends Controller
         $totalProductStock = 0;
         if ($request->hasFile('product_images')) {
             // Xóa ảnh cũ trong storage và database
-            $product->images->each(function ($image) {
+            $product->images()->whereNull('variant_id')->each(function ($image) {
                 if (Storage::exists('public/images/' . basename($image->image_url))) {
                     Storage::delete('public/images/' . basename($image->image_url));
                 }
                 $image->delete();
             });
+            
     
             // Upload ảnh mới
             foreach ($request->file('product_images') as $imageFile) {
                 $imagePath = $imageFile->store('public/images');
+                $imageUrl = str_replace('public/', 'storage/', $imagePath); // Chuyển đường dẫn về storage/images
                 $product->images()->create([
-                    'image_url' => str_replace('public/', 'storage/', $imagePath),
-                    'product_id' => $product->product_id, // Gán ID sản phẩm
-                    'variant_id' => null, // Ảnh của sản phẩm chính
+                    'image_url' => $imageUrl,
+                    'product_id' => $product->product_id,
+                    'variant_id' => null,
                     'type' => 'main'
                 ]);
             }
@@ -278,10 +280,11 @@ class ProductController extends Controller
                         // Xóa tất cả hình ảnh liên quan đến biến thể
                         $variant->images->each(function ($image) {
                             if (Storage::exists('public/images/' . basename($image->image_url))) {
-                                Storage::delete('public/images/' . basename($image->image_url)); // Xóa ảnh trong storage
+                                Storage::delete('public/images/' . basename($image->image_url));
                             }
-                            $image->delete(); // Xóa ảnh khỏi cơ sở dữ liệu
+                            $image->delete();
                         });
+                        
     
                         // Xóa biến thể khỏi cơ sở dữ liệu
                         $variant->delete();
@@ -385,17 +388,17 @@ class ProductController extends Controller
                         }
                         $image->delete();
                     });
+                    
     
                     // Lưu ảnh mới
                     foreach ($request->file("variants.{$index}.images") as $imageFile) {
                         // Lưu ảnh mới vào thư mục và cơ sở dữ liệu
                         $imagePath = $imageFile->store('public/images');
-    
-                        // Lưu ảnh vào bảng 'product_images' hoặc bảng tương ứng
                         $variant->images()->create([
-                            'image_url' => $imagePath,
-                            'product_id' => $product->product_id, // Đảm bảo truyền 'product_id'
+                            'image_url' => str_replace('public/', 'storage/', $imagePath), // Chuyển public/ thành storage/
+                            'product_id' => $product->product_id,
                         ]);
+                        
                     }
                 }
                 
