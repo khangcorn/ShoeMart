@@ -33,28 +33,55 @@
 
 
         </div>
-        <div class="mx-auto max-w-screen-lg px-8 py-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-screen-xl px-8 py-4 sm:px-6 lg:px-8">
 
-            <div class="flex justify-between  gap-2">
+
+            <div class="flex justify-between items-center py-2 mt-4">
                 <div>
-                    <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/4ee9f942-8d0a-4a4d-a317-a3ed96d33d57/image.png"
-                        alt="">
-                    <button class="mt-4 font-semibold px-3 py-2 text-white bg-black rounded-full ">Shop
-                        Men's</button>
+                    <p class="text-2xl font-medium text-center py-2 mb-0">Find Your Max</p>
                 </div>
-                <div>
-                    <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/d44d84ab-e2bd-48ae-a175-8fe8de522954/nike-just-do-it.jpg"
-                        alt="">
-                    <button class="mt-4 font-semibold px-3 py-2 text-white bg-black rounded-full">Shop
-                        Women's</button>
-                </div>
-                <div>
-                    <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/e4227a79-252b-4a46-b7c2-ef7e8b85d5d7/image.png"
-                        alt="">
-                    <button class="mt-4 font-semibold px-3 py-2 text-white bg-black rounded-full">Shop
-                        Kids'</button>
+                <div class="flex items-center gap-2">
+                    <button id="prevSlide2"  class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center transition duration-75 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px" class="rotate-180" fill="none">
+                            <path stroke="currentColor" stroke-width="1.5" d="M8.474 18.966L15.44 12 8.474 5.033"></path>
+                        </svg>
+                    </button>
+                    <button id="nextSlide2"  class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center transition duration-75 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
+                            <path stroke="currentColor" stroke-width="1.5" d="M8.474 18.966L15.44 12 8.474 5.033"></path>
+                        </svg>
+                    </button>
+                    
                 </div>
             </div>
+            
+            <!-- Thêm class 'swiper' để SwiperJS nhận diện -->
+            <div class="swiper mySwiper2 gap-2">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/cf9b1d53-1fb5-4355-b2b8-ca0437c053e4/nike-just-do-it.png"
+                            alt="">
+                        
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/28bb01bb-991e-4fc3-92e2-85f4916e29b8/nike-just-do-it.jpg"
+                            alt="">
+                 
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/b3b6a3ff-0cb8-417d-82f4-b40926b08b4c/image.jpg"
+                            alt="">
+                       
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_470,c_limit/9f24d90f-6f2a-416b-8ed1-e56d6d0a72d4/image.jpg"
+                            alt="">
+                       
+                    </div>
+                </div>
+            </div>
+            
+            
             <div class="d-flex justify-content-center mt-4">
                 {{ $products->links() }}
             </div>
@@ -163,7 +190,39 @@
                             }
                         }
                     });
-                </script>
+               
+    document.addEventListener("DOMContentLoaded", function () {
+        var nextBtn2 = document.getElementById("nextSlide2");
+        var prevBtn2 = document.getElementById("prevSlide2");
+
+        var swiper2 = new Swiper(".mySwiper2", {
+            slidesPerView: 3,
+            spaceBetween: 20,
+            navigation: {
+                nextEl: "#nextSlide2",
+                prevEl: "#prevSlide2",
+            },
+            breakpoints: {
+                640: { slidesPerView: 1 },
+                1024: { slidesPerView: 2 },
+                1280: { slidesPerView: 3 }
+            },
+            on: {
+                init: function () {
+                    checkNavButtons2();
+                },
+                slideChange: function () {
+                    checkNavButtons2();
+                }
+            }
+        });
+
+        function checkNavButtons2() {
+            prevBtn2.disabled = swiper2.isBeginning;
+            nextBtn2.disabled = swiper2.isEnd;
+        }
+    });
+</script>
 
 
             </div>
