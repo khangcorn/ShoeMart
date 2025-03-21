@@ -18,6 +18,15 @@
             </div>
 
             <div>
+                <label for="price" class="block text-sm font-medium">Mô tả</label>
+                <input type="text" id="price" name="description"
+                    class="w-full p-2 border rounded-lg @error('description') border-red-500 @enderror"
+                    value="{{ old('description') }}">
+                @error('description')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
                 <label for="price" class="block text-sm font-medium">Giá</label>
                 <input type="number" id="price" name="price"
                     class="w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
@@ -52,6 +61,15 @@
                     @endforeach
                 </select>
             </div>
+            <div>
+                <label for="product_images" class="block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
+                <input type="file" id="product_images" name="product_images[]" multiple
+                    class="w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
+                @error('product_images')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            
 
             <!-- Variant Fields -->
             <div id="variant_fields"></div>

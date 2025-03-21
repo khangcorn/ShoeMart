@@ -31,7 +31,7 @@ Route::get('/', function () {
 
 
 // Xử lý đăng ký, đăng nhập, đăng xuất
-Route::get('/login', [UserController::class, 'showLoginForm'])->name('login.form');
+Route::get('/login', [UserCxontroller::class, 'showLoginForm'])->name('login.form');
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
@@ -57,15 +57,23 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
-Route::get('/products/{id}', [HomeController::class, 'show'])->name('products.detail');
-
-Route::middleware('auth')->group(function () {
-
+Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
+Route::prefix('admin')->group(function() {
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
 
 });
+// Định nghĩa route DELETE để xóa biến thể
+Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
+    ->name('products.variants.delete');
+
+
+
+
+
+
 
 
 
