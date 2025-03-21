@@ -561,7 +561,7 @@
                 }
             });
         </script>
- <div class="mx-auto max-w-screen-xl flex justify-center px-4 bg-white sm:px-6 lg:px-8 mt-10">
+ <div class="mx-auto max-w-screen-xl flex justify-center px-4 bg-white sm:px-6 lg:px-8 mt-10 ">
     <div class="grid grid-cols-4 py-4 space-x-4 gap-4">
 <div class="space-y-2 ">
     <p class="text-lg text-black font-semibold mb-4">Icons</p>
@@ -571,7 +571,7 @@
     <p class="font-semibold text-gray-500">Air Max 95</p>
 </div>
 <div class="space-y-2">
-    <p class="text-lg text-black font-semibold">Shoes
+    <p class="text-lg text-black font-semibold mb-4">Shoes
         
        
         
@@ -582,14 +582,14 @@
     <p class="font-semibold text-gray-500">Running Shoes</p>
 </div>
 <div class="space-y-2">
-    <p class="text-lg text-black font-semibold">Clothing</p>
+    <p class="text-lg text-black font-semibold mb-4">Clothing</p>
     <p class="font-semibold text-gray-500">     All Clothing</p>
     <p class="font-semibold text-gray-500"> Modest Wear</p>
     <p class="font-semibold text-gray-500">  Hoodies & Pullovers</p>
     <p class="font-semibold text-gray-500">Shirts & Tops</p>
 </div>
 <div class="space-y-2">
-    <p class="text-lg text-black font-semibold">Kids'</p>
+    <p class="text-lg text-black font-semibold mb-4">Kids'</p>
     <p class="font-semibold text-gray-500"> Infant & Toddler Shoes</p>
     <p class="font-semibold text-gray-500">Kids' Shoes</p>
     <p class="font-semibold text-gray-500">  Kids' Jordan Shoes</p>
