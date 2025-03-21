@@ -5,24 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
+use Illuminate\Notifications\Notifiable; 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory,Notifiable;
 
     protected $table = 'users';
     protected $primaryKey = 'user_id';
     public $timestamps = true;
 
-    protected $fillable = ['username', 'password', 'email', 'phone', 'address'];
+    protected $fillable = ['username', 'password', 'email', 'phone', 'address', 'avatar'];
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
-    }
-
+    protected $hidden = [
+        'password',
+         'remember_token',
+    ];
     // Quan hệ một nhiều với Order
     public function orders()
     {
@@ -40,4 +40,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAddress::class, 'user_id');
     }
+
+ 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
+    }
+    public function hasRole($role)
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+
 }

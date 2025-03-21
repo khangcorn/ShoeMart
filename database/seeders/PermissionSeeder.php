@@ -9,6 +9,6 @@ class PermissionSeeder extends Seeder
 {
     public function run()
     {
-        Permission::factory(10)->create();
+        Permission::factory(5)->create();
     }
 }
