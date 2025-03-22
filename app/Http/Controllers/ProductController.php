@@ -217,7 +217,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['category', 'variants.attributes', 'images'])->findOrFail($id);
+        $product = Product::with(['category', 'variants.variantAttributeValues', 'images'])->findOrFail($id);
         return view('admin.product.show', compact('product'));
     }
 

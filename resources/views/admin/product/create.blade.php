@@ -11,7 +11,7 @@
             <div>
                 <label for="name" class="block text-sm font-medium">Tên Sản Phẩm</label>
                 <input type="text" id="name" name="name"
-                    class="w-full p-2 border rounded-lg @error('name') border-red-500 @enderror" value="{{ old('name') }}">
+                    class="  text-black w-full p-2 border rounded-lg @error('name') border-red-500 @enderror" value="{{ old('name') }}">
                 @error('name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -20,7 +20,7 @@
             <div>
                 <label for="price" class="block text-sm font-medium">Mô tả</label>
                 <input type="text" id="price" name="description"
-                    class="w-full p-2 border rounded-lg @error('description') border-red-500 @enderror"
+                    class="  text-black w-full p-2 border rounded-lg @error('description') border-red-500 @enderror"
                     value="{{ old('description') }}">
                 @error('description')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -29,7 +29,7 @@
             <div>
                 <label for="price" class="block text-sm font-medium">Giá</label>
                 <input type="number" id="price" name="price"
-                    class="w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
+                    class="  text-black w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
                     value="{{ old('price') }}">
                 @error('price')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -39,7 +39,7 @@
             <div>
                 <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
                 <input type="number" id="price_sale" name="price_sale"
-                    class="w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
+                    class="  text-black w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
                     value="{{ old('price_sale') }}">
                 @error('price_sale')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -54,7 +54,7 @@
 
             <div class="form-group">
                 <label for="category_id">Danh Mục</label>
-                <select class="form-control" id="category_id" name="category_id">
+                <select class="  text-black form-control" id="category_id" name="category_id">
                     <option value="">Chọn Danh Mục</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->category_id }}">{{ $category->name }}</option>
@@ -62,7 +62,7 @@
                 </select>
             </div>
             <div>
-                <label for="product_images" class="block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
+                <label for="product_images" class="  text-black block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
                 <input type="file" id="product_images" name="product_images[]" multiple
                     class="w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
                 @error('product_images')
@@ -93,16 +93,16 @@
                 newVariant.innerHTML = `
                     <div class="form-group">
                         <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
+                        <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price]" value="">
                     </div>
                      <div class="form-group">
                         <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
+                        <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price_sale]" value="">
                     </div>
 
                     <div class="form-group">
                         <label>Màu Sắc</label>
-                        <select class="form-control" name="variants[${variantIndex}][color]">
+                        <select class="  text-black form-control" name="variants[${variantIndex}][color]">
                             <option value="">Chọn Màu</option>
                             <option value="Trắng">Trắng</option>
                             <option value="Đen">Đen</option>
@@ -114,7 +114,7 @@
 
                     <div class="form-group">
                         <label>Kích Thước</label>
-                        <div class="size-options">
+                        <div class="  text-black size-options">
                             ${[39, 40, 41, 42, 43].map(size => `
                                 <div>
                                     <input type="checkbox" name="variants[${variantIndex}][sizes][]" value="${size}" class="size-checkbox">
