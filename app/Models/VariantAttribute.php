@@ -8,12 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class VariantAttribute extends Model
 {
     use HasFactory;
-    // Đảm bảo đúng khóa chính
-    protected $primaryKey = 'attribute_id';
-    public $timestamps = true;
 
-    // Các trường có thể điền vào (fillable)
-    protected $fillable = [ 'attribute_name'];  // Bỏ attribute_value vì giá trị này sẽ được lưu trong VariantAttributeValue
+    // Đảm bảo rằng tên bảng là 'variant_attributes'
+    protected $table = 'variant_attributes';
+
+    // Các trường có thể điền vào
+    protected $fillable = ['variant_id', 'attribute_name', 'attribute_value'];
 
     /**
      * Quan hệ với bảng ProductVariant.
@@ -21,15 +21,6 @@ class VariantAttribute extends Model
      */
     public function variant()
     {
-        return $this->hasMany(VariantAttributeValues::class, 'attribute_id');
-    }
-
-    /**
-     * Quan hệ với bảng VariantAttributeValue.
-     * Một thuộc tính có thể có nhiều giá trị (màu sắc, kích thước, ...)
-     */
-    public function attributeValues()
-    {
-        return $this->hasMany(VariantAttributeValues::class, 'attribute_id', 'attribute_id');
+        return $this->belongsTo(ProductVariant::class);
     }
 }

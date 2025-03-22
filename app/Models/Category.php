@@ -5,17 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model {
+class Category extends Model
+{
     use HasFactory;
 
     protected $primaryKey = 'category_id';
-    protected $fillable = ['name', 'parent_id'];
+    
+    // Thêm image_url vào mảng $fillable
+    protected $fillable = ['name', 'parent_id', 'image_url']; 
 
-    public function parent() {
+    public function parent()
+    {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
-    public function children() {
+    public function children()
+    {
         return $this->hasMany(Category::class, 'parent_id');
     }
 }
