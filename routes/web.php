@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
@@ -31,7 +31,7 @@ Route::get('/', function () {
 
 
 // Xử lý đăng ký, đăng nhập, đăng xuất
-Route::get('/login', [UserController::class, 'showLoginForm'])->name('login.form');
+Route::get('/login', [UserCxontroller::class, 'showLoginForm'])->name('login.form');
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
@@ -43,14 +43,18 @@ Route::post('/register', [UserController::class, 'register'])->name('register');
 
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
-Route::get('/forget-password', [ForgetPassWordController::class, 'showLinkRequest'])->name('forget-password.form');
-Route::post('/forgot-password', [ForgetPassWordController::class, 'sendResetLink'])->name('password.email');
+Route::get('/forgot-password', [ForgetPasswordController::class, 'showLinkRequest'])->name('password.request');
+Route::post('/forgot-password', [ForgetPasswordController::class, 'sendResetLink'])->name('password.email');
+
+Route::get('/reset-password/{token}', [ForgetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgetPasswordController::class, 'resetPassword'])->name('password.update');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::post('/profile/update-address', [UserController::class, 'updateAddress'])->name('update-address');
+    Route::post('/profile/update-avatar', [UserController::class, 'updateAvatar'])->name('update-avatar');
 
 });
-
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
@@ -58,6 +62,8 @@ Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariant
 Route::prefix('admin')->group(function() {
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('users', AdminUserController::class);
+
 });
 // Định nghĩa route DELETE để xóa biến thể
 Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])

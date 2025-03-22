@@ -57,10 +57,25 @@
         <button type="submit">Logout</button>
     </form>
 
-    <a href="{{route('forget-password.form')}}" class=""> Quên Mật khẩu </a>
+    <a href="{{route('password.request')}}" class=""> Quên Mật khẩu </a>
 
 </div>
 
+
+
+<h3>Cập nhật Avatar</h3>
+<form action="{{ route('update-avatar') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div>
+        <label for="avatar">Chọn ảnh đại diện:</label>
+        <input type="file" name="avatar" accept="image/*">
+    </div>  
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+</form>
+
+@if(Auth::user()->avatar)
+    <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}" alt="Avatar" width="150">
+@endif
 
 // Cập nhật địa chỉ 
 
