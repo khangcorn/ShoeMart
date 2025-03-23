@@ -16,11 +16,15 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
-
-    // Quan hệ với bảng VariantAttribute (Mỗi biến thể có nhiều thuộc tính như màu sắc, kích thước)
     public function variantAttributeValues()
     {
         return $this->hasMany(VariantAttributeValue::class, 'variant_id', 'variant_id');
+    }
+
+    // Quan hệ với bảng VariantAttribute thông qua bảng variant_attribute_values
+    public function attributes()
+    {
+        return $this->variantAttributeValues()->with('variantAttribute');
     }
 
     // Quan hệ với bảng ProductImage (Mỗi biến thể có nhiều ảnh)
@@ -29,4 +33,3 @@ class ProductVariant extends Model
         return $this->hasMany(ProductImage::class, 'variant_id', 'variant_id');
     }
 }
-

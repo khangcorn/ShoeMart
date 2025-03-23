@@ -164,9 +164,14 @@
                                 @endphp
 
                                 <div class="swiper-slide bg-white rounded-lg p-2">
+<<<<<<< HEAD
+                                    <a href="{{ url('/products/' . $product->product_id) }}">
+                                        <img src="{{ $imageUrl }}" class="w-[390px] h-[390px] object-cover cursor-pointer">
+=======
                                     <a href="{{ url('/products/' . $product->id) }}">
                                         <img src="{{ $imageUrl }}"
                                             class="w-[390px] h-[390px] object-cover cursor-pointer">
+>>>>>>> f6f03c1729675483ee03dc6b80683945161d4997
                                     </a>
 
 
