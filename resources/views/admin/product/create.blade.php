@@ -47,9 +47,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium">Tổng Số Lượng</label>
-                <p id="total_stock" class="font-bold text-lg">0</p>
-                <input type="hidden" name="stock" id="total_stock_input">
+                <label class="block text-sm font-medium"> Số Lượng</label>
+                <input type="number" name="stock" id="total_stock_input">
             </div>
 
             <div class="form-group">
@@ -100,31 +99,36 @@
                         <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price_sale]" value="">
                     </div>
 
-                    <div class="form-group">
-                        <label>Màu Sắc</label>
-                        <select class="  text-black form-control" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn Màu</option>
-                            <option value="Trắng">Trắng</option>
-                            <option value="Đen">Đen</option>
-                            <option value="Xanh">Xanh</option>
-                            <option value="Đỏ">Đỏ</option>
-                            <option value="Vàng">Vàng</option>
-                        </select>
-                    </div>
+      <div class="form-group">
+    <label>Số lượng</label>
+    <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="0">
+</div>
 
-                    <div class="form-group">
-                        <label>Kích Thước</label>
-                        <div class="  text-black size-options">
-                            ${[39, 40, 41, 42, 43].map(size => `
-                                <div>
-                                    <input type="checkbox" name="variants[${variantIndex}][sizes][]" value="${size}" class="size-checkbox">
-                                    <label>${size}</label>
-                                    <input type="number" class="size-stock" name="variants[${variantIndex}][size_stock][${size}]" value="0" min="0" disabled>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+<!-- Chọn màu sắc -->
+<div class="form-group">
+    <label for="color">Màu sắc</label>
+    <select class="form-control" name="variants[${variantIndex}][color]">
+        <option value="">Chọn màu</option>
+        @foreach($colors as $color)
+            <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
 
+<!-- Chọn kích cỡ -->
+<div class="form-group">
+    <label for="size">Chọn kích cỡ:</label>
+    <select class="form-control" name="variants[${variantIndex}][size]">
+        <option value="">Chọn kích cỡ</option>
+        @foreach($sizes as $size)
+            <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
+
+
+
+        
                     <div class="form-group">
                         <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
                         <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>

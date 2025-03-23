@@ -2,25 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VariantAttribute extends Model
 {
-    use HasFactory;
+    // Chỉ định khóa chính là attribute_id thay vì id
+    protected $primaryKey = 'attribute_id';
 
-    // Đảm bảo rằng tên bảng là 'variant_attributes'
-    protected $table = 'variant_attributes';
+    // Nếu khóa chính không tự động tăng, bạn có thể thiết lập
+    public $incrementing = false;
 
-    // Các trường có thể điền vào
-    protected $fillable = ['variant_id', 'attribute_name', 'attribute_value'];
+    // Kiểu dữ liệu của khóa chính nếu cần
+    protected $keyType = 'int';
 
-    /**
-     * Quan hệ với bảng ProductVariant.
-     * Một thuộc tính thuộc về một biến thể sản phẩm
-     */
-    public function variant()
-    {
-        return $this->belongsTo(ProductVariant::class);
-    }
+    // Các thuộc tính có thể gán hàng loạt (nếu cần)
+    protected $fillable = ['attribute_name', 'attribute_value'];
+    // Quan hệ ngược lại với bảng VariantAttributeValue
+public function variantAttributeValues()
+{
+    return $this->hasMany(VariantAttributeValue::class, 'attribute_id', 'attribute_id');
+}
+
 }
