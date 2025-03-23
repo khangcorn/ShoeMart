@@ -4,7 +4,7 @@
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Sửa Thuộc Tính</h1>
 
-        <form action="{{ route('variant_attributes.update', [$variant_id, $variantAttribute->attribute_id]) }}" method="POST">
+        <form action="{{ route('variant_attributes.update', [ $variantAttribute->attribute_id]) }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -27,7 +27,7 @@
             </div>
             
             <button type="submit" class="btn btn-success mt-2">Cập Nhật</button>
-            <a href="{{ route('variant_attributes.index', $variant_id) }}" class="btn btn-secondary mt-2">Quay lại</a>
+            <a href="{{ route('variant_attributes.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
         </form>
     </div>
 @endsection

@@ -14,7 +14,7 @@ class VariantAttribute extends Model
 
     // Kiểu dữ liệu của khóa chính nếu cần
     protected $keyType = 'int';
-
+    public $timestamps = false;
     // Các thuộc tính có thể gán hàng loạt (nếu cần)
     protected $fillable = ['attribute_name', 'attribute_value'];
     // Quan hệ ngược lại với bảng VariantAttributeValue

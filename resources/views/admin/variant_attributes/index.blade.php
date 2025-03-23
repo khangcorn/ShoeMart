@@ -20,7 +20,7 @@
                         <td>{{ $attribute->attribute_value }}</td>
                         <td>
                             <a href="{{ route('variant_attributes.edit', [ $attribute->attribute_id]) }}" class="btn btn-warning">Sửa</a>
-                            <form action="{{ route('variant_attributes.destroy', [ $attribute->attribute_id]) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('variant_attributes.destroy', $attribute->attribute_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuộc tính này không?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Xóa</button>

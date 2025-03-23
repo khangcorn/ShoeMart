@@ -13,17 +13,6 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Hiển thị danh sách sản phẩm.
-     */
-    // public function index()
-    // {
-    //     $products = Product::with('category')->get();
-    //     $categories = Category::with('products')->get();
-        
-    //     return view('product.index', compact('products', 'categories'));
-
-    // }
     public function index(Request $request)
     {
         $sort = $request->input('sort');
@@ -53,8 +42,6 @@ class ProductController extends Controller
         return view('admin.product.index', compact('products', 'categories'));
     }
  
-    
-    
 
     public function create()
     {
@@ -172,25 +159,6 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được tạo thành công!');
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
     /**
      * Hiển thị chi tiết một sản phẩm.
      */
@@ -301,121 +269,40 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được cập nhật thành công!');
     }
     
+    public function destroy($id)
+    {
+        // Tìm sản phẩm cần xóa
+        $product = Product::findOrFail($id);
     
+        // Xóa các bản ghi variant_attribute_values của sản phẩm trước khi xóa sản phẩm
+        DB::table('variant_attribute_values')
+            ->whereIn('variant_id', $product->variants->pluck('variant_id'))
+            ->delete();
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-/**
- * Xóa sản phẩm.
- */
-public function destroy($id)
-{
-    // Tìm sản phẩm cần xóa
-    $product = Product::findOrFail($id);
-
-    // Kiểm tra và xóa các hình ảnh liên quan đến sản phẩm chính (nếu có)
-    if ($product->images) {
-        foreach ($product->images as $image) {
-            // Xóa hình ảnh từ storage
-            Storage::delete('public/images/' . basename($image->image_url));
-            // Xóa bản ghi hình ảnh trong database
-            $image->delete();
-        }
-    }
-
-    // Kiểm tra và xóa các biến thể và hình ảnh của biến thể (nếu có)
-    if ($product->variants) {
-        foreach ($product->variants as $variant) {
-            // Kiểm tra và xóa hình ảnh liên quan đến biến thể (nếu có)
-            if ($variant->images) {
-                foreach ($variant->images as $image) {
-                    Storage::delete('public/images/' . basename($image->image_url));
-                    $image->delete();
-                }
+        // Tiếp tục với việc xóa hình ảnh, biến thể, và sản phẩm chính
+        if ($product->images) {
+            foreach ($product->images as $image) {
+                Storage::delete('public/images/' . basename($image->image_url));
+                $image->delete();
             }
-
-            // Kiểm tra và xóa các thuộc tính liên quan đến biến thể (nếu có)
-            if ($variant->attributes) {
-                foreach ($variant->attributes as $attribute) {
-                    $attribute->delete();
+        }
+    
+        if ($product->variants) {
+            foreach ($product->variants as $variant) {
+                if ($variant->images) {
+                    foreach ($variant->images as $image) {
+                        Storage::delete('public/images/' . basename($image->image_url));
+                        $image->delete();
+                    }
                 }
+    
+                $variant->delete();
             }
-
-            // Xóa biến thể
-            $variant->delete();
         }
+    
+        $product->delete();
+    
+        return redirect()->route('products.index')->with('success', 'Sản phẩm đã được xóa thành công!');
     }
-
-    // Xóa sản phẩm chính
-    $product->delete();
-
-    // Quay lại trang danh sách sản phẩm với thông báo thành công
-    return redirect()->route('products.index')->with('success', 'Product deleted successfully');
-}
-public function deleteVariant(Request $request, $product_id, $variant_id)
-{
-    try {
-        // Tìm sản phẩm theo product_id
-        $product = Product::findOrFail($product_id);
-        
-        // Tìm biến thể liên quan đến sản phẩm
-        $variant = $product->variants()->findOrFail($variant_id);
-
-        // Xóa tất cả hình ảnh liên quan nếu có
-        if ($variant->images->isNotEmpty()) {
-            $imagePaths = $variant->images->pluck('image_url')->toArray();
-            
-            // Xóa hình ảnh khỏi storage
-            Storage::delete($imagePaths);
-
-            // Xóa ảnh khỏi database
-            $variant->images()->delete();
-        }
-
-        // Xóa tất cả thuộc tính liên quan
-        $variant->variantAttributeValues()->delete();
-
-        // Xóa biến thể
-        $variant->delete();
-
-        // Trả về JSON thay vì redirect
-        return response()->json([
-            'success' => true,
-            'message' => 'Biến thể đã được xóa thành công.'
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Lỗi khi xóa biến thể: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-
-
-
-
-
-
-
-
+    
 }

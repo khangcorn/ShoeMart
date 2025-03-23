@@ -39,5 +39,44 @@ class VariantAttributeController extends Controller
     // Trả về view và truyền dữ liệu
     return view('admin.variant_attributes.index', compact('variantAttributes'));
 }
+public function edit($id)
+{
+    // Tìm biến thể bằng ID
+    $variantAttribute = VariantAttribute::findOrFail($id);
+
+    // Truyền biến $variantAttribute vào view
+    return view('admin.variant_attributes.edit', compact('variantAttribute'));
+}
+public function update(Request $request, $id)
+{
+    // Tìm thuộc tính cần cập nhật
+    $variantAttribute = VariantAttribute::findOrFail($id);
+
+    // Validating input data
+    $request->validate([
+        'attribute_name' => 'required|string|max:50',
+        'attribute_value' => 'required|string|max:100',
+    ]);
+
+    // Cập nhật thuộc tính
+    $variantAttribute->update([
+        'attribute_name' => $request->attribute_name,
+        'attribute_value' => $request->attribute_value,
+    ]);
+
+    // Redirect về trang danh sách
+    return redirect()->route('variant_attributes.index')->with('success', 'Attribute updated successfully');
+}
+public function destroy($id)
+{
+    // Tìm thuộc tính bằng ID
+    $variantAttribute = VariantAttribute::findOrFail($id);
+
+    // Xóa thuộc tính
+    $variantAttribute->delete();
+
+    // Redirect về trang danh sách với thông báo thành công
+    return redirect()->route('variant_attributes.index')->with('success', 'Attribute deleted successfully');
+}
 
 }
