@@ -13,13 +13,16 @@ class ProductImage extends Model
     protected $table = 'product_images';
 
     protected $fillable = [
-        'product_id',
-        'image_url',
-        'type',
+        'product_id', 'variant_id', 'image_url', 'type'
     ];
 
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
+    public function variants()
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id', 'variant_id');
+    }
 }
+
