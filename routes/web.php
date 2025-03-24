@@ -33,7 +33,7 @@ Route::get('/', function () {
 
 
 // Xử lý đăng ký, đăng nhập, đăng xuất
-Route::get('/login', [UserCxontroller::class, 'showLoginForm'])->name('login.form');
+Route::get('/login', [UserController::class, 'showLoginForm'])->name('login.form');
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 

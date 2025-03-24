@@ -6,13 +6,15 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function home()
 {
     $products = Product::with('category', 'images')->paginate(10);
-    return view('client.home', compact('products'));
+    $user = Auth::user();
+    return view('client.home', compact(['products', 'user']));
 }
 public function show($id)
 {
