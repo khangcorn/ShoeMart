@@ -11,7 +11,8 @@
             <div>
                 <label for="name" class="block text-sm font-medium">Tên Sản Phẩm</label>
                 <input type="text" id="name" name="name"
-                    class="  text-black w-full p-2 border rounded-lg @error('name') border-red-500 @enderror" value="{{ old('name') }}">
+                    class="  text-black w-full p-2 border rounded-lg @error('name') border-red-500 @enderror"
+                    value="{{ old('name') }}">
                 @error('name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -68,7 +69,7 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
-            
+
 
             <!-- Variant Fields -->
             <div id="variant_fields"></div>
@@ -90,52 +91,58 @@
                 newVariant.classList.add('variant', 'mt-3');
 
                 newVariant.innerHTML = `
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price]" value="">
-                    </div>
-                     <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price_sale]" value="">
-                    </div>
+                        <div class="form-group">
+                            <label>Giá</label>
+                            <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price]" value="">
+                        </div>
+                         <div class="form-group">
+                            <label>Giá Khuyến Mãi</label>
+                            <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price_sale]" value="">
+                        </div>
 
-      <div class="form-group">
-    <label>Số lượng</label>
-    <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="0">
-</div>
+          <div class="form-group">
+        <label>Số lượng</label>
+        <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="0">
+    </div>
 
-<!-- Chọn màu sắc -->
+    <!-- Chọn màu sắc -->
+    <div class="form-group">
+        <label for="color">Màu sắc</label>
+        <select class="form-control" name="variants[${variantIndex}][color]">
+            <option value="">Chọn màu</option>
+            @foreach($colors as $color)
+                <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <!-- Chọn kích cỡ -->
+    <div class="form-group">
+        <label for="size">Chọn kích cỡ:</label>
+        <select class="form-control" name="variants[${variantIndex}][size]">
+            <option value="">Chọn kích cỡ</option>
+            @foreach($sizes as $size)
+                <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+            @endforeach
+        </select>
+    </div>
+
+
+
+
+                     <!-- Form thêm biến thể -->
 <div class="form-group">
-    <label for="color">Màu sắc</label>
-    <select class="form-control" name="variants[${variantIndex}][color]">
-        <option value="">Chọn màu</option>
-        @foreach($colors as $color)
-            <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
-        @endforeach
-    </select>
-</div>
-
-<!-- Chọn kích cỡ -->
-<div class="form-group">
-    <label for="size">Chọn kích cỡ:</label>
-    <select class="form-control" name="variants[${variantIndex}][size]">
-        <option value="">Chọn kích cỡ</option>
-        @foreach($sizes as $size)
-            <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
-        @endforeach
-    </select>
+    <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+    <input type="file" class="form-control variant-image-input" 
+        id="variant_images_${variantIndex}" 
+        name="variants[${variantIndex}][images][]" multiple accept="image/*">
+    <div class="image-preview" id="image_preview_${variantIndex}"></div>
 </div>
 
 
 
-        
-                    <div class="form-group">
-                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
-                        <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>
-                    </div>
-
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
-                `;
+                        <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
+                    `;
                 variantFieldsContainer.appendChild(newVariant);
                 variantIndex++;
             });

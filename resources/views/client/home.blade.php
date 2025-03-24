@@ -155,34 +155,29 @@
                     <div class="swiper mySwiper">
                         <div class="swiper-wrapper">
                             @foreach ($products as $product)
-                                @php
-                                    $displayPrice = $product->price;
-                                    $productImage = $product->images->where('type', 'main')->first();
-                                    $imageUrl = $productImage
-                                        ? asset($productImage->image_url)
-                                        : asset('storage/images/default.jpg');
-                                @endphp
-
-                                <div class="swiper-slide bg-white rounded-lg p-2">
-<<<<<<< HEAD
-                                    <a href="{{ url('/products/' . $product->product_id) }}">
-                                        <img src="{{ $imageUrl }}" class="w-[390px] h-[390px] object-cover cursor-pointer">
-=======
-                                    <a href="{{ url('/products/' . $product->id) }}">
-                                        <img src="{{ $imageUrl }}"
-                                            class="w-[390px] h-[390px] object-cover cursor-pointer">
->>>>>>> f6f03c1729675483ee03dc6b80683945161d4997
-                                    </a>
-
-
-                                    <div class="mt-2">
-                                        <p class="font-semibold truncate">{{ $product->name }}</p>
-                                        <p class="text-gray-400 text-sm">{{ $product->category->name }}</p>
-                                        <p class="font-semibold"> {{ number_format($displayPrice, 0, '.', ',') }} <span
-                                                class="font-normal underline">đ</span></p>
-                                    </div>
+                            @php
+                                $displayPrice = $product->price;
+                                $productImage = $product->images->where('type', 'main')->first();
+                                $imageUrl = $productImage
+                                    ? asset('storage/' . $productImage->image_url)
+                                    : asset('storage/images/default.jpg');
+                            @endphp
+                        
+                            <div class="swiper-slide bg-white rounded-lg p-2">
+                                <a href="{{ url('/products/' . $product->product_id) }}">
+                                    <img src="{{ $imageUrl }}" class="w-[390px] h-[390px] object-cover cursor-pointer">
+                                </a>
+                        
+                                <div class="mt-2">
+                                    <p class="font-semibold truncate">{{ $product->name }}</p>
+                                    <p class="text-gray-400 text-sm">{{ $product->category->name }}</p>
+                                    <p class="font-semibold">
+                                        {{ number_format($displayPrice, 0, '.', ',') }} <span class="font-normal underline">đ</span>
+                                    </p>
                                 </div>
-                            @endforeach
+                            </div>
+                        @endforeach
+                        
                         </div>
                     </div>
                 </div>

@@ -26,40 +26,26 @@ public function show($id)
     return view('client.products.detail', compact('product', 'productImages'));
 }
 
-public function showdetail($id)
+public function showDetail($productId)
 {
-    // Lấy sản phẩm với các mối quan hệ cần thiết
-    $product = Product::with(['category', 'variants.variantAttributeValues', 'variants.images', 'images'])
-                     ->findOrFail($id);
+    // Lấy sản phẩm theo ID, bao gồm các biến thể, ảnh, danh mục, và các thuộc tính của biến thể
+    $product = Product::with([
+        'variants.variantAttributeValues.variantAttribute', // Lấy các thuộc tính (size, color) của biến thể
+        'images', // Lấy ảnh của sản phẩm
+        'category' // Lấy danh mục của sản phẩm
+    ])->findOrFail($productId);
 
-    // Kiểm tra nếu sản phẩm có biến thể
-    $firstVariant = $product->variants->isNotEmpty() ? $product->variants->first() : null;
+    // Lấy tất cả màu sắc và kích thước của các biến thể
+    $colors = $product->variants->flatMap(function($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->pluck('variantAttribute.attribute_value');
+    })->unique();
 
-    // Lấy ảnh của biến thể đầu tiên, nếu không có thì lấy ảnh của sản phẩm chính
-    $variantImages = $firstVariant && $firstVariant->images->isNotEmpty() ? $firstVariant->images : $product->images;
+    $sizes = $product->variants->flatMap(function($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->pluck('variantAttribute.attribute_value');
+    })->unique();
 
-    // Lấy tất cả các kích thước của biến thể đầu tiên (nếu có)
-    $sizes = $firstVariant ? $firstVariant->variantAttributeValues->where('attribute_id', 2) : [];
-
-    // Trả về view với các dữ liệu cần thiết
-    return view('client.products.detail', compact('product', 'firstVariant', 'variantImages', 'sizes'));
-}
-public function getVariantDetails(Request $request)
-{
-    $variant = ProductVariant::with('images', 'sizes') // Assuming sizes are related to variants
-        ->where('variant_id', $request->variant_id)
-        ->first();
-
-    if ($variant) {
-        return response()->json([
-            'price' => number_format($variant->price, 0, ',', '.'),
-            'sale_price' => $variant->price_sale ? number_format($variant->price_sale, 0, ',', '.') : null,
-            'images' => $variant->images,
-            'sizes' => $variant->sizes,
-        ]);
-    }
-
-    return response()->json(['error' => 'Variant not found'], 404);
+    // Trả về view với thông tin sản phẩm và các giá trị màu sắc, kích thước
+    return view('client.products.detail', compact('product', 'colors', 'sizes'));
 }
 
 
@@ -68,4 +54,16 @@ public function getVariantDetails(Request $request)
 
 
 
+
+
 }
+
+
+
+
+
+
+
+
+
+
