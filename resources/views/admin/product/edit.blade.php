@@ -4,7 +4,8 @@
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Chỉnh Sửa Sản Phẩm</h1>
 
-        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data"
+            class="space-y-4">
             @csrf
             @method('PUT')
 
@@ -12,43 +13,77 @@
             <div>
                 <label for="name" class="block text-sm font-medium">Tên Sản Phẩm</label>
                 <input type="text" id="name" name="name"
-                    class="w-full p-2 border rounded-lg @error('name') border-red-500 @enderror"
+                    class=" text-black w-full p-2 border rounded-lg @error('name') border-red-500 @enderror"
                     value="{{ old('name', $product->name) }}">
                 @error('name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+
+                <div>
+                    <label for="description" class="block text-sm font-medium">Mô tả</label>
+                    <input type="text" id="description" name="description"
+                        class="  text-black w-full p-2 border rounded-lg @error('description') border-red-500 @enderror"
+                        value="{{ old('description', $product->description) }}">
+                    @error('description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
                 <div>
                     <label for="price" class="block text-sm font-medium">Giá</label>
                     <input type="number" id="price" name="price"
-                        class="w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
+                        class="  text-black w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
                         value="{{ old('price', $product->price) }}">
                     @error('price')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-    
+
                 <div>
                     <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
                     <input type="number" id="price_sale" name="price_sale"
-                        class="w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
+                        class="  text-black w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
                         value="{{ old('price_sale', $product->price_sale) }}">
                     @error('price_sale')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-    
-    
+
                 <div class="form-group">
                     <label for="category_id">Danh Mục</label>
-                    <select class="form-control" id="category_id" name="category_id">
+                    <select class="  text-black form-control" id="category_id" name="category_id">
                         <option value="">Chọn Danh Mục</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->category_id }}" {{ $category->category_id == $product->category_id ? 'selected' : '' }}>{{ $category->name }}</option>
                         @endforeach
                     </select>
                 </div>
-    
-    
+                <div>
+                    <label for="product_images" class="block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
+                    <input type="file" id="product_images" name="product_images[]" multiple
+                        class="  text-black w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
+
+                    @error('product_images')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Hiển thị ảnh của sản phẩm chính -->
+                @if(isset($product) && $product->images->where('variant_id', null)->count() > 0)
+                    <div class="mt-4">
+                        <p class="text-sm font-medium">Ảnh Sản Phẩm Chính:</p>
+                        <div class="flex gap-2">
+                            @foreach($product->images->where('variant_id', null) as $image)
+                                <div class="relative">
+                                    <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
+
+                                    <button type="button"
+                                        class="absolute top-0 right-0 bg-red-500 text-white p-1 text-xs rounded remove-image"
+                                        data-image-id="{{ $image->image_id }}">X</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div>
@@ -60,70 +95,85 @@
             <!-- Variant Fields -->
             <div id="variant_fields">
                 @foreach($product->variants as $index => $variant)
-                <div class="variant mt-3 border p-4 rounded-lg shadow-md">
-                    <h2 class="font-bold text-lg">Biến thể {{ $index + 1 }}</h2>
-            
-                    <!-- Thêm variant_id -->
-                    <input type="hidden" name="variants[{{ $index }}][variant_id]" value="{{ $variant->variant_id }}">
-            
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[{{ $index }}][price]" value="{{ $variant->price }}">
-                    </div>
-            
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[{{ $index }}][price_sale]" value="{{ $variant->price_sale }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Màu Sắc</label>
-                        <select class="form-control" name="variants[{{ $index }}][color]">
-                            <option value="">Chọn Màu</option>
-                            @foreach (['Trắng', 'Đen', 'Xanh', 'Đỏ', 'Vàng'] as $color)
-                                <option value="{{ $color }}" 
-                                    {{ $variant->variantAttributeValues->where('attribute_id', 1)->where('attribute_value', $color)->isNotEmpty() ? 'selected' : '' }}>
-                                    {{ $color }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <div class="variant mt-3 border p-4 rounded-lg shadow-md">
+                        <h2 class="font-bold text-lg">Biến thể {{ $index + 1 }}</h2>
+
+                        <!-- Thêm variant_id -->
+                        <input type="hidden" name="variants[{{ $index }}][variant_id]" value="{{ $variant->variant_id }}">
+
+                        <div class="form-group">
+                            <label>Giá</label>
+                            <input type="number" class="  text-black form-control" name="variants[{{ $index }}][price]"
+                                value="{{ $variant->price }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Giá Khuyến Mãi</label>
+                            <input type="number" class="  text-black form-control" name="variants[{{ $index }}][price_sale]"
+                                value="{{ $variant->price_sale }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Số lượng</label>
+                            <input type="number" class="form-control" name="variants[{{ $index }}][stock]" 
+                            value="{{ $variant->stock }}">
+                        </div>
+                        <!-- Chọn màu sắc -->
+                        @php
+                        // Lấy tất cả các màu và kích cỡ có sẵn
+                        $allColors = \App\Models\VariantAttribute::where('attribute_name', 'Color')->pluck('attribute_value');
+                        $allSizes = \App\Models\VariantAttribute::where('attribute_name', 'Size')->pluck('attribute_value');
+                    @endphp
                     
-                    <div class="form-group">
-                        <label>Kích Thước & Số Lượng</label>
-                        <div class="size-options grid grid-cols-3 gap-2">
-                            @foreach([39, 40, 41, 42, 43] as $size)
-                                @php
-                                    $sizeStock = $variant->variantAttributeValues->where('attribute_value', $size)->first()->stock ?? 0;
-                                @endphp
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" name="variants[{{ $index }}][sizes][]" value="{{ $size }}" class="size-checkbox" 
-                                        {{ $sizeStock > 0 ? 'checked' : '' }}>
-                                    <label>{{ $size }}</label>
-                                    <input type="number" class="size-stock p-1 border rounded-lg" 
-                                        name="variants[{{ $index }}][size_stock][{{ $size }}]" 
-                                        value="{{ $sizeStock }}" min="0" {{ $sizeStock > 0 ? '' : 'disabled' }}>
-                                </div>
-                            @endforeach
+                    @foreach($product->variants as $index => $variant)
+                        <div class="form-group">
+                            <label for="color">Màu sắc</label>
+                            <select class="text-black form-control" name="variants[{{ $index }}][color]">
+                                <option value="">Chọn màu</option>
+                                @foreach($allColors as $color)
+                                    <option value="{{ $color }}" 
+                                        {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
+                                        {{ $color }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                    </div>
-            
-                    <div class="form-group">
-                        <label>Hình Ảnh Biến Thể</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            @foreach($variant->images as $image)
-                                <div class="relative">
-                                    <img src="{{ asset($image->image_url) }}" class="w-full h-20 object-cover rounded-lg border">
-                                    <input type="checkbox" name="variants[{{ $index }}][remove_images][]" value="{{ $image->image_id }}"> Xóa
-                                </div>
-                            @endforeach
+                    
+                        <!-- Chọn kích cỡ -->
+                        <div class="form-group">
+                            <label for="size">Chọn kích cỡ:</label>
+                            <select class="text-black form-control" name="variants[{{ $index }}][size]">
+                                <option value="">Chọn kích cỡ</option>
+                                @foreach($allSizes as $size)
+                                    <option value="{{ $size }}" 
+                                        {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
+                                        {{ $size }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <input type="file" class="form-control mt-2" name="variants[{{ $index }}][images][]" multiple>
+                    @endforeach
+                    
+                    
+                        
+
+
+                        <div class="form-group">
+                            <label>Hình Ảnh Biến Thể</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach($variant->images as $image)
+                                    <div class="relative">
+                                        <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
+                                    </div>
+                                @endforeach
+                            </div>
+                            <input type="file" class="form-control mt-2" name="variants[{{ $index }}][images][]" multiple>
+                        </div>
+
+                        <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}"
+                            data-product-id="{{ $product->product_id }}">Xóa Biến Thể</button>
+
                     </div>
-            
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
-                </div>
-            @endforeach
-            
+                @endforeach
             </div>
 
             <!-- Thêm Biến Thể -->
@@ -135,31 +185,122 @@
     </div>
 
     <script>
-        // Kích hoạt hoặc vô hiệu hóa input số lượng khi checkbox size được chọn
-        document.querySelectorAll('.size-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                let input = this.closest('div').querySelector('.size-stock');
-                input.disabled = !this.checked;
+        document.addEventListener('DOMContentLoaded', function () {
+            const addVariantButton = document.getElementById('add_variant_button');
+            const variantFieldsContainer = document.getElementById('variant_fields');
+            let variantIndex = {{ count($product->variants) }}; // Khởi tạo index từ số lượng biến thể hiện tại
+
+            // Define productId
+            const productId = {{ $product->product_id }}; // Assuming $product is available in the Blade view
+
+            // Lắng nghe sự kiện nhấn nút "Thêm Biến Thể"
+            addVariantButton.addEventListener('click', function () {
+                const newVariant = document.createElement('div');
+                newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
+
+                newVariant.innerHTML = `
+                <!-- Giá -->
+                <div class="form-group">
+                    <label>Giá</label>
+                    <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
+                </div>
+
+                <!-- Giá Khuyến Mãi -->
+                <div class="form-group">
+                    <label>Giá Khuyến Mãi</label>
+                    <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
+                </div>
+
+                <!-- Màu Sắc -->
+                   <div class="form-group">
+                            <label for="color">Màu sắc</label>
+                            <select class="form-control" name="variants[${variantIndex}][color]">
+                                <option value="">Chọn màu</option>
+                                @foreach($colors as $color)
+                                    <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="size">Chọn kích cỡ:</label>
+                            <select class="form-control" name="variants[${variantIndex}][size]">
+                                <option value="">Chọn kích cỡ</option>
+                                @foreach($sizes as $size)
+                                    <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                <!-- Hình Ảnh Biến Thể -->
+                <div class="form-group">
+                    <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
+                    <input type="file" class="form-control" name="variants[${variantIndex}][images][]" multiple>
+                </div>
+
+                <!-- Nút Xóa Biến Thể -->
+                <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
+            `;
+
+                // Thêm biến thể mới vào container
+                variantFieldsContainer.appendChild(newVariant);
+                variantIndex++;
+            });
+
+            // Xử lý thay đổi checkbox Kích Thước
+            document.addEventListener('change', function (event) {
+                if (event.target.matches('.size-checkbox')) {
+                    const sizeInput = event.target.closest('div').querySelector('.size-stock');
+                    sizeInput.disabled = !event.target.checked;
+                }
+            });
+
+            // Define the removeVariant function
+            window.removeVariant = function (button) {
+                const variantElement = button.closest('.variant');
+                variantElement.remove();
+            };
+
+            // Handle the delete button click event for removing variants
+            document.querySelectorAll(".delete-variant").forEach(button => {
+                button.addEventListener("click", function () {
+                    const variantId = this.getAttribute("data-variant-id");
+                    const productId = this.getAttribute("data-product-id"); // Lấy productId từ data attribute
+
+                    // Kiểm tra nếu productId không hợp lệ
+                    if (!productId || !variantId) {
+                        alert("Có lỗi xảy ra. Product ID hoặc Variant ID không hợp lệ.");
+                        return;
+                    }
+
+                    // Kiểm tra xác nhận xóa
+                    if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
+
+                    // Gửi yêu cầu xóa qua AJAX với CSRF token
+                    fetch(`/admin/products/${productId}/variants/${variantId}/delete`, {
+                        method: "POST", // Laravel không hỗ trợ DELETE tốt => dùng POST
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                            "Content-Type": "application/json",
+                        }
+                    })
+                        .then(response => response.json()) // Chuyển response thành JSON
+                        .then(data => {
+                            if (data.success) {
+                                alert("✅ " + data.message);
+
+                                // Tải lại trang sau khi xóa thành công
+                                location.reload(); // Reload lại trang để biến thể biến mất
+                            } else {
+                                alert("❌ " + data.message);
+                            }
+                        })
+                        .catch(error => console.error("Lỗi khi xóa biến thể:", error));
+                });
             });
         });
 
-        // Xóa biến thể
-        function removeVariant(button) {
-            button.closest('.variant').remove();
-        }
-
-        // Thêm biến thể mới
-        document.getElementById('add_variant_button').addEventListener('click', function() {
-            const newVariant = document.createElement('div');
-            newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
-            newVariant.innerHTML = `
-    <div class="form-group">
-        <label>Giá</label>
-        <input type="number" class="form-control" name="variants[][price]" value="">
-    </div>
-`;
-
-            document.getElementById('variant_fields').appendChild(newVariant);
-        });
     </script>
+
+
 @endsection
