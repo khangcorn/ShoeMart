@@ -185,117 +185,118 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+    
             const addVariantButton = document.getElementById('add_variant_button');
             const variantFieldsContainer = document.getElementById('variant_fields');
-            let variantIndex = {{ count($product->variants) }}; // Khởi tạo index từ số lượng biến thể hiện tại
+            let variantIndex = {{ count($product->variants) }}; // Số lượng biến thể hiện tại
     
-            // Define productId
-            const productId = {{ $product->product_id }}; // Assuming $product is available in the Blade view
+            // Lấy danh sách màu sắc và kích cỡ từ Blade
+            const colors = @json($colors);
+            const sizes = @json($sizes);
+            const existingVariants = new Set();
     
-            // Tạo một biến chứa màu sắc và kích cỡ
-            const colors = @json($colors); // Lấy dữ liệu màu sắc từ Blade và chuyển thành JSON
-            const sizes = @json($sizes);   // Lấy dữ liệu kích cỡ từ Blade và chuyển thành JSON
+            // Lấy biến thể cũ từ database
+            const oldVariants = [
+        @foreach($product->variants as $variant)
+            { color: "{{ $variant->color }}", size: "{{ $variant->size }}" },
+        @endforeach
+    ];
+            // Thêm các biến thể cũ vào danh sách kiểm tra trùng lặp
+            oldVariants.forEach(variant => {
+                if (variant.color && variant.size) {
+                    existingVariants.add(`${variant.color}-${variant.size}`);
+                }
+            });
     
-            // Lắng nghe sự kiện nhấn nút "Thêm Biến Thể"
+            // Khi nhấn nút "Thêm Biến Thể"
             addVariantButton.addEventListener('click', function () {
                 const newVariant = document.createElement('div');
                 newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
     
-                // Tạo mã HTML cho một biến thể mới
-                let colorOptions = '';
-                colors.forEach(color => {
-                    colorOptions += `<option value="${color.attribute_value}">${color.attribute_value}</option>`;
-                });
+                // Tạo danh sách option cho Màu sắc và Kích cỡ
+                let colorOptions = colors.map(color => `<option value="${color.attribute_value}">${color.attribute_value}</option>`).join('');
+                let sizeOptions = sizes.map(size => `<option value="${size.attribute_value}">${size.attribute_value}</option>`).join('');
     
-                let sizeOptions = '';
-                sizes.forEach(size => {
-                    sizeOptions += `<option value="${size.attribute_value}">${size.attribute_value}</option>`;
-                });
-    
+                // HTML của biến thể mới
                 newVariant.innerHTML = `
-                    <!-- Giá -->
                     <div class="form-group">
                         <label>Giá</label>
                         <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
                     </div>
-    
-                    <!-- Giá Khuyến Mãi -->
                     <div class="form-group">
                         <label>Giá Khuyến Mãi</label>
                         <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
                     </div>
-    
-                    <!-- Màu Sắc -->
                     <div class="form-group">
-                        <label for="color">Màu sắc</label>
-                        <select class="form-control" name="variants[${variantIndex}][color]">
+                        <label>Số lượng</label>
+                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Màu sắc</label>
+                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
                             <option value="">Chọn màu</option>
-                            ${colorOptions} <!-- Thêm tùy chọn màu sắc -->
+                            ${colorOptions}
                         </select>
                     </div>
-    
-                    <!-- Kích Cỡ -->
                     <div class="form-group">
-                        <label for="size">Chọn kích cỡ</label>
-                        <select class="form-control" name="variants[${variantIndex}][size]">
+                        <label>Kích cỡ</label>
+                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
                             <option value="">Chọn kích cỡ</option>
-                            ${sizeOptions} <!-- Thêm tùy chọn kích cỡ -->
+                            ${sizeOptions}
                         </select>
                     </div>
-    
-                    <!-- Hình Ảnh Biến Thể -->
-                    <div class="form-group">
-                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể</label>
-                        <div id="variant_image_preview_${variantIndex}" class="image-preview">
-                            <!-- Hình ảnh biến thể sẽ hiển thị ở đây -->
-                        </div>
-                        <input type="file" class="form-control variant-image-input"
-                               id="variant_images_${variantIndex}"
-                               name="variants[${variantIndex}][images][]" multiple accept="image/*" onchange="previewImage(event, ${variantIndex})">
-                    </div>
-    
-                    <!-- Nút Xóa Biến Thể -->
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
+                    <p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
+                    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
                 `;
     
-                // Thêm biến thể mới vào container
+                // Thêm biến thể vào danh sách
                 variantFieldsContainer.appendChild(newVariant);
                 variantIndex++;
+    
+                // Gán sự kiện kiểm tra trùng lặp khi thay đổi Màu hoặc Kích cỡ
+                newVariant.querySelector('.variant-color').addEventListener('change', checkDuplicateVariant);
+                newVariant.querySelector('.variant-size').addEventListener('change', checkDuplicateVariant);
+    
+                // Gán sự kiện xóa biến thể
+                newVariant.querySelector('.remove-variant').addEventListener('click', function () {
+                    removeVariant(this);
+                });
             });
     
-            // Xử lý thay đổi checkbox Kích Thước
-            document.addEventListener('change', function (event) {
-                if (event.target.matches('.size-checkbox')) {
-                    const sizeInput = event.target.closest('div').querySelector('.size-stock');
-                    sizeInput.disabled = !event.target.checked;
-                }
-            });
+            // 🔥 Kiểm tra trùng lặp khi chọn Màu + Size
+            function checkDuplicateVariant() {
+                let hasDuplicate = false;
+                let currentVariants = new Set(existingVariants); // Copy từ biến thể cũ
     
-            // Định nghĩa hàm removeVariant để xóa biến thể
-            window.removeVariant = function (button) {
-                const variantElement = button.closest('.variant');
-                variantElement.remove();
-            };
+                document.querySelectorAll('.variant').forEach(variant => {
+                    const colorElement = variant.querySelector('.variant-color');
+                    const sizeElement = variant.querySelector('.variant-size');
+                    const errorMsg = variant.querySelector('.error-message');
     
-            // Preview hình ảnh khi chọn file
-            window.previewImage = function (event, variantIndex) {
-                const previewContainer = document.getElementById(`variant_image_preview_${variantIndex}`);
-                previewContainer.innerHTML = ""; // Clear previous preview images
+                    if (colorElement && sizeElement) {
+                        const color = colorElement.value;
+                        const size = sizeElement.value;
     
-                const files = event.target.files;
-                for (const file of files) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.classList.add('preview-image');
-                        previewContainer.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
+                        // Kiểm tra nếu đã chọn cả màu & size
+                        if (color && size) {
+                            const key = `${color}-${size}`;
+                            if (currentVariants.has(key)) {
+                                errorMsg.classList.remove('d-none'); // Hiển thị lỗi
+                                errorMsg.style.display = "block";
+                                hasDuplicate = true;
+                            } else {
+                                errorMsg.classList.add('d-none');
+                                errorMsg.style.display = "none";
+                                currentVariants.add(key);
+                            }
+                        }
+                    }
+                });
     
-            // Handle the delete button click event for removing variants
+                return hasDuplicate;
+            }
+    
+            // 🗑️ Xóa biến thể
             document.querySelectorAll(".delete-variant").forEach(button => {
                 button.addEventListener("click", function () {
                     const variantId = this.getAttribute("data-variant-id");
@@ -327,8 +328,21 @@
                     .catch(error => console.error("Lỗi khi xóa biến thể:", error));
                 });
             });
+     
+    
+            // 🚀 Kiểm tra trước khi submit
+            document.querySelector('form').addEventListener('submit', function (event) {
+                if (checkDuplicateVariant()) {
+                    event.preventDefault();
+                    alert('⚠️ Có biến thể trùng Color & Size (bao gồm cả biến thể cũ). Hãy kiểm tra lại!');
+                }
+            });
+    
         });
     </script>
+    
+    
+        
     
     
 
