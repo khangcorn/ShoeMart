@@ -1,15 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\UserAddresses;
 use Illuminate\Support\Facades\Hash;
-
+use App\Models\Role;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+
 class UserController extends Controller
 {
+
+
+   
     public function showRegisterForm()
     {
         return view('client.auth.register');
@@ -23,33 +29,33 @@ class UserController extends Controller
 
     // Xử lý đăng ký
     public function register(Request $request)
-{
+    {
 
-    // Validate input data
-    $validator = Validator::make($request->all(), [
-        'username' => 'required|max:255',
-        'password' => 'required|string|min:6',
-        'email' => 'required|string|email|max:255|unique:users,email',
-        'password_confirmation' => 'required|string|min:6',
-        'phone' => 'nullable|string|max:20',
-        'address' => 'nullable|string|max:255',
-    ]);
-  
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
+        // Validate input data
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|max:255|unique:users,username',
+            'password' => 'required|string|min:6',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password_confirmation' => 'required|string|min:6',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Create user
+        $user = User::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ]);
+
+        return redirect()->route('login')->with('success', 'User registered successfully');
     }
-
-    // Create user
-    $user = User::create([
-        'username' => $request->username,
-        'password' => Hash::make($request->password),
-        'email' => $request->email,
-        'phone' => $request->phone,
-        'address' => $request->address,
-    ]);
-
-    return redirect()->route('login')->with('success', 'User registered successfully');
-}
 
     // Xử lý đăng nhập
     public function login(Request $request)
@@ -131,5 +137,29 @@ class UserController extends Controller
 
         return back()->with('success', 'Cập nhật địa chỉ thành công.');
     }
-   
+    public function updateAvatar(Request $request)
+    {
+        $user = Auth::user();
+    
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+    
+        if ($request->hasFile('avatar')) {
+            // Xóa avatar cũ nếu có
+            if ($user->avatar) {
+                Storage::delete('public/avatars/' . $user->avatar);
+            }
+    
+            // Lưu avatar mới
+            $avatarName = time() . '.' . $request->avatar->extension();
+            $request->avatar->storeAs('public/avatars', $avatarName);
+    
+            // Cập nhật avatar trong database
+            $user->update(['avatar' => $avatarName]);
+        }
+    
+        return back()->with('success', 'Avatar cập nhật thành công.');
+    }
+    
 }

@@ -2,34 +2,35 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VariantAttribute extends Model
 {
-    use HasFactory;
-    // Đảm bảo đúng khóa chính
+    // Chỉ định khóa chính là attribute_id thay vì id
     protected $primaryKey = 'attribute_id';
-    public $timestamps = true;
 
-    // Các trường có thể điền vào (fillable)
-    protected $fillable = [ 'attribute_name'];  // Bỏ attribute_value vì giá trị này sẽ được lưu trong VariantAttributeValue
+    // Nếu khóa chính không tự động tăng, bạn có thể thiết lập
+    public $incrementing = false;
 
-    /**
-     * Quan hệ với bảng ProductVariant.
-     * Một thuộc tính thuộc về một biến thể sản phẩm
-     */
-    public function variant()
-    {
-        return $this->hasMany(VariantAttributeValues::class, 'attribute_id');
-    }
-
-    /**
-     * Quan hệ với bảng VariantAttributeValue.
-     * Một thuộc tính có thể có nhiều giá trị (màu sắc, kích thước, ...)
-     */
-    public function attributeValues()
-    {
-        return $this->hasMany(VariantAttributeValues::class, 'attribute_id', 'attribute_id');
-    }
+    // Kiểu dữ liệu của khóa chính nếu cần
+    protected $keyType = 'int';
+    public $timestamps = false;
+    // Các thuộc tính có thể gán hàng loạt (nếu cần)
+    protected $fillable = ['attribute_name', 'attribute_value'];
+    // Quan hệ ngược lại với bảng VariantAttributeValue
+public function variantAttributeValues()
+{
+    return $this->hasMany(VariantAttributeValue::class, 'attribute_id', 'attribute_id');
+}
+public function attributes()
+{
+    return $this->hasManyThrough(
+        VariantAttribute::class,
+        VariantAttributeValue::class,
+        'variant_id', // Foreign key ở variant_attribute_values
+        'attribute_id', // Foreign key ở variant_attributes
+        'variant_id', // Local key ở product_variants
+        'attribute_id' // Local key ở variant_attribute_values
+    );
+}
 }
