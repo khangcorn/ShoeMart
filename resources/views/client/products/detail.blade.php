@@ -56,10 +56,17 @@
 
     <!-- Ảnh biến thể dưới -->
     <div class="mt-6 flex space-x-4 overflow-x-auto" id="variant-images-container">
+    
         @foreach ($product->variants as $variant)
         <div class="w-1/4 p-2 variant-item" data-variant-id="{{ $variant->id }}" 
-            data-color="{{ $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color')->variantAttribute->attribute_value }}" 
-            data-size="{{ $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size')->variantAttribute->attribute_value }}" 
+          
+            @php
+            $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color');
+            $sizeAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size');
+        @endphp
+data-color="{{ $colorAttribute ? $colorAttribute->variantAttribute->attribute_value : 'N/A' }}"
+data-size="{{ $sizeAttribute ? $sizeAttribute->variantAttribute->attribute_value : 'N/A' }}"
+
             data-price="{{ $variant->price }}" 
             data-images="{{ json_encode($variant->images) }}">
             @php
