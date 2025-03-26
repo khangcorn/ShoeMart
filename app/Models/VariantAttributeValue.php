@@ -11,12 +11,16 @@ class VariantAttributeValue extends Model
 
     // Bảng tương ứng trong cơ sở dữ liệu
     protected $table = 'variant_attribute_values';
+ 
 
     // Các trường có thể gán đại trà
     protected $fillable = [
         'variant_id',
         'attribute_id',
     ];
+    protected $primaryKey = null; // 🚨 Không có khóa chính đơn lẻ
+    public $incrementing = false;
+    public $timestamps = true;
 
     // Mối quan hệ với bảng ProductVariant
     public function productVariant()
