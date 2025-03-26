@@ -23,9 +23,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // Authentication
 
@@ -63,6 +60,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
+Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 
 
 
