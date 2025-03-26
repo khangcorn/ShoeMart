@@ -153,11 +153,11 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
 
                 <!-- Thêm vào giỏ hàng -->
                 <div class="space-y-2 mt-8">
-                    <button class=" bg-black cursor-pointer text-white  py-4 w-full rounded-full font-semibold ">Add to
+                    <button class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold ">Add to
                         Bag</button>
 
                     <button
-                        class="bg-white cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
+                        class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
                             height="24px" fill="none">
