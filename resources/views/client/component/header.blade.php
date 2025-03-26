@@ -69,6 +69,9 @@
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]" href=""> Sale</a>
                     </li>
+                    <li>
+                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]" href="{{ route('products.all') }}"> Products</a>
+                    </li>
                 </ul>
             </div>
             <div class="flex items-center space-x-4">
