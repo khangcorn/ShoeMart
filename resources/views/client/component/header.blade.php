@@ -24,16 +24,15 @@
         <p>Help</p> |
         <p>Find a Store</p> |
       <div class="flex items-center gap-1">
-       <li class="">
+       <p class="">
       @if (Auth::check())
       <p > Hello {{Auth::user()->username}}</p>
           @else
           <a href="{{route('login')}}" class="text-black no-underline hover:cursor-pointer font-medium">
-            <svg aria-hidden="true" class="icon-btn" focusable="false" viewBox="0 0 24 24" role="img" width="20px" height="20px" fill="none" aria-label="Profile"><path stroke="currentColor" stroke-width="2" d="M3.75 21v-3a3.75 3.75 0 013.75-3.75h9A3.75 3.75 0 0120.25 18v3m-4.5-13.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg>
 
         </a>
       @endif
-       </li>
+       </p>
       </div>
         
     </div>

@@ -35,7 +35,8 @@
                                                 stroke-width="1.5"
                                                 d="M2.56 10.346l5.12 3.694-1.955 5.978c-.225.688.568 1.261 1.157.836L12 17.159l5.12 3.695c.587.425 1.381-.148 1.155-.836l-1.954-5.978 5.118-3.694c.589-.425.286-1.352-.442-1.352H14.67l-.166-.507-1.789-5.47c-.225-.69-1.205-.69-1.43 0L9.33 8.993H3.003c-.728 0-1.03.927-.442 1.352z"
                                                 clip-rule="evenodd"></path>
-                                        </svg> Highly Rated</p>
+                                        </svg> Highly Rated
+                                    </p>
                                 </div>
                             </div>
 
@@ -46,14 +47,17 @@
 
             <!-- Thông tin sản phẩm -->
             <div class="w-full md:w-1/2 md:pl-8 mt-6 md:mt-0">
-                <p class="font-semibold text-orange-600">Category cha </p>
+                <p class="font-semibold text-orange-600">Sustainable Materials </p>
                 <p class="text-lg font-semibold text-gray-900">{{ $product->name }}</p>
                 <p class="text-gray-400 font-semibold">{{ $product->category->name }}</p>
                 <p class="font-semibold py-2" id="product-price">
-                    {{ number_format($product->price, 0, '.', ',') }} <span class="font-normal underline">đ</span>
+                    {{ number_format((int) $product->price, 0, ',', '.') }} <span class="font-normal text-sm underline">đ</span>
                 </p>
+                
+                
+                
                 <!-- Ảnh biến thể dưới -->
-                <div class="border-red-500 border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+                <div class=" border-1 flex py-4 overflow-x-auto" id="variant-images-container">
 
                     @foreach ($product->variants as $variant)
                         <div class="w-1/5 variant-item" data-variant-id="{{ $variant->id }}"
@@ -122,15 +126,15 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
                 <div class="">
                     <div class="grid grid-cols-4 gap-2">
                         @php
-                        $currentVariant = $product->variants->first(); // Lấy biến thể đầu tiên làm mặc định
-                        $sizeArray = $currentVariant ? 
-                            $currentVariant->variantAttributeValues
-                                ->where('variantAttribute.attribute_name', 'Size')
-                                ->pluck('variantAttribute.attribute_value')
-                                ->toArray()
-                            : [];
-                    @endphp
-                    
+                            $currentVariant = $product->variants->first(); // Lấy biến thể đầu tiên làm mặc định
+                            $sizeArray = $currentVariant
+                                ? $currentVariant->variantAttributeValues
+                                    ->where('variantAttribute.attribute_name', 'Size')
+                                    ->pluck('variantAttribute.attribute_value')
+                                    ->toArray()
+                                : [];
+                        @endphp
+
 
 
                         @for ($size = 30; $size <= 41; $size++)
@@ -238,16 +242,16 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
 
             // Cập nhật trạng thái active cho kích thước
             document.querySelectorAll('.size-option').forEach(sizeOption => {
-    let sizeValue = sizeOption.getAttribute('data-size');
-    
-    if (size === sizeValue) {
-        sizeOption.classList.remove('opacity-50', 'line-through');
-        sizeOption.classList.add('border-black', 'cursor-pointer');
-    } else {
-        sizeOption.classList.add('opacity-50', 'line-through');
-        sizeOption.classList.remove('border-black', 'cursor-pointer');
-    }
-});
+                let sizeValue = sizeOption.getAttribute('data-size');
+
+                if (size === sizeValue) {
+                    sizeOption.classList.remove('opacity-50', 'line-through');
+                    sizeOption.classList.add('border-black', 'cursor-pointer');
+                } else {
+                    sizeOption.classList.add('opacity-50', 'line-through');
+                    sizeOption.classList.remove('border-black', 'cursor-pointer');
+                }
+            });
 
 
             // Cập nhật danh sách ảnh biến thể
