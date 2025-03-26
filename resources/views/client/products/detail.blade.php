@@ -122,19 +122,15 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
                 <div class="">
                     <div class="grid grid-cols-4 gap-2">
                         @php
-                            $sizeArray = $product->variants
-                                ->map(function ($variant) {
-                                    return optional(
-                                        $variant->variantAttributeValues->firstWhere(
-                                            'variantAttribute.attribute_name',
-                                            'Size',
-                                        ),
-                                    )->variantAttribute->attribute_value;
-                                })
-                                ->filter()
-                                ->unique()
-                                ->toArray();
-                        @endphp
+                        $currentVariant = $product->variants->first(); // Lấy biến thể đầu tiên làm mặc định
+                        $sizeArray = $currentVariant ? 
+                            $currentVariant->variantAttributeValues
+                                ->where('variantAttribute.attribute_name', 'Size')
+                                ->pluck('variantAttribute.attribute_value')
+                                ->toArray()
+                            : [];
+                    @endphp
+                    
 
 
                         @for ($size = 30; $size <= 41; $size++)
@@ -242,11 +238,17 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
 
             // Cập nhật trạng thái active cho kích thước
             document.querySelectorAll('.size-option').forEach(sizeOption => {
-                sizeOption.classList.remove('border-black'); // Xóa border cũ
-                if (sizeOption.innerText.trim() === `EU ${size}`) {
-                    sizeOption.classList.add('border-black'); // Thêm border cho size được chọn
-                }
-            });
+    let sizeValue = sizeOption.getAttribute('data-size');
+    
+    if (size === sizeValue) {
+        sizeOption.classList.remove('opacity-50', 'line-through');
+        sizeOption.classList.add('border-black', 'cursor-pointer');
+    } else {
+        sizeOption.classList.add('opacity-50', 'line-through');
+        sizeOption.classList.remove('border-black', 'cursor-pointer');
+    }
+});
+
 
             // Cập nhật danh sách ảnh biến thể
             const imagesContainer = document.getElementById('variant-images-display');
