@@ -67,22 +67,9 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
         // Validate dữ liệu đầu vào
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'price_sale' => 'nullable|numeric',
-            'stock' => 'required|integer',
-            'category_id' => 'required|exists:categories,category_id',
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'variants' => 'required|array',
-            'variants.*.price' => 'required|numeric',
-            'variants.*.stock' => 'required|integer',
-            'variants.*.color' => 'required|string',
-            'variants.*.size' => 'required|string',
-            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+     
     
         // Tạo sản phẩm
         $product = Product::create([
@@ -139,7 +126,7 @@ class ProductController extends Controller
                 'price_sale' => floatval($variantData['price_sale'] ?? 0),
                 'stock' => intval($variantData['stock']),
             ]);
-    
+         
             // ✅ Xử lý ảnh biến thể
             if (!empty($variantData['images']) && is_array($variantData['images'])) {
                 foreach ($variantData['images'] as $variantImage) {
@@ -156,24 +143,30 @@ class ProductController extends Controller
             }
     
             // ✅ Lưu Color vào bảng variant_attribute_values
-            $colorAttribute = VariantAttribute::firstOrCreate([
-                'attribute_name' => 'Color',
-                'attribute_value' => $variantData['color'],
-            ]);
-            VariantAttributeValue::create([
-                'variant_id' => $variant->variant_id,
-                'attribute_id' => $colorAttribute->attribute_id,
-            ]);
-    
-            // ✅ Lưu Size vào bảng variant_attribute_values
-            $sizeAttribute = VariantAttribute::firstOrCreate([
-                'attribute_name' => 'Size',
-                'attribute_value' => $variantData['size'],
-            ]);
-            VariantAttributeValue::create([
-                'variant_id' => $variant->variant_id,
-                'attribute_id' => $sizeAttribute->attribute_id,
-            ]);
+          // ✅ Lưu Color vào bảng variant_attribute_values
+$colorAttribute = VariantAttribute::firstOrCreate([
+    'attribute_name' => 'Color',
+    'attribute_value' => $variantData['color'],
+]);
+
+$variantAttributeValue = VariantAttributeValue::create([
+    'variant_id' => $variant->variant_id,
+    'attribute_id' => $colorAttribute->attribute_id,
+]);
+
+
+
+// ✅ Lưu Size vào bảng variant_attribute_values
+$sizeAttribute = VariantAttribute::firstOrCreate([
+    'attribute_name' => 'Size',
+    'attribute_value' => $variantData['size'],
+]);
+
+VariantAttributeValue::create([
+    'variant_id' => $variant->variant_id,
+    'attribute_id' => $sizeAttribute->attribute_id,
+]);
+
         }
     
         // 🚨 Nếu có lỗi, hiển thị lỗi và quay lại trang
