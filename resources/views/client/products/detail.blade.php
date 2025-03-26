@@ -93,7 +93,7 @@ $colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute
                         </p>
                     </div>
                 </div>
-                <div class="mb-1 flex justify-between">
+                <div class="py-2 flex justify-between">
                     <p for="size" class="font-semibold">Select size</p>
                     <p class="font-semibold flex items-center gap-2"> <svg aria-hidden="true" focusable="false"
                             viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
