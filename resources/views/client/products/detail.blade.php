@@ -30,7 +30,7 @@
                                   $mainImage = optional($product->images->first())->image_url;
                                     @endphp
                                    <img id="main-product-image"
-                                   class="object-cover w-auto h-[550px] "
+                                   class="object-cover w-auto h-[550px] " 
                                     alt="{{ $product->name }}"
                                    src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
