@@ -16,6 +16,13 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
+        <div>
+            <label for="name" class="block font-medium">Description</label>
+            <input type="text" name="name" class="w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->description) }}" required>
+            @error('name')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
         <!-- Chọn danh mục cha -->
         <div class="mt-4">
