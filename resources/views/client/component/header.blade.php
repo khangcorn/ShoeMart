@@ -130,30 +130,26 @@
                         </path>
                     </svg>
                 </div>
-                <div class="relative w-6 h-6">
-
-
-
-                    <!-- Icon Cart -->
-                    <svg class="cursor-pointer" aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
-                        height="24px" class="w-full h-full" fill="none">
-                        <path stroke="currentColor" stroke-width="1.5"
-                            d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5">
-                        </path>
-                    </svg>
-
-                  
-                    <div
-                        class="w-4 h-4 bg-white border-red-500 animate-ping absolute -top-1 -right-1 rounded-full border-[1.5px]">
-
+                <a href="{{ route('cart.index') }}">
+                    <div class="relative w-6 h-6">
+                        <!-- Icon Cart -->
+                        <svg class="cursor-pointer" aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
+                            height="24px" class="w-full h-full" fill="none">
+                            <path stroke="currentColor" stroke-width="1.5"
+                                d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5">
+                            </path>
+                        </svg>
+                
+                        <!-- Hiệu ứng Ping -->
+                        <div class="w-4 h-4 bg-white border-red-500 animate-ping absolute -top-1 -right-1 rounded-full border-[1.5px]"></div>
+                
+                        <!-- Badge số lượng sản phẩm -->
+                        <span class="z-10 absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs font-thin text-white bg-red-500 rounded-full">
+                            1
+                        </span>
                     </div>
-                    <span
-                        class="z-10 absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-xs font-thin text-white bg-red-500 rounded-full ">
-                        1
-                    </span>
-
-
-                </div>
+                </a>
+                
 
                 <div class="block sm:hidden">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"

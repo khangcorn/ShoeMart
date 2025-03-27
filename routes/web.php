@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
@@ -57,10 +58,29 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/update-avatar', [UserController::class, 'updateAvatar'])->name('update-avatar');
 
 });
+Route::middleware('auth')->group(function () {
+    // Hiển thị giỏ hàng của người dùng
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
+    // Thêm sản phẩm vào giỏ hàng
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+
+    // Cập nhật số lượng sản phẩm trong giỏ hàng
+    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+    // Xóa toàn bộ giỏ hàng
+    Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
+});
+
+
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+
 
 
 

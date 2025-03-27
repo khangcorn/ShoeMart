@@ -28,8 +28,8 @@
                     <p><strong>Stock:</strong> {{ $variant->stock }}</p>
                     
                     <h4 class="mt-2 font-semibold">Attributes:</h4>
-                    @foreach($variant->variantAttributeValues as $attribute)
-                        <p><strong>{{ $attribute->attribute_name }}:</strong> {{ $attribute->attribute_value }}</p>
+                    @foreach($variant->variantAttributeValues as $attributeValue)
+                    <p><strong>{{ $attributeValue->variantAttribute->attribute_name }}:</strong> {{ $attributeValue->variantAttribute->attribute_value }}</p>
                     @endforeach
                     
                     <h4 class="mt-2 font-semibold">Variant Images:</h4>

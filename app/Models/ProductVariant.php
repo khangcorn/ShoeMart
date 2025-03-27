@@ -9,7 +9,7 @@ class ProductVariant extends Model
     protected $primaryKey = 'variant_id'; // Đảm bảo đúng khóa chính là variant_id
     public $incrementing = true;  // Đảm bảo tự động tăng
     protected $keyType = 'int';  // Kiểu dữ liệu của variant_id là int
-    protected $fillable = ['product_id', 'price', 'price_sale', 'stock'];
+    protected $fillable = ['variant_id', 'product_id', 'price', 'stock', 'size', 'color'];
 
     // Quan hệ với bảng Product
     public function product()

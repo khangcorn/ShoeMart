@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->id('category_id');
             $table->string('name', 100);
             $table->unsignedBigInteger('parent_id')->nullable()->index(); 
+            $table->string('image_url',255);
 
             $table->foreign('parent_id')->references('category_id')->on('categories')->onDelete('cascade');
             $table->timestamps();
