@@ -26,13 +26,16 @@
 
                                 <!-- Ảnh chính -->
                                 <div class="relative">
-                                    <img id="main-product-image"
-                                        src="{{ asset('storage/' . $product->images->first()->image_url) }}"
-                                        alt="{{ $product->name }}"
-                                        class="object-cover w-[400px] h-[600px] rounded-lg border border-gray-200 ">
+                                    @php
+                                  $mainImage = optional($product->images->first())->image_url;
+                                    @endphp
+                                   <img id="main-product-image"
+                                   class="object-cover w-auto h-[550px] "
+                                    alt="{{ $product->name }}"
+                                   src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
                                     <p
-                                        class="absolute top-4 left-4 cursor-pointer border-[1px] border-gray-200 rounded-full px-4 py-2 flex gap-2 items-center">
+                                        class="absolute top-4 left-4 cursor-pointer border-[1px] bg-white border-gray-200 rounded-full px-4 py-2 flex gap-2 items-center">
                                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img"
                                             width="20px" height="20px" fill="none">
                                             <path fill="currentColor" fill-rule="evenodd" stroke="currentColor"

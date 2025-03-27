@@ -1080,6 +1080,10 @@ video {
   height: 312px;
 }
 
+.h-\[550px\] {
+  height: 550px;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
