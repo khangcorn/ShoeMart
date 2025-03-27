@@ -225,7 +225,7 @@ class ProductController extends Controller
     
         // ✅ Xử lý biến thể sản phẩm
         $variants = $request->input('variants', []);
-        dd($variants);
+        // dd($variants);
         foreach ($variants as $variantData) {
             // 🆕 Kiểm tra nếu biến thể đã tồn tại hay cần tạo mới
             $variant = isset($variantData['variant_id'])
