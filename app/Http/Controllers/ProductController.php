@@ -67,11 +67,25 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
-        // Validate dữ liệu đầu vào
-     
+        // ✅ Validate dữ liệu đầu vào
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'price_sale' => 'nullable|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,category_id',
+            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'variants' => 'required|array',
+            'variants.*.color' => 'required|string',
+            'variants.*.size' => 'required|string',
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.price_sale' => 'nullable|numeric|min:0',
+            'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
     
-        // Tạo sản phẩm
+        // ✅ Tạo sản phẩm
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -83,7 +97,6 @@ class ProductController extends Controller
     
         // ✅ Xử lý ảnh sản phẩm chính
         if ($request->hasFile('product_images')) {
-            if (!empty($request->images) && is_array($request->images)) {
             foreach ($request->file('product_images') as $image) {
                 if ($image->isValid()) {
                     $path = $image->store('products', 'public');
@@ -94,47 +107,38 @@ class ProductController extends Controller
                     ]);
                 }
             }
-        } else {
-            return back()->with('error', 'No images uploaded.');
-        }
         }
     
-        // ✅ Tạo biến thể cho sản phẩm
+        // ✅ Xử lý biến thể sản phẩm
         $errors = [];
         foreach ($request->variants as $variantData) {
-            // 🔥 Kiểm tra biến thể đã tồn tại chưa (Color & Size)
+            // 🔍 Kiểm tra biến thể trùng lặp (Color & Size)
             $existingVariant = ProductVariant::where('product_id', $product->product_id)
-                ->whereHas('variantAttributeValues', function ($query) use ($variantData) {
-                    $query->whereHas('variantAttribute', function ($subQuery) use ($variantData) {
-                        $subQuery->where('attribute_name', 'Color')
-                                 ->where('attribute_value', $variantData['color']);
+                ->whereHas('variantAttributeValues.variantAttribute', function ($query) use ($variantData) {
+                    $query->where(function ($q) use ($variantData) {
+                        $q->where('attribute_name', 'Color')->where('attribute_value', $variantData['color']);
+                    })->orWhere(function ($q) use ($variantData) {
+                        $q->where('attribute_name', 'Size')->where('attribute_value', $variantData['size']);
                     });
-                })
-                ->whereHas('variantAttributeValues', function ($query) use ($variantData) {
-                    $query->whereHas('variantAttribute', function ($subQuery) use ($variantData) {
-                        $subQuery->where('attribute_name', 'Size')
-                                 ->where('attribute_value', $variantData['size']);
-                    });
-                })
-                ->first();
+                })->first();
     
             if ($existingVariant) {
                 $errors[] = "⚠️ Biến thể với màu **{$variantData['color']}** và size **{$variantData['size']}** đã tồn tại!";
-                continue; // ❌ Bỏ qua không tạo mới
+                continue;
             }
     
-            // ✅ Nếu không có biến thể trùng, tạo mới
+            // ✅ Nếu không trùng, tạo mới biến thể
             $variant = ProductVariant::create([
                 'product_id' => $product->product_id,
                 'price' => floatval($variantData['price']),
                 'price_sale' => floatval($variantData['price_sale'] ?? 0),
                 'stock' => intval($variantData['stock']),
             ]);
-         
+    
             // ✅ Xử lý ảnh biến thể
             if (!empty($variantData['images']) && is_array($variantData['images'])) {
                 foreach ($variantData['images'] as $variantImage) {
-                    if ($variantImage instanceof \Illuminate\Http\UploadedFile && $variantImage->isValid()) {
+                    if ($variantImage instanceof \Illuminate\Http\UploadedFile) {
                         $path = $variantImage->store('variants', 'public');
                         ProductImage::create([
                             'product_id' => $product->product_id,
@@ -145,35 +149,36 @@ class ProductController extends Controller
                     }
                 }
             }
+            
     
             // ✅ Lưu Color vào bảng variant_attribute_values
-          // ✅ Lưu Color vào bảng variant_attribute_values
-$colorAttribute = VariantAttribute::firstOrCreate([
-    'attribute_name' => 'Color',
-    'attribute_value' => $variantData['color'],
-]);
-
-$variantAttributeValue = VariantAttributeValue::create([
-    'variant_id' => $variant->variant_id,
-    'attribute_id' => $colorAttribute->attribute_id,
-]);
-
-
-
-// ✅ Lưu Size vào bảng variant_attribute_values
-$sizeAttribute = VariantAttribute::firstOrCreate([
-    'attribute_name' => 'Size',
-    'attribute_value' => $variantData['size'],
-]);
-
-VariantAttributeValue::create([
-    'variant_id' => $variant->variant_id,
-    'attribute_id' => $sizeAttribute->attribute_id,
-]);
-
+            if (!empty($variantData['color'])) {
+                $colorAttribute = VariantAttribute::firstOrCreate([
+                    'attribute_name' => 'Color',
+                    'attribute_value' => $variantData['color'],
+                ]);
+    
+                VariantAttributeValue::create([
+                    'variant_id' => $variant->variant_id,
+                    'attribute_id' => $colorAttribute->attribute_id,
+                ]);
+            }
+    
+            // ✅ Lưu Size vào bảng variant_attribute_values
+            if (!empty($variantData['size'])) {
+                $sizeAttribute = VariantAttribute::firstOrCreate([
+                    'attribute_name' => 'Size',
+                    'attribute_value' => $variantData['size'],
+                ]);
+    
+                VariantAttributeValue::create([
+                    'variant_id' => $variant->variant_id,
+                    'attribute_id' => $sizeAttribute->attribute_id,
+                ]);
+            }
         }
     
-        // 🚨 Nếu có lỗi, hiển thị lỗi và quay lại trang
+        // 🚨 Nếu có lỗi biến thể, trả về lỗi
         if (!empty($errors)) {
             return redirect()->back()->withInput()->withErrors(['variants' => $errors]);
         }
@@ -215,110 +220,73 @@ VariantAttributeValue::create([
      */
     public function update(Request $request, $id)
     {
-        // Tìm sản phẩm
+       
+        // ✅ Tìm sản phẩm cần cập nhật
         $product = Product::findOrFail($id);
     
-        // Cập nhật thông tin sản phẩm
+        // ✅ Cập nhật thông tin sản phẩm
         $product->update($request->only(['name', 'description', 'price', 'price_sale', 'stock', 'category_id']));
     
-        // Cập nhật ảnh sản phẩm
+        // ✅ Xử lý ảnh sản phẩm chính
         if ($request->hasFile('product_images')) {
+            // Xóa ảnh cũ trước khi cập nhật
             ProductImage::where('product_id', $product->product_id)->where('type', 'main')->delete();
+    
             foreach ($request->file('product_images') as $image) {
-                $path = $image->store('products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->product_id,
-                    'image_url' => $path,
-                    'type' => 'main',
-                ]);
+                if ($image->isValid()) {
+                    $path = $image->store('products', 'public');
+                    ProductImage::create([
+                        'product_id' => $product->product_id,
+                        'image_url' => $path,
+                        'type' => 'main',
+                    ]);
+                }
             }
         }
     
-        // Danh sách các biến thể đã tồn tại để kiểm tra trùng lặp
-        $existingVariants = ProductVariant::where('product_id', $product->product_id)
-            ->with(['attributes'])
-            ->get()
-            ->map(function ($variant) {
-                $color = $variant->attributes->where('attribute_name', 'Color')->first();
-                $size = $variant->attributes->where('attribute_name', 'Size')->first();
-                return [
-                    'variant_id' => $variant->variant_id,
-                    'color' => $color ? $color->attribute_value : null,
-                    'size' => $size ? $size->attribute_value : null
-                ];
-            });
+        // ✅ Xử lý biến thể sản phẩm
+        $variants = $request->input('variants', []);
+        dd($variants);
+        foreach ($variants as $variantData) {
+            // 🆕 Kiểm tra nếu biến thể đã tồn tại hay cần tạo mới
+            $variant = isset($variantData['variant_id'])
+                ? ProductVariant::find($variantData['variant_id'])
+                : new ProductVariant(['product_id' => $product->product_id]);
     
-        // Cập nhật hoặc thêm mới biến thể
-        // foreach ($request->variants as $variantData) {
-            $variants = $request->input('variants', []);
-            foreach ($variants as $variantData) {
-            $colorValue = $variantData['color'] ?? null;
-            $sizeValue = $variantData['size'] ?? null;
-    
-            // Kiểm tra biến thể có bị trùng không
-            $isDuplicate = $existingVariants->contains(function ($variant) use ($colorValue, $sizeValue, $variantData) {
-                return $variant['color'] === $colorValue && $variant['size'] === $sizeValue &&
-                       (!isset($variantData['variant_id']) || $variant['variant_id'] !== $variantData['variant_id']);
-            });
-    
-            if ($isDuplicate) {
-                return back()->withErrors(['variants' => "Biến thể với màu $colorValue và size $sizeValue đã tồn tại."]);
-            }
-    
-            // Kiểm tra nếu variant_id tồn tại
-            if (isset($variantData['variant_id'])) {
-                $variant = ProductVariant::find($variantData['variant_id']);
-            } else {
-                // Nếu không có variant_id, tạo mới
-                $variant = new ProductVariant();
-                $variant->product_id = $product->product_id;
-            }
-    
-            // Cập nhật biến thể
+            // ✅ Cập nhật thông tin biến thể
             $variant->price = floatval($variantData['price']);
             $variant->price_sale = floatval($variantData['price_sale'] ?? 0);
             $variant->stock = intval($variantData['stock']);
             $variant->save();
     
-            // Cập nhật ảnh biến thể
-            if (isset($variantData['images']) && is_array($variantData['images'])) {
-                ProductImage::where('variant_id', $variant->variant_id)->where('type', 'gallery')->delete();
+            // ✅ Xử lý ảnh biến thể (Giống `store()`)
+            if (!empty($variantData['images']) && is_array($variantData['images'])) {
                 foreach ($variantData['images'] as $variantImage) {
                     if ($variantImage instanceof \Illuminate\Http\UploadedFile) {
-                        $path = $variantImage->store('variants', 'public');
-                        ProductImage::create([
-                            'product_id' => $product->product_id,
-                            'variant_id' => $variant->variant_id,
-                            'image_url' => $path,
-                            'type' => 'gallery',
-                        ]);
+                        dd($variantImage);
                     }
                 }
             }
     
-            // Xóa thuộc tính cũ
+            // ✅ Cập nhật thuộc tính biến thể (Color & Size)
             VariantAttributeValue::where('variant_id', $variant->variant_id)->delete();
     
-            // Thêm thuộc tính mới (Color)
-            if (!empty($colorValue)) {
+            if (!empty($variantData['color'])) {
                 $colorAttribute = VariantAttribute::firstOrCreate([
                     'attribute_name' => 'Color',
-                    'attribute_value' => $colorValue,
+                    'attribute_value' => $variantData['color'],
                 ]);
-    
                 VariantAttributeValue::create([
                     'variant_id' => $variant->variant_id,
                     'attribute_id' => $colorAttribute->attribute_id,
                 ]);
             }
     
-            // Thêm thuộc tính mới (Size)
-            if (!empty($sizeValue)) {
+            if (!empty($variantData['size'])) {
                 $sizeAttribute = VariantAttribute::firstOrCreate([
                     'attribute_name' => 'Size',
-                    'attribute_value' => $sizeValue,
+                    'attribute_value' => $variantData['size'],
                 ]);
-    
                 VariantAttributeValue::create([
                     'variant_id' => $variant->variant_id,
                     'attribute_id' => $sizeAttribute->attribute_id,
@@ -328,6 +296,10 @@ VariantAttributeValue::create([
     
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được cập nhật thành công!');
     }
+    
+    
+    
+    
     
     
     public function destroy($id)

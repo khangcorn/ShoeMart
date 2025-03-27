@@ -245,6 +245,17 @@
                             ${sizeOptions}
                         </select>
                     </div>
+              <div class="form-group">
+    <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+    <input type="file" class="form-control variant-image-input"
+           id="variant_images_${variantIndex}"
+           name="variants[${variantIndex}][images][]"
+           multiple accept="image/*"
+           onchange="previewImage(event, ${variantIndex})">
+    <div class="image-preview" id="image_preview_${variantIndex}"></div>
+</div>
+
+
                     <p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
                     <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
                 `;
