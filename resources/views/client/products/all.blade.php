@@ -353,7 +353,7 @@
                                 {{ number_format($product->price, 0, ',', ',') }}
                                 <span class="text-xs underline font-thin absolute top-0.5 -left-19">đ</span>
                             </p>
-                            
+                              
 
                         </div>
                     @endforeach
