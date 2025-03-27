@@ -11,6 +11,7 @@
             <tr>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">#</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Category Name</th>
+             
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Image</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Action</th>
             </tr>
