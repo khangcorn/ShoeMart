@@ -67,6 +67,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        
         // ✅ Validate dữ liệu đầu vào
         $request->validate([
             'name' => 'required|string|max:255',
@@ -199,7 +200,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-       
+        dd($request->all());
         // ✅ Tìm sản phẩm cần cập nhật
         $product = Product::findOrFail($id);
     
@@ -208,15 +209,20 @@ class ProductController extends Controller
     
         // ✅ Xử lý ảnh sản phẩm chính
         if ($request->hasFile('product_images')) {
-            // Xóa ảnh cũ trước khi cập nhật
+            // Xóa ảnh chính cũ khỏi storage
+            $oldMainImages = ProductImage::where('product_id', $product->product_id)->where('type', 'main')->get();
+            foreach ($oldMainImages as $oldImage) {
+                Storage::delete('public/' . $oldImage->image_url);
+            }
             ProductImage::where('product_id', $product->product_id)->where('type', 'main')->delete();
     
+            // Lưu ảnh chính mới
             foreach ($request->file('product_images') as $image) {
                 if ($image->isValid()) {
-                    $path = $image->store('products', 'public');
+                    $path = $image->store('public/products');
                     ProductImage::create([
                         'product_id' => $product->product_id,
-                        'image_url' => $path,
+                        'image_url' => str_replace('public/', 'storage/', $path),
                         'type' => 'main',
                     ]);
                 }
@@ -225,7 +231,6 @@ class ProductController extends Controller
     
         // ✅ Xử lý biến thể sản phẩm
         $variants = $request->input('variants', []);
-        dd($variants);
         foreach ($variants as $variantData) {
             // 🆕 Kiểm tra nếu biến thể đã tồn tại hay cần tạo mới
             $variant = isset($variantData['variant_id'])
@@ -238,11 +243,26 @@ class ProductController extends Controller
             $variant->stock = intval($variantData['stock']);
             $variant->save();
     
-            // ✅ Xử lý ảnh biến thể (Giống `store()`)
+            // ✅ Xóa ảnh cũ của biến thể khỏi storage trước khi cập nhật
+            $oldVariantImages = ProductImage::where('variant_id', $variant->variant_id)->get();
+            foreach ($oldVariantImages as $oldImage) {
+                Storage::delete('public/' . $oldImage->image_url);
+            }
+            ProductImage::where('variant_id', $variant->variant_id)->delete();
+    
+            // ✅ Lưu ảnh biến thể mới
             if (!empty($variantData['images']) && is_array($variantData['images'])) {
                 foreach ($variantData['images'] as $variantImage) {
                     if ($variantImage instanceof \Illuminate\Http\UploadedFile) {
-                        dd($variantImage);
+                        $path = $variantImage->store('variants', 'public');
+                        $image = ProductImage::create([
+                            'product_id' => $product->product_id,
+                            'variant_id' => $variant->variant_id,
+                            'image_url' => $path,
+                            'type' => 'gallery',
+                        ]);
+                        exit("Đã lưu vào DB"); 
+                        
                     }
                 }
             }
@@ -275,6 +295,8 @@ class ProductController extends Controller
     
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được cập nhật thành công!');
     }
+    
+    
     
     
     
