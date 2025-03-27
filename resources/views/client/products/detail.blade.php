@@ -12,12 +12,16 @@
                                 <!-- Cột chứa ảnh biến thể -->
                                 <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
                                     @foreach ($product->variants as $variant)
-                                        @php
-                                            $variantImage = $variant->images->first();
-                                        @endphp
-                                        <img class="" src="{{ asset('storage/' . $variantImage->image_url) }}"
-                                            alt="{{ $variant->color }}" onclick="updateProductDetails(this)">
-                                    @endforeach
+                                    @php
+                                        $variantImage = optional($variant->images->first())->image_url;
+                                    @endphp
+                                
+                                    <img class="" 
+                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
+                                        alt="{{ $variant->color ?? 'No Color' }}" 
+                                        onclick="updateProductDetails(this)">
+                                @endforeach
+                                
                                 </div>
 
                                 <!-- Ảnh chính -->
@@ -60,21 +64,24 @@
                 <div class=" border-1 flex py-4 overflow-x-auto" id="variant-images-container">
 
                     @foreach ($product->variants as $variant)
-                        <div class="w-1/5 variant-item" data-variant-id="{{ $variant->id }}"
-                            @php
-$colorAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color');
-            $sizeAttribute = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'); @endphp
-                            data-color="{{ $colorAttribute ? $colorAttribute->variantAttribute->attribute_value : 'N/A' }}"
-                            data-size="{{ $sizeAttribute ? $sizeAttribute->variantAttribute->attribute_value : 'N/A' }}"
-                            data-price="{{ $variant->price }}" data-images="{{ json_encode($variant->images) }}">
-                            @php
-                                $variantImage = $variant->images->first();
-                            @endphp
-                            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                                src="{{ asset('storage/' . $variantImage->image_url) }}" alt="{{ $variant->color }}"
-                                onclick="updateProductDetails(this)">
-                        </div>
-                    @endforeach
+                    <div class="w-1/5 variant-item" data-variant-id="{{ $variant->id }}"
+                        @php
+                            $colorAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute;
+                            $sizeAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'))->variantAttribute;
+                            $variantImage = optional($variant->images->first())->image_url;
+                        @endphp
+                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                        data-price="{{ $variant->price }}"
+                        data-images="{{ json_encode($variant->images) }}">
+                
+                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                            alt="{{ $variant->color ?? 'No Color' }}"
+                            onclick="updateProductDetails(this)">
+                    </div>
+                @endforeach
+                
 
                 </div>
                 <!-- Hiển thị màu sắc của sản phẩm -->
