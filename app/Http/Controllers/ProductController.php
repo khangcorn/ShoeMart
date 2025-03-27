@@ -83,6 +83,7 @@ class ProductController extends Controller
     
         // ✅ Xử lý ảnh sản phẩm chính
         if ($request->hasFile('product_images')) {
+            if (!empty($request->images) && is_array($request->images)) {
             foreach ($request->file('product_images') as $image) {
                 if ($image->isValid()) {
                     $path = $image->store('products', 'public');
@@ -93,6 +94,9 @@ class ProductController extends Controller
                     ]);
                 }
             }
+        } else {
+            return back()->with('error', 'No images uploaded.');
+        }
         }
     
         // ✅ Tạo biến thể cho sản phẩm
@@ -245,7 +249,9 @@ VariantAttributeValue::create([
             });
     
         // Cập nhật hoặc thêm mới biến thể
-        foreach ($request->variants as $variantData) {
+        // foreach ($request->variants as $variantData) {
+            $variants = $request->input('variants', []);
+            foreach ($variants as $variantData) {
             $colorValue = $variantData['color'] ?? null;
             $sizeValue = $variantData['size'] ?? null;
     

@@ -620,6 +620,10 @@ video {
   position: relative;
 }
 
+.sticky {
+  position: sticky;
+}
+
 .-right-1 {
   right: -0.25rem;
 }
@@ -682,6 +686,18 @@ video {
 
 .z-10 {
   z-index: 10;
+}
+
+.col-span-1 {
+  grid-column: span 1 / span 1;
+}
+
+.col-span-4 {
+  grid-column: span 4 / span 4;
+}
+
+.col-span-5 {
+  grid-column: span 5 / span 5;
 }
 
 .mx-auto {
@@ -908,6 +924,50 @@ video {
   height: 80px;
 }
 
+.h-48 {
+  height: 12rem;
+}
+
+.h-\[70px\] {
+  height: 70px;
+}
+
+.h-\[90px\] {
+  height: 90px;
+}
+
+.h-\[592px\] {
+  height: 592px;
+}
+
+.h-\[300px\] {
+  height: 300px;
+}
+
+.h-\[300vh\] {
+  height: 300vh;
+}
+
+.h-\[500px\] {
+  height: 500px;
+}
+
+.h-\[400px\] {
+  height: 400px;
+}
+
+.h-\[350px\] {
+  height: 350px;
+}
+
+.h-\[324\.33px\] {
+  height: 324.33px;
+}
+
+.h-\[325px\] {
+  height: 325px;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -988,6 +1048,38 @@ video {
   width: 80px;
 }
 
+.w-\[70px\] {
+  width: 70px;
+}
+
+.w-\[90px\] {
+  width: 90px;
+}
+
+.w-\[592px\] {
+  width: 592px;
+}
+
+.w-\[300px\] {
+  width: 300px;
+}
+
+.w-\[300vh\] {
+  width: 300vh;
+}
+
+.w-\[500px\] {
+  width: 500px;
+}
+
+.w-\[350px\] {
+  width: 350px;
+}
+
+.w-\[325px\] {
+  width: 325px;
+}
+
 .max-w-3xl {
   max-width: 48rem;
 }
@@ -1010,6 +1102,10 @@ video {
 
 .max-w-sm {
   max-width: 24rem;
+}
+
+.max-w-screen-2xl {
+  max-width: 1536px;
 }
 
 .flex-1 {
@@ -1076,6 +1172,10 @@ video {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+.grid-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -1118,6 +1218,10 @@ video {
 
 .gap-6 {
   gap: 1.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
 }
 
 .space-x-3 > :not([hidden]) ~ :not([hidden]) {
@@ -1791,6 +1895,12 @@ video {
   transition-duration: 150ms;
 }
 
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .duration-200 {
   transition-duration: 200ms;
 }
@@ -1801,6 +1911,10 @@ video {
 
 .duration-75 {
   transition-duration: 75ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
 }
 
 .ease-in-out {
