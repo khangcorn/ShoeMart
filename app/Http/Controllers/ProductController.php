@@ -176,9 +176,15 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['category', 'variants.variantAttributeValues', 'images'])->findOrFail($id);
+        $product = Product::with([
+            'category',
+            'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
+            'images'
+        ])->findOrFail($id);
+ 
         return view('admin.product.show', compact('product'));
     }
+    
 
     public function edit($id)
     {

@@ -18,8 +18,9 @@ class VariantAttributeValue extends Model
         'variant_id',
         'attribute_id',
     ];
-    protected $primaryKey = null; // 🚨 Không có khóa chính đơn lẻ
+    protected $primaryKey = null; 
     public $incrementing = false;
+    
     public $timestamps = true;
 
     // Mối quan hệ với bảng ProductVariant

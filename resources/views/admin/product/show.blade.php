@@ -28,10 +28,9 @@
                     <p><strong>Stock:</strong> {{ $variant->stock }}</p>
                     
                     <h4 class="mt-2 font-semibold">Attributes:</h4>
-                    @foreach($variant->variantAttributeValues as $attribute)
-                        <p><strong>{{ $attribute->attribute_name }}:</strong> {{ $attribute->attribute_value }}</p>
-                    @endforeach
-                    
+                    @foreach($variant->variantAttributeValues as $value)
+                    <p>{{ $value->variantAttribute->attribute_name }}: {{ $value->variantAttribute->attribute_value }}</p>
+                @endforeach
                     <h4 class="mt-2 font-semibold">Variant Images:</h4>
                     <div class="flex gap-2 mt-2">
                         @foreach($variant->images as $image)
