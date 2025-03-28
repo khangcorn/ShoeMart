@@ -1084,6 +1084,26 @@ video {
   height: 550px;
 }
 
+.h-\[450px\] {
+  height: 450px;
+}
+
+.h-\[950px\] {
+  height: 950px;
+}
+
+.h-\[20px\] {
+  height: 20px;
+}
+
+.h-\[25px\] {
+  height: 25px;
+}
+
+.max-h-\[450px\] {
+  max-height: 450px;
+}
+
 .min-h-screen {
   min-height: 100vh;
 }
@@ -1198,6 +1218,14 @@ video {
 
 .w-\[312px\] {
   width: 312px;
+}
+
+.w-\[20px\] {
+  width: 20px;
+}
+
+.w-\[25px\] {
+  width: 25px;
 }
 
 .max-w-3xl {
@@ -1628,6 +1656,11 @@ video {
 
 .stroke-black {
   stroke: #000;
+}
+
+.object-contain {
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 
 .object-cover {

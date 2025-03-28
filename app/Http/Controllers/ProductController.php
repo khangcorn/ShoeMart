@@ -174,16 +174,32 @@ class ProductController extends Controller
     /**
      * Hiển thị chi tiết một sản phẩm.
      */
-    public function show($id)
-    {
-        $product = Product::with([
-            'category',
-            'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
-            'images'
-        ])->findOrFail($id);
+    // public function show($id)
+    // {
+    //     $product = Product::with([
+    //         'category',
+    //         'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
+    //         'images'
+    //     ])->findOrFail($id);
  
-        return view('admin.product.show', compact('product'));
-    }
+    //     return view('admin.product.show', compact('product'));
+    // }
+    public function show($id)
+{
+    $product = Product::with([
+        'category',
+        'variants.variantAttributeValues.variantAttribute', 
+        'images'
+    ])->findOrFail($id);
+
+    // Nhóm biến thể theo màu
+    $variants = $product->variants->groupBy(function ($variant) {
+        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute->attribute_value;
+    });
+
+    return view('admin.product.show', compact('product', 'variants'));
+}
+
     
 
     public function edit($id)
