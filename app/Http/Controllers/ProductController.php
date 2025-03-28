@@ -230,12 +230,22 @@ class ProductController extends Controller
     
         // ✅ 4. Xử lý biến thể sản phẩm
         $variants = $request->input('variants', []);
+
         foreach ($variants as $index => $variantData) {
             // ✅ Kiểm tra nếu biến thể đã tồn tại hoặc cần tạo mới
             $variant = !empty($variantData['variant_id']) 
             ? ProductVariant::find($variantData['variant_id']) 
             : new ProductVariant(['product_id' => $product->product_id]);
         
+
+        // dd($variants);
+        foreach ($variants as $variantData) {
+            // 🆕 Kiểm tra nếu biến thể đã tồn tại hay cần tạo mới
+            $variant = isset($variantData['variant_id'])
+                ? ProductVariant::find($variantData['variant_id'])
+                : new ProductVariant(['product_id' => $product->product_id]);
+    
+
             // ✅ Cập nhật thông tin biến thể
             $variant->price = floatval($variantData['price']);
             $variant->price_sale = floatval($variantData['price_sale'] ?? 0);
