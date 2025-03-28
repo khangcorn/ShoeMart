@@ -160,7 +160,7 @@
                         <div class="grid grid-cols-3 gap-2">
                             @foreach($variant->images as $image)
                                 <div class="relative">
-                                    <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
+                                    <img src="{{ asset('' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
                                 </div>
                             @endforeach
                         </div>
