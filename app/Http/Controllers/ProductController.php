@@ -76,14 +76,14 @@ class ProductController extends Controller
             'price_sale' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array',
             'variants.*.color' => 'required|string',
             'variants.*.size' => 'required|string',
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.price_sale' => 'nullable|numeric|min:0',
             'variants.*.stock' => 'required|integer|min:0',
-            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
     
         // ✅ Tạo sản phẩm
