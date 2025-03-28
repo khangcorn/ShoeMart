@@ -262,7 +262,7 @@ if ($request->hasFile("variants.{$index}.images")) {
                         ProductImage::create([
                             'product_id' => $product->product_id,
                           'variant_id' => $variant->variant_id,
-                            'image_url' => str_replace('public/', 'storage/', $path),
+                            'image_url' => str_replace('public/', '', $path),
                             'type' => 'gallery',
                         ]);
                     }
