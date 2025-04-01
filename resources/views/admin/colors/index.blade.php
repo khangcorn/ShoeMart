@@ -3,6 +3,18 @@
 @section('content')
     <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-10">
         <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Colors</h3>
+        @if (session('error'))
+        <div class="bg-red-500 text-white p-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Hiển thị thông báo thành công nếu có --}}
+    @if (session('success'))
+        <div class="bg-green-500 text-white p-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
 
         <div class="flex justify-end mb-4">
             <a href="{{ route('colors.create') }}"

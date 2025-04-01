@@ -80,9 +80,19 @@ class ColorController extends Controller
     }
     public function destroy($id)
     {
+        // Tìm color theo ID
         $color = VariantAttribute::where('attribute_name', 'color')->findOrFail($id);
+    
+        // Kiểm tra xem color này có đang được sử dụng trong variant_attribute_values
+        $isUsed = $color->variantAttributeValues()->exists();
+    
+        if ($isUsed) {
+            return redirect()->route('colors.index')->with('error', 'Không thể xóa! color này đang được sử dụng trong một biến thể sản phẩm.');
+        }
+    
+        // Nếu không bị ràng buộc, tiến hành xóa
         $color->delete();
-
-        return redirect()->route('colors.index')->with('success', 'Color deleted successfully');
+    
+        return redirect()->route('colors.index')->with('success', 'color deleted successfully');
     }
 }

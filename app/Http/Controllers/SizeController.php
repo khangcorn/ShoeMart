@@ -82,9 +82,20 @@ class SizeController extends Controller
 
     public function destroy($id)
     {
+        // Tìm size theo ID
         $size = VariantAttribute::where('attribute_name', 'size')->findOrFail($id);
+    
+        // Kiểm tra xem size này có đang được sử dụng trong variant_attribute_values
+        $isUsed = $size->variantAttributeValues()->exists();
+    
+        if ($isUsed) {
+            return redirect()->route('sizes.index')->with('error', 'Không thể xóa! Size này đang được sử dụng trong một biến thể sản phẩm.');
+        }
+    
+        // Nếu không bị ràng buộc, tiến hành xóa
         $size->delete();
-
+    
         return redirect()->route('sizes.index')->with('success', 'Size deleted successfully');
     }
+    
 }
