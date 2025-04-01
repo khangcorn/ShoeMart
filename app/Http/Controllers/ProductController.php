@@ -76,30 +76,29 @@ class ProductController extends Controller
             'price_sale' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
-<<<<<<< HEAD
+
             
         
         'product_images' => 'required|array|min:1',
             'variants' => 'required|array|min:1',
             'variants.*.color' => 'required|string|max:50',
             'variants.*.size' => 'required|string|max:50',
-=======
+
             'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array',
             'variants.*.color' => 'required|string',
             'variants.*.size' => 'required|string',
->>>>>>> f375f400296300cd5cface5dbf4bde91e5388baf
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.price_sale' => 'nullable|numeric|min:0|lte:variants.*.price',
             'variants.*.stock' => 'required|integer|min:0',
-<<<<<<< HEAD
+
             
             'product_images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
 'variants.*.images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
 
-=======
+
             'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
->>>>>>> f375f400296300cd5cface5dbf4bde91e5388baf
+
         ]);
         
         
