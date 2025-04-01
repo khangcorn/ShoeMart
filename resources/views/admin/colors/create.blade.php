@@ -11,6 +11,12 @@
                 <label class="block text-gray-600 font-medium">Color Value:</label>
                 <input type="text" name="attribute_value" required
                     class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+                    @if (session('error'))
+    <div class="bg-red-500 text-white p-2 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
+
             </div>
 
             <div class="flex justify-between">

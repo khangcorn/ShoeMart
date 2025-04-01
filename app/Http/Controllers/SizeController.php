@@ -23,14 +23,25 @@ class SizeController extends Controller
         $request->validate([
             'attribute_value' => 'required|string|max:100',
         ]);
-
+    
+        // Kiểm tra xem size đã tồn tại chưa
+        $exists = VariantAttribute::where('attribute_name', 'size')
+            ->where('attribute_value', $request->attribute_value)
+            ->exists();
+    
+        if ($exists) {
+            return redirect()->back()->with('error', 'Size này đã tồn tại.');
+        }
+    
+        // Nếu không trùng, tiến hành tạo mới
         VariantAttribute::create([
             'attribute_name' => 'size',
             'attribute_value' => $request->attribute_value,
         ]);
-
+    
         return redirect()->route('sizes.index')->with('success', 'Size created successfully');
     }
+    
 
     public function edit($id)
     {
@@ -40,18 +51,34 @@ class SizeController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Tìm size cần cập nhật
         $size = VariantAttribute::where('attribute_name', 'size')->findOrFail($id);
-
+    
+        // Chuẩn hóa dữ liệu (loại bỏ khoảng trắng thừa)
+        $newSizeValue = trim($request->attribute_value);
+    
         $request->validate([
             'attribute_value' => 'required|string|max:100',
         ]);
-
+    
+        // Kiểm tra xem size có bị trùng hay không
+        $exists = VariantAttribute::where('attribute_name', 'size')
+            ->where('attribute_value', $newSizeValue)
+            ->where('attribute_id', '!=', $id) // Loại trừ ID hiện tại
+            ->exists();
+    
+        if ($exists) {
+            return redirect()->back()->with('error', 'Size này đã tồn tại.');
+        }
+    
+        // Nếu không trùng, tiến hành cập nhật
         $size->update([
-            'attribute_value' => $request->attribute_value,
+            'attribute_value' => $newSizeValue,
         ]);
-
+    
         return redirect()->route('sizes.index')->with('success', 'Size updated successfully');
     }
+    
 
     public function destroy($id)
     {

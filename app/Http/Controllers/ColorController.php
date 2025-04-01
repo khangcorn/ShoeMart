@@ -23,14 +23,25 @@ class ColorController extends Controller
         $request->validate([
             'attribute_value' => 'required|string|max:100',
         ]);
-
+    
+        // Kiểm tra xem color đã tồn tại chưa
+        $exists = VariantAttribute::where('attribute_name', 'color')
+            ->where('attribute_value', $request->attribute_value)
+            ->exists();
+    
+        if ($exists) {
+            return redirect()->back()->with('error', 'Color này đã tồn tại.');
+        }
+    
+        // Nếu không trùng, tiến hành tạo mới
         VariantAttribute::create([
             'attribute_name' => 'color',
             'attribute_value' => $request->attribute_value,
         ]);
-
+    
         return redirect()->route('colors.index')->with('success', 'Color created successfully');
     }
+    
 
     public function edit($id)
     {
@@ -40,19 +51,33 @@ class ColorController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Tìm color cần cập nhật
         $color = VariantAttribute::where('attribute_name', 'color')->findOrFail($id);
-
+    
+        // Chuẩn hóa dữ liệu (loại bỏ khoảng trắng thừa)
+        $newColorValue = trim($request->attribute_value);
+    
         $request->validate([
             'attribute_value' => 'required|string|max:100',
         ]);
-
+    
+        // Kiểm tra xem color có bị trùng hay không
+        $exists = VariantAttribute::where('attribute_name', 'color')
+            ->where('attribute_value', $newColorValue)
+            ->where('attribute_id', '!=', $id) // Loại trừ ID hiện tại
+            ->exists();
+    
+        if ($exists) {
+            return redirect()->back()->with('error', 'color này đã tồn tại.');
+        }
+    
+        // Nếu không trùng, tiến hành cập nhật
         $color->update([
-            'attribute_value' => $request->attribute_value,
+            'attribute_value' => $newColorValue,
         ]);
-
-        return redirect()->route('colors.index')->with('success', 'Color updated successfully');
+    
+        return redirect()->route('colors.index')->with('success', 'color updated successfully');
     }
-
     public function destroy($id)
     {
         $color = VariantAttribute::where('attribute_name', 'color')->findOrFail($id);
