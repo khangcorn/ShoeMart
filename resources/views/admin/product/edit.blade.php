@@ -135,7 +135,7 @@
                                 <option value="">Chọn màu</option>
                                 @foreach($allColors as $color)
                                     <option value="{{ $color }}" 
-                                        {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
+                                        {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
                                         {{ $color }}
                                     </option>
                                 @endforeach
@@ -148,7 +148,7 @@
                                 <option value="">Chọn kích cỡ</option>
                                 @foreach($allSizes as $size)
                                     <option value="{{ $size }}" 
-                                        {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
+                                        {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
                                         {{ $size }}
                                     </option>
                                 @endforeach
