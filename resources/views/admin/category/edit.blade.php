@@ -11,14 +11,14 @@
         <!-- Tên danh mục -->
         <div>
             <label for="name" class="block font-medium">Category Name</label>
-            <input type="text" name="name" class="w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->name) }}" required>
+            <input type="text" name="name" class=" text-black w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->name) }}" required>
             @error('name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
         <div>
             <label for="name" class="block font-medium">Description</label>
-            <input type="text" name="name" class="w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->description) }}" required>
+            <input type="text" name="name" class=" text-black w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->description) }}" required>
             @error('name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
@@ -27,7 +27,7 @@
         <!-- Chọn danh mục cha -->
         <div class="mt-4">
             <label for="parent_id" class="block font-medium">Parent Category</label>
-            <select name="parent_id" class="w-full p-2 border rounded @error('parent_id') border-red-500 @enderror">
+            <select name="parent_id" class=" text-black w-full p-2 border rounded @error('parent_id') border-red-500 @enderror">
                 <option value="">Select Parent Category (Optional)</option>
                 @foreach($categories as $parentCategory)
                     <option value="{{ $parentCategory->category_id }}" 

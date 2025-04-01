@@ -37,7 +37,7 @@
         </li>
 
         <li>
-            <a class=" p-2.5  rounded flex items-center" href="{{ route('variant_attributes.index') }}"
+            <a class=" p-2.5  rounded flex items-center" href="{{ route('sizes.index') }}"
                 aria-label="Go to Categories">
                 <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
@@ -50,7 +50,24 @@
                             fill="#000000"></path>
                     </g>
                 </svg>
-                <span class="ml-2">Attributtes</span>
+                <span class="ml-2">Size</span>
+            </a>
+        </li>
+        <li>
+            <a class=" p-2.5  rounded flex items-center" href="{{ route('colors.index') }}"
+                aria-label="Go to Categories">
+                <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_iconCarrier">
+                        <path fill-rule="evenodd" class="dark:stroke-white" clip-rule="evenodd"
+                            d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z"
+                            stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path
+                            d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z"
+                            fill="#000000"></path>
+                    </g>
+                </svg>
+                <span class="ml-2">Color</span>
             </a>
         </li>
 

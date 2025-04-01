@@ -46,27 +46,35 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
-
             <div>
                 <label class="block text-sm font-medium"> Số Lượng</label>
-                <input type="number" name="stock" id="total_stock_input">
+                <input type="number" name="stock" id="total_stock_input" class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock') }}">
+                @error('stock')
+                    <div class="text-red-500 invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
-
+            
             <div class="form-group">
                 <label for="category_id">Danh Mục</label>
-                <select class="  text-black form-control" id="category_id" name="category_id">
+                <select class="text-black form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
                     <option value="">Chọn Danh Mục</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->category_id }}">{{ $category->name }}</option>
+                        <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
                     @endforeach
                 </select>
+                @error('category_id')
+                    <div class="text-red-500 invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
+            
             <div>
                 <label for="product_images" class="  text-black block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
                 <input type="file" id="product_images" name="product_images[]" multiple
                     class="w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
                 @error('product_images')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                <div class="text-red-500 invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
@@ -91,45 +99,44 @@
                 newVariant.classList.add('variant', 'mt-3', 'border', 'p-3', 'rounded-lg', 'shadow-md');
         
                 newVariant.innerHTML =  `
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control variant-price" name="variants[${variantIndex}][price]" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control variant-sale-price" name="variants[${variantIndex}][price_sale]" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" class="form-control variant-stock" name="variants[${variantIndex}][stock]" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Màu sắc</label>
-                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn màu</option>
-                            @foreach($colors as $color)
-                                <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kích cỡ</label>
-                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
-                            <option value="">Chọn kích cỡ</option>
-                            @foreach($sizes as $size)
-                                <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
+          <div class="form-group">
+    <label>Giá</label>
+    <input type="number" class="form-control variant-price border border-dark text-black w-full" name="variants[${variantIndex}][price]" value="">
+</div>
+<div class="form-group">
+    <label>Giá Khuyến Mãi</label>
+    <input type="number" class="form-control variant-sale-price border border-dark text-black w-full" name="variants[${variantIndex}][price_sale]" value="">
+</div>
+<div class="form-group">
+    <label>Số lượng</label>
+    <input type="number" class="form-control variant-stock border border-dark text-black w-full" name="variants[${variantIndex}][stock]" value="0">
+</div>
+<div class="form-group">
+    <label>Màu sắc</label>
+    <select class="form-control variant-color border border-dark text-black w-full" name="variants[${variantIndex}][color]">
+        <option value="">Chọn màu</option>
+        @foreach($colors as $color)
+            <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="form-group">
+    <label>Kích cỡ</label>
+    <select class="form-control variant-size border border-dark text-black w-full" name="variants[${variantIndex}][size]">
+        <option value="">Chọn kích cỡ</option>
+        @foreach($sizes as $size)
+            <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="form-group">
     <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
-    <input type="file" class="form-control variant-image-input" 
-        id="variant_images_${variantIndex}" 
-        name="variants[${variantIndex}][images][]" multiple accept="image/*">
+    <input type="file" class="form-control variant-image-input border border-dark w-full" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
     <div class="image-preview" id="image_preview_${variantIndex}"></div>
 </div>
-                    <p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
-                    <button type="button" class="btn btn-danger mt-2 remove-variant">Xóa Biến Thể</button>
+<p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
+<button type="button" class="btn btn-danger mt-2 remove-variant">Xóa Biến Thể</button>
+
             `;
         
                 // Thêm vào danh sách biến thể

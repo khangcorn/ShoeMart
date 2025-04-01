@@ -102,78 +102,80 @@
                     <input type="hidden" name="variants[{{ $index }}][variant_id]" value="{{ $variant->variant_id }}">
             
                     <!-- Giá và giá khuyến mãi -->
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="  text-black form-control" name="variants[{{ $index }}][price]"
-                            value="{{ $variant->price }}">
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="form-group">
+                            <label class="text-dark">Giá</label>
+                            <input type="number" class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][price]"
+                                value="{{ $variant->price }}">
+                        </div>
             
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="  text-black form-control" name="variants[{{ $index }}][price_sale]"
-                            value="{{ $variant->price_sale }}">
-                    </div>
+                        <div class="form-group">
+                            <label class="text-dark">Giá Khuyến Mãi</label>
+                            <input type="number" class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][price_sale]"
+                                value="{{ $variant->price_sale }}">
+                        </div>
             
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" class="form-control" name="variants[{{ $index }}][stock]" 
-                        value="{{ $variant->stock }}">
+                        <div class="form-group">
+                            <label class="text-dark">Số lượng</label>
+                            <input type="number" class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][stock]" 
+                            value="{{ $variant->stock }}">
+                        </div>
                     </div>
             
                     <!-- Chọn màu sắc -->
                     @php
-                    // Lấy tất cả các màu và kích cỡ có sẵn
                     $allColors = \App\Models\VariantAttribute::where('attribute_name', 'Color')->pluck('attribute_value');
                     $allSizes = \App\Models\VariantAttribute::where('attribute_name', 'Size')->pluck('attribute_value');
                     @endphp
             
-                    <div class="form-group">
-                        <label for="color">Màu sắc</label>
-                        <select class="text-black form-control" name="variants[{{ $index }}][color]">
-                            <option value="">Chọn màu</option>
-                            @foreach($allColors as $color)
-                                <option value="{{ $color }}" 
-                                    {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
-                                    {{ $color }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="form-group">
+                            <label class="text-dark">Màu sắc</label>
+                            <select class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][color]">
+                                <option value="">Chọn màu</option>
+                                @foreach($allColors as $color)
+                                    <option value="{{ $color }}" 
+                                        {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
+                                        {{ $color }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
             
-                    <!-- Chọn kích cỡ -->
-                    <div class="form-group">
-                        <label for="size">Chọn kích cỡ</label>
-                        <select class="text-black form-control" name="variants[{{ $index }}][size]">
-                            <option value="">Chọn kích cỡ</option>
-                            @foreach($allSizes as $size)
-                                <option value="{{ $size }}" 
-                                    {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
-                                    {{ $size }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="form-group">
+                            <label class="text-dark">Chọn kích cỡ</label>
+                            <select class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][size]">
+                                <option value="">Chọn kích cỡ</option>
+                                @foreach($allSizes as $size)
+                                    <option value="{{ $size }}" 
+                                        {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
+                                        {{ $size }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
             
                     <!-- Hình ảnh biến thể -->
-                    <div class="form-group">
-                        <label>Hình Ảnh Biến Thể</label>
-                        <div class="grid grid-cols-3 gap-2">
+                    <div class="form-group mb-4">
+                        <label class="text-dark">Hình Ảnh Biến Thể</label>
+                        <div class="grid grid-cols-3 gap-2 mb-4">
                             @foreach($variant->images as $image)
                                 <div class="relative">
                                     <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
                                 </div>
                             @endforeach
                         </div>
-                        <input type="file" class="form-control mt-2" name="variants[{{ $index }}][images][]" multiple>
+                        <input type="file" class="form-control mt-2 border border-dark w-full" name="variants[{{ $index }}][images][]" multiple>
                     </div>
             
                     <!-- Xóa biến thể -->
                     <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}"
                         data-product-id="{{ $product->product_id }}">Xóa Biến Thể</button>
                 </div>
-            @endforeach
-            
+                @endforeach
             </div>
+            
 
             <!-- Thêm Biến Thể -->
             <button type="button" class="btn btn-primary" id="add_variant_button">Thêm Biến Thể</button>
