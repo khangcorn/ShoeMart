@@ -8,31 +8,35 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <div class="flex space-x-3.5">
-                                <!-- Cột chứa ảnh biến thể -->
-                                <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
-                                    @foreach ($product->variants as $variant)
-                                    @php
-                                        $variantImage = optional($variant->images->first())->image_url;
-                                    @endphp
-                                
-                                    <img class="" 
-                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
-                                        alt="{{ $variant->color ?? 'No Color' }}" 
-                                        onclick="updateProductDetails(this)">
-                                @endforeach
-                                
+                            <div class="flex space-x-3.5 ">
+                                <!-- Cột chứa ảnh chi tiết biến thể -->
+                                <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
+                                    <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
+                                        @foreach ($product->variants as $variant)
+                                            @foreach ($variant->images as $image)
+                                                <img 
+                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
+                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
+                                                    alt="{{ $variant->color ?? 'No Color' }}"
+                                                    data-color="{{ $variant->color }}"
+                                                    data-price="{{ $variant->price }}"
+                                                    data-size="{{ $variant->size }}"
+                                                    data-images="{{ json_encode($variant->images) }}"
+                                                    onclick="updateProductDetails(this)">
+                                            @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
+                                
 
                                 <!-- Ảnh chính -->
-                                <div class="relative">
+                                <div class="relative ">
                                     @php
-                                  $mainImage = optional($product->images->first())->image_url;
+                                        $mainImage = optional($product->images->first())->image_url;
                                     @endphp
-                                   <img id="main-product-image"
-                                   class="object-cover w-auto h-[550px] " 
-                                    alt="{{ $product->name }}"
-                                   src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
+                                    <img id="main-product-image" class="object-cover w-auto h-[550px] rounded-lg"
+                                        alt="{{ $product->name }}"
+                                        src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
                                     <p
                                         class="absolute top-4 left-4 cursor-pointer border-[1px] bg-white border-gray-200 rounded-full px-4 py-2 flex gap-2 items-center">
@@ -44,6 +48,7 @@
                                                 clip-rule="evenodd"></path>
                                         </svg> Highly Rated
                                     </p>
+
                                 </div>
                             </div>
 
@@ -53,45 +58,72 @@
             </div>
 
             <!-- Thông tin sản phẩm -->
-            <div class="w-full md:w-1/2 md:pl-8 mt-6 md:mt-0">
-                <p class="font-semibold text-orange-600">Sustainable Materials </p>
+            <div class="w-full md:w-1/2 md:pl-4 mt-6 md:mt-0">
+                <p class="font-semibold text-orange-600">
+                    {{ $product->category->parent ? $product->category->parent->name : $product->category->name }} </p>
                 <p class="text-lg font-semibold text-gray-900">{{ $product->name }}</p>
                 <p class="text-gray-400 font-semibold">{{ $product->category->name }}</p>
                 <p class="font-semibold py-2" id="product-price">
-                    {{ number_format((int) $product->price, 0, ',', '.') }} <span class="font-normal text-sm underline">đ</span>
+                    {{ number_format($product->price, 0, ',', '.') }} <span class="font-normal text-sm underline">đ</span>
                 </p>
-                
-                
-                
+
+
+
+
                 <!-- Ảnh biến thể dưới -->
-                <div class=" border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+                <div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+                    @php
+                        $groupedVariants = $product->variants->groupBy(function ($variant) {
+                            return optional(
+                                $variant->variantAttributeValues->firstWhere(
+                                    'variantAttribute.attribute_name',
+                                    'Color',
+                                ),
+                            )->variantAttribute->attribute_value ?? 'No Color';
+                        });
+                    @endphp
 
-                    @foreach ($product->variants as $variant)
-                    <div class="w-1/5 variant-item" data-variant-id="{{ $variant->id }}"
+                    @foreach ($groupedVariants as $color => $variants)
                         @php
-                            $colorAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute;
-                            $sizeAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'))->variantAttribute;
-                            $variantImage = optional($variant->images->first())->image_url;
+                            $firstVariant = $variants->first();
+                            $colorAttribute = optional(
+                                $firstVariant->variantAttributeValues->firstWhere(
+                                    'variantAttribute.attribute_name',
+                                    'Color',
+                                ),
+                            )->variantAttribute;
+                            $sizeAttribute = optional(
+                                $firstVariant->variantAttributeValues->firstWhere(
+                                    'variantAttribute.attribute_name',
+                                    'Size',
+                                ),
+                            )->variantAttribute;
+                            $variantImage = optional($firstVariant->images->first())->image_url;
                         @endphp
-                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $variant->price }}"
-                        data-images="{{ json_encode($variant->images) }}">
-                
-                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                            alt="{{ $variant->color ?? 'No Color' }}"
-                            onclick="updateProductDetails(this)">
-                    </div>
-                @endforeach
-                
 
+                        <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
+                            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                            data-price="{{ $firstVariant->price }}"
+                            data-images="{{ json_encode($firstVariant->images) }}">
+
+                            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                                alt="{{ $color }}"
+                                data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                                data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                                data-price="{{ $firstVariant->price }}"
+                                
+                                >
+                        </div>
+                    @endforeach
                 </div>
+
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
                     <div class=" mb-1 mt-4 flex justify-between">
                         <label for="color" class="block font-semibold">Color</label>
-                      
+
                     </div>
                 </div>
                 <div class="py-2 flex justify-between">
@@ -106,49 +138,36 @@
                             </path>
                         </svg> Size guide</p>
                 </div>
-
-
-
-                <!-- Hiển thị kích thước của sản phẩm -->
-                {{-- <div class="">
-                <div class="grid grid-cols-4 gap-2">
-                    @php
-                        $sizeArray = $sizes->toArray(); 
-                    @endphp
-            
-                    @for ($size = 30; $size <= 41; $size++)
-                        <p id="selected-size" class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md 
-                            {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'bg-white opacity-50 line-through' }}">
-                            EU {{ $size }}
-                        </p>
-                    @endfor
-                </div>
-            </div> --}}
-            <div>
-                <div class="grid grid-cols-4 gap-2">
-                    @php
-                        $currentVariant = $product->variants->first(); // Lấy biến thể đầu tiên làm mặc định
-                        $sizeArray = $currentVariant
-                            ? $currentVariant->variantAttributeValues
+                @php
+                    // Lấy tất cả các size có trong các biến thể của sản phẩm
+                    $sizeArray = $product->variants
+                        ->flatMap(function ($variant) {
+                            return $variant->variantAttributeValues
                                 ->where('variantAttribute.attribute_name', 'Size')
-                                ->pluck('variantAttribute.attribute_value')
-                                ->toArray()
-                            : [];
-                    @endphp
-            
+                                ->pluck('variantAttribute.attribute_value');
+                        })
+                        ->unique()
+                        ->toArray();
+                @endphp
+
+                <div class="grid grid-cols-4 gap-2">
                     @for ($size = 30; $size <= 41; $size++)
                         <p class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md size-option
-                        {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'opacity-50 line-through bg-white hover:cursor-pointer' }}"
+                    {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'opacity-50 line-through bg-white hover:cursor-pointer' }}"
                             data-size="{{ $size }}" onclick="selectSize(this)">
                             EU {{ $size }}
                         </p>
                     @endfor
+                    {{-- @php
+    dd($sizeArray);
+@endphp --}}
+
                 </div>
-            </div>
-            
-        
-            
-            
+
+
+
+
+
                 <!-- Hiển thị kích thước đã chọn -->
                 <div class="hidden">
                     <p id="selected-size" class="mt-2 text-sm text-gray-700">Chưa chọn kích thước</p>
@@ -163,7 +182,9 @@
 
                 <!-- Thêm vào giỏ hàng -->
                 <div class="space-y-2 mt-8">
-                    <button class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold ">Add to
+                    <button
+                        class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold ">Add
+                        to
                         Bag</button>
 
                     <button
@@ -179,31 +200,53 @@
                     </button>
                 </div>
                 <div class="py-8">
-                    <p class="">Maximum cushioning in the Vomero provides a comfortable ride for everyday runs. Our softest, most cushioned ride has lightweight ZoomX foam stacked on top of responsive ReactX foam in the midsole. Plus, a redesigned traction pattern offers a smooth heel-to-toe transition.
+                    <p class="">Maximum cushioning in the Vomero provides a comfortable ride for everyday runs. Our
+                        softest, most cushioned ride has lightweight ZoomX foam stacked on top of responsive ReactX foam in
+                        the midsole. Plus, a redesigned traction pattern offers a smooth heel-to-toe transition.
 
                     </p>
-                    <li id="selected-color" class=" ">Colour Shown:   <p  class="">
-                        @forelse ($colors as $color)
-                            <span>{{ $color }}</span>
-                            @if (!$loop->last)
-                                ,
-                            @endif
-                        @empty
-                            <span>Chưa có màu</span>
-                        @endforelse
-                    </p></li>
+                    <li id="selected-color" class=" ">Colour Shown: <p class="">
+                            @forelse ($colors as $color)
+                                <span>{{ $color }}</span>
+                                @if (!$loop->last)
+                                    ,
+                                @endif
+                            @empty
+                                <span>Chưa có màu</span>
+                            @endforelse
+                        </p>
+                    </li>
                     <li class="">Style: HM6803-101</li>
                     <li class="">Country/Region of Origin: Vietnam</li>
                     <p class="font-semibold underline py-4">View Product Details</p>
                 </div>
                 <div x-data="{ isOpen: false }" class="w-full max-w-md mx-auto">
                     <!-- Header -->
-                    <div class="flex py-4 p-2 border-b border-gray-200 items-center justify-between cursor-pointer" @click="isOpen=!isOpen">
+                    <div class="flex py-4 p-2 border-b border-gray-200 items-center justify-between cursor-pointer"
+                        @click="isOpen=!isOpen">
                         <p class="font-semibold text-lg">Free Delivery and Returns</p>
-                        <svg width="20px" height="20px"  viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" transform="rotate(270)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools --> <title>ic_fluent_ios_arrow_left_24_filled</title> <desc>Created with Sketch.</desc> <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="ic_fluent_ios_arrow_left_24_filled" fill="#212121" fill-rule="nonzero"> <path d="M12.7270006,3.68663679 C13.1062197,3.28512543 13.0881482,2.6522184 12.6866368,2.27299937 C12.2851254,1.89378034 11.6522184,1.91185185 11.2729994,2.31336321 L2.77268886,11.3133632 C2.40871099,11.6987375 2.4086868,12.3011749 2.77263373,12.6865784 L11.2729442,21.6880264 C11.652131,22.0895682 12.2850366,22.1076905 12.6865784,21.7285038 C13.0881202,21.349317 13.1062426,20.7164114 12.7270558,20.3148696 L4.87515196,12.0000552 L12.7270006,3.68663679 Z" id="🎨-Color"> </path> </g> </g> </g></svg>
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"
+                            transform="rotate(270)">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                                <title>ic_fluent_ios_arrow_left_24_filled</title>
+                                <desc>Created with Sketch.</desc>
+                                <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none"
+                                    fill-rule="evenodd">
+                                    <g id="ic_fluent_ios_arrow_left_24_filled" fill="#212121" fill-rule="nonzero">
+                                        <path
+                                            d="M12.7270006,3.68663679 C13.1062197,3.28512543 13.0881482,2.6522184 12.6866368,2.27299937 C12.2851254,1.89378034 11.6522184,1.91185185 11.2729994,2.31336321 L2.77268886,11.3133632 C2.40871099,11.6987375 2.4086868,12.3011749 2.77263373,12.6865784 L11.2729442,21.6880264 C11.652131,22.0895682 12.2850366,22.1076905 12.6865784,21.7285038 C13.0881202,21.349317 13.1062426,20.7164114 12.7270558,20.3148696 L4.87515196,12.0000552 L12.7270006,3.68663679 Z"
+                                            id="🎨-Color"> </path>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
                     </div>
-                 
-                
+
+
                     <!-- Dropdown Content -->
                     <div x-show="isOpen" x-transition class="overflow-hidden rounded-md text-sm text-gray-600">
                         <p>
@@ -216,7 +259,7 @@
                         <span class="font-bold">Nike Members enjoy free returns.</span>
                     </div>
                 </div>
-                
+
 
 
 
@@ -232,105 +275,147 @@
     </div>
 
 
-  
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const firstVariant = document.querySelector(".variant-item");
-                if (firstVariant) {
-                    updateProductDetails(firstVariant);
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const firstVariant = document.querySelector(".variant-item");
+            if (firstVariant) {
+                updateProductDetails(firstVariant);
+            }
+        });
+
+        function updateProductDetails(element) {
+            // Xóa trạng thái active của tất cả biến thể
+            document.querySelectorAll('.variant-item').forEach(variant => {
+                variant.classList.remove('border-black');
+            });
+
+            // Đánh dấu biến thể đang chọn
+            element.classList.add('border-black');
+
+            // Lấy dữ liệu từ biến thể đã chọn
+            const variant = element.closest('.variant-item');
+            const color = variant.getAttribute('data-color');
+            const price = variant.getAttribute('data-price');
+            const imagesData = variant.getAttribute('data-images');
+
+            let images = [];
+            try {
+                images = JSON.parse(imagesData);
+            } catch (error) {
+                console.error("Error parsing images data:", error);
+            }
+
+            // Cập nhật hình ảnh chính
+            const mainImage = document.getElementById('main-product-image');
+            mainImage.src = images.length > 0 ? `{{ asset('storage/') }}/${images[0].image_url}` : 'default-image.jpg';
+
+
+            // Cập nhật giá
+            document.getElementById('product-price').innerHTML =
+                `${selectedPrice} <span class="font-normal underline">đ</span>`;
+
+            // Cập nhật màu sắc
+            document.getElementById('selected-color').innerText = selectedColor;
+            
+            let availableSizes = new Set();
+            document.querySelectorAll('.variant-item').forEach(variantItem => {
+                if (variantItem.getAttribute('data-color') === color) {
+                    availableSizes.add(variantItem.getAttribute('data-size'));
                 }
             });
-        
-            function updateProductDetails(element) {
-                // Xóa trạng thái active của tất cả biến thể
-                document.querySelectorAll('.variant-item').forEach(variant => {
-                    variant.classList.remove('border-black'); 
-                });
-        
-                // Đánh dấu biến thể đang chọn
-                element.classList.add('border-black');
-        
-                // Lấy dữ liệu từ biến thể đã chọn
-                const variant = element.closest('.variant-item');
-                const color = variant.getAttribute('data-color');
-                const size = variant.getAttribute('data-size');
-                const price = variant.getAttribute('data-price');
-                const imagesData = variant.getAttribute('data-images');
-        
-                let images = [];
-                try {
-                    images = JSON.parse(imagesData);
-                } catch (error) {
-                    console.error("Error parsing images data:", error);
-                }
-        
-                // Cập nhật hình ảnh chính
-                const mainImage = document.getElementById('main-product-image');
-                mainImage.src = images.length > 0 ? `{{ asset('storage/') }}/${images[0].image_url}` : 'default-image.jpg';
-        
-                // Cập nhật giá
-                document.getElementById('product-price').innerHTML = `${price} <span class="font-normal underline">đ</span>`;
-        
-                // Cập nhật màu sắc
-                document.getElementById('selected-color').innerText = color;
-        
-                // Cập nhật kích thước
-                document.getElementById('selected-size').innerText = `EU ${size}`;
-        
-                // Cập nhật trạng thái kích thước
-                document.querySelectorAll('.size-option').forEach(sizeOption => {
-                    let sizeValue = sizeOption.getAttribute('data-size');
-        
-                    if (size === sizeValue) {
-                        sizeOption.classList.remove('opacity-50', 'line-through', 'hover:cursor-pointer');
-                        sizeOption.classList.add('border-black', 'cursor-pointer');
-                        sizeOption.style.pointerEvents = 'auto'; // Cho phép chọn size có hàng
-                    } else {
-                        sizeOption.classList.add('opacity-50', 'line-through', 'hover:cursor-pointer');
-                        sizeOption.classList.remove('border-black', 'cursor-pointer');
-                        sizeOption.style.pointerEvents = 'none'; // Chặn chọn size hết hàng
+
+
+
+
+            // ✅ Cập nhật trạng thái kích thước
+            document.querySelectorAll('.size-option').forEach(sizeOption => {
+                let sizeValue = sizeOption.getAttribute('data-size');
+
+                if (availableSizes.has(sizeValue)) {
+                    sizeOption.classList.remove('opacity-50', 'line-through');
+                    sizeOption.classList.add('border-black', 'cursor-pointer');
+                    sizeOption.style.pointerEvents = 'auto';
+
+                    // ✅ Nếu size này là của biến thể hiện tại, đặt nó là active
+                    if (sizeValue === element.getAttribute('data-size')) {
+                        sizeOption.classList.add('ring-2', 'ring-black');
                     }
+                } else {
+                    sizeOption.classList.add('opacity-50', 'line-through');
+                    sizeOption.classList.remove('border-black', 'cursor-pointer', 'ring-2', 'ring-black');
+                    sizeOption.style.pointerEvents = 'none';
+                }
+            });
+
+
+            resetSizeSelection();
+
+            // Cập nhật danh sách ảnh biến thể
+            const imagesContainer = document.getElementById('variant-images-display');
+            imagesContainer.innerHTML = '';
+
+            images.forEach(image => {
+                const imageElement = document.createElement('img');
+                imageElement.src = `{{ asset('storage/') }}/${image.image_url}`;
+                imageElement.alt = color;
+                imageElement.classList.add('object-cover', 'w-[65px]', 'h-[65px]', 'border',
+                    'border-gray-200', 'cursor-pointer');
+
+                // Click vào ảnh nhỏ để đổi ảnh chính
+                imageElement.onclick = function() {
+                    mainImage.src = imageElement.src;
+                };
+
+                imagesContainer.appendChild(imageElement);
+            });
+        }
+
+        function selectSize(element) {
+            // Xóa class "ring-2 ring-black" khỏi tất cả các size
+            document.querySelectorAll('.size-option').forEach(el => {
+                el.classList.remove('ring-2', 'ring-black');
+            });
+
+            // Thêm class "ring-2 ring-black" vào size được chọn
+            element.classList.add('ring-2', 'ring-black');
+        }
+
+        function resetSizeSelection() {
+            // Xóa hiệu ứng ring khi thay đổi biến thể
+            document.querySelectorAll('.size-option').forEach(el => {
+                el.classList.remove('border-2', "border-black");
+            });
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const variantItems = document.querySelectorAll(".variant-item img");
+
+            variantItems.forEach((img) => {
+                img.addEventListener("click", function() {
+                    // Xóa viền của tất cả ảnh
+                    variantItems.forEach((item) => item.classList.remove('border-2',
+                        "border-black"));
+
+                    // Thêm viền cho ảnh được chọn
+                    this.classList.add('border-2', "border-black");
                 });
-        
-                // Reset hiệu ứng ring
-                resetSizeSelection();
-        
-                // Cập nhật danh sách ảnh biến thể
-                const imagesContainer = document.getElementById('variant-images-display');
-                imagesContainer.innerHTML = '';
-        
-                images.forEach(image => {
-                    const imageElement = document.createElement('img');
-                    imageElement.src = `{{ asset('storage/') }}/${image.image_url}`;
-                    imageElement.alt = color;
-                    imageElement.classList.add('object-cover', 'w-[65px]', 'h-[65px]', 'rounded-md', 'border',
-                        'border-gray-200', 'cursor-pointer');
-        
-                    // Click vào ảnh nhỏ để đổi ảnh chính
-                    imageElement.onclick = function() {
-                        mainImage.src = imageElement.src;
-                    };
-        
-                    imagesContainer.appendChild(imageElement);
-                });
-            }
-        
-            function selectSize(element) {
-                // Xóa class "ring-2 ring-black" khỏi tất cả các size
-                document.querySelectorAll('.size-option').forEach(el => {
-                    el.classList.remove('ring-2', 'ring-black');
-                });
-        
-                // Thêm class "ring-2 ring-black" vào size được chọn
-                element.classList.add('ring-2', 'ring-black');
-            }
-        
-            function resetSizeSelection() {
-                // Xóa hiệu ứng ring khi thay đổi biến thể
-                document.querySelectorAll('.size-option').forEach(el => {
-                    el.classList.remove('ring-2', 'ring-black');
-                });
-            }
-        </script>
-        
+            });
+        });
+    </script>
+
+    <style>
+        #variant-images-display {
+            max-height: 550px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            /* Ẩn trên Firefox */
+            -ms-overflow-style: none;
+            /* Ẩn trên IE và Edge */
+        }
+
+        #variant-images-display::-webkit-scrollbar {
+            display: none;
+            /* Ẩn trên Chrome, Safari */
+        }
+    </style>
 @endsection

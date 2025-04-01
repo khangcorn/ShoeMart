@@ -76,19 +76,30 @@ class ProductController extends Controller
             'price_sale' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
+<<<<<<< HEAD
             
         
         'product_images' => 'required|array|min:1',
             'variants' => 'required|array|min:1',
             'variants.*.color' => 'required|string|max:50',
             'variants.*.size' => 'required|string|max:50',
+=======
+            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'variants' => 'required|array',
+            'variants.*.color' => 'required|string',
+            'variants.*.size' => 'required|string',
+>>>>>>> f375f400296300cd5cface5dbf4bde91e5388baf
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.price_sale' => 'nullable|numeric|min:0|lte:variants.*.price',
             'variants.*.stock' => 'required|integer|min:0',
+<<<<<<< HEAD
             
             'product_images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
 'variants.*.images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
 
+=======
+            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+>>>>>>> f375f400296300cd5cface5dbf4bde91e5388baf
         ]);
         
         
@@ -182,16 +193,32 @@ class ProductController extends Controller
     /**
      * Hiển thị chi tiết một sản phẩm.
      */
-    public function show($id)
-    {
-        $product = Product::with([
-            'category',
-            'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
-            'images'
-        ])->findOrFail($id);
+    // public function show($id)
+    // {
+    //     $product = Product::with([
+    //         'category',
+    //         'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
+    //         'images'
+    //     ])->findOrFail($id);
  
-        return view('admin.product.show', compact('product'));
-    }
+    //     return view('admin.product.show', compact('product'));
+    // }
+    public function show($id)
+{
+    $product = Product::with([
+        'category',
+        'variants.variantAttributeValues.variantAttribute', 
+        'images'
+    ])->findOrFail($id);
+
+    // Nhóm biến thể theo màu
+    $variants = $product->variants->groupBy(function ($variant) {
+        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute->attribute_value;
+    });
+
+    return view('admin.product.show', compact('product', 'variants'));
+}
+
     
 
     public function edit($id)
