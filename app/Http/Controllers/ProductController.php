@@ -19,7 +19,7 @@ class ProductController extends Controller
         $categoryFilter = $request->input('category');
         $search = $request->input('search');
     
-        $query = Product::with('category');
+        $query = Product::with(['category', 'mainImage']); // Lấy cả ảnh chính
     
         if ($categoryFilter) {
             $query->where('category_id', $categoryFilter);
@@ -29,7 +29,6 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
     
-
         if ($sort == 'asc') {
             $query->orderBy('price', 'asc');
         } elseif ($sort == 'desc') {
@@ -41,6 +40,7 @@ class ProductController extends Controller
     
         return view('admin.product.index', compact('products', 'categories'));
     }
+    
  
 
     public function create()
@@ -181,27 +181,6 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', '✅ Sản phẩm và biến thể đã được tạo thành công!');
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * Hiển thị chi tiết một sản phẩm.
-     */
-    // public function show($id)
-    // {
-    //     $product = Product::with([
-    //         'category',
-    //         'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
-    //         'images'
-    //     ])->findOrFail($id);
- 
-    //     return view('admin.product.show', compact('product'));
-    // }
     public function show($id)
 {
     $product = Product::with([

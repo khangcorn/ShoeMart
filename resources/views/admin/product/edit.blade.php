@@ -185,174 +185,180 @@
         </form>
     </div>
 
+ 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-    
-            const addVariantButton = document.getElementById('add_variant_button');
-            const variantFieldsContainer = document.getElementById('variant_fields');
-            let variantIndex = {{ count($product->variants) }}; // Số lượng biến thể hiện tại
-    
-            // Lấy danh sách màu sắc và kích cỡ từ Blade
-            const colors = @json($colors);
-            const sizes = @json($sizes);
-            const existingVariants = new Set();
-    
-            // Lấy biến thể cũ từ database
-            const oldVariants = [
-        @foreach($product->variants as $variant)
-            { color: "{{ $variant->color }}", size: "{{ $variant->size }}" },
-        @endforeach
-    ];
-            // Thêm các biến thể cũ vào danh sách kiểm tra trùng lặp
-            oldVariants.forEach(variant => {
-                if (variant.color && variant.size) {
-                    existingVariants.add(`${variant.color}-${variant.size}`);
-                }
-            });
-    
-            // Khi nhấn nút "Thêm Biến Thể"
-            addVariantButton.addEventListener('click', function () {
-                const newVariant = document.createElement('div');
-                newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
-    
-                // Tạo danh sách option cho Màu sắc và Kích cỡ
-                let colorOptions = colors.map(color => `<option value="${color.attribute_value}">${color.attribute_value}</option>`).join('');
-                let sizeOptions = sizes.map(size => `<option value="${size.attribute_value}">${size.attribute_value}</option>`).join('');
-    
-                // HTML của biến thể mới
-                newVariant.innerHTML = `
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price]" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Màu sắc</label>
-                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn màu</option>
-                            ${colorOptions}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kích cỡ</label>
-                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
-                            <option value="">Chọn kích cỡ</option>
-                            ${sizeOptions}
-                        </select>
-                    </div>
-              <div class="form-group">
-    <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
-    <input type="file" class="form-control variant-image-input"
-           id="variant_images_${variantIndex}"
-           name="variants[${variantIndex}][images][]"
-           multiple accept="image/*"
-           onchange="previewImage(event, ${variantIndex})">
-    <div class="image-preview" id="image_preview_${variantIndex}"></div>
-</div>
+      document.addEventListener('DOMContentLoaded', function () {
+    const addVariantButton = document.getElementById('add_variant_button');
+    const variantFieldsContainer = document.getElementById('variant_fields');
+    let variantIndex = {{ count($product->variants) }};
 
+    const colors = @json($colors);
+    const sizes = @json($sizes);
 
-                    <p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
-                    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
-                `;
-    
-                // Thêm biến thể vào danh sách
-                variantFieldsContainer.appendChild(newVariant);
-                variantIndex++;
-    
-                // Gán sự kiện kiểm tra trùng lặp khi thay đổi Màu hoặc Kích cỡ
-                newVariant.querySelector('.variant-color').addEventListener('change', checkDuplicateVariant);
-                newVariant.querySelector('.variant-size').addEventListener('change', checkDuplicateVariant);
-    
-                // Gán sự kiện xóa biến thể
-                newVariant.querySelector('.remove-variant').addEventListener('click', function () {
-                    removeVariant(this);
-                });
-            });
-    
-            // 🔥 Kiểm tra trùng lặp khi chọn Màu + Size
-            function checkDuplicateVariant() {
-                let hasDuplicate = false;
-                let currentVariants = new Set(existingVariants); // Copy từ biến thể cũ
-    
-                document.querySelectorAll('.variant').forEach(variant => {
-                    const colorElement = variant.querySelector('.variant-color');
-                    const sizeElement = variant.querySelector('.variant-size');
-                    const errorMsg = variant.querySelector('.error-message');
-    
-                    if (colorElement && sizeElement) {
-                        const color = colorElement.value;
-                        const size = sizeElement.value;
-    
-                        // Kiểm tra nếu đã chọn cả màu & size
-                        if (color && size) {
-                            const key = `${color}-${size}`;
-                            if (currentVariants.has(key)) {
-                                errorMsg.classList.remove('d-none'); // Hiển thị lỗi
-                                errorMsg.style.display = "block";
-                                hasDuplicate = true;
-                            } else {
-                                errorMsg.classList.add('d-none');
-                                errorMsg.style.display = "none";
-                                currentVariants.add(key);
-                            }
-                        }
-                    }
-                });
-    
-                return hasDuplicate;
+    /** 
+     * Lấy danh sách biến thể đã có trong form 
+     * Trả về danh sách các cặp { color, size } đã tồn tại
+     */
+     function getExistingVariants(ignoreElement = null) {
+    let existingVariants = [];
+    document.querySelectorAll('.variant').forEach(variant => {
+        // Bỏ qua biến thể đang kiểm tra
+        if (ignoreElement && variant === ignoreElement) return;
+
+        let colorSelect = variant.querySelector('select[name*="[color]"]');
+        let sizeSelect = variant.querySelector('select[name*="[size]"]');
+
+        if (colorSelect && sizeSelect) {
+            let color = colorSelect.value.trim().toLowerCase();
+            let size = sizeSelect.value.trim().toLowerCase();
+
+            // Chỉ thêm vào danh sách nếu có cả color và size
+            if (color !== "" && size !== "") {
+                existingVariants.push({ color, size });
             }
-    
-            // 🗑️ Xóa biến thể
-            document.querySelectorAll(".delete-variant").forEach(button => {
-                button.addEventListener("click", function () {
-                    const variantId = this.getAttribute("data-variant-id");
-                    const productId = this.getAttribute("data-product-id");
-    
-                    if (!productId || !variantId) {
-                        alert("Có lỗi xảy ra. Product ID hoặc Variant ID không hợp lệ.");
-                        return;
-                    }
-    
-                    if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
-    
-                    fetch(`/admin/products/${productId}/variants/${variantId}/delete`, {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                            "Content-Type": "application/json",
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert("✅ " + data.message);
-                            location.reload();
-                        } else {
-                            alert("❌ " + data.message);
-                        }
-                    })
-                    .catch(error => console.error("Lỗi khi xóa biến thể:", error));
-                });
-            });
-     
-    
-            // 🚀 Kiểm tra trước khi submit
-            document.querySelector('form').addEventListener('submit', function (event) {
-                if (checkDuplicateVariant()) {
-                    event.preventDefault();
-                    alert('⚠️ Có biến thể trùng Color & Size (bao gồm cả biến thể cũ). Hãy kiểm tra lại!');
-                }
-            });
-    
+        }
+    });
+
+    return existingVariants;
+}
+
+/**
+ * Kiểm tra xem biến thể mới có bị trùng lặp không
+ * @param {HTMLElement} newVariant - Phần tử div chứa biến thể mới
+ * @returns {boolean} - True nếu hợp lệ, False nếu bị trùng lặp
+ */
+function validateVariant(newVariant) {
+    let colorSelect = newVariant.querySelector('select[name*="[color]"]');
+    let sizeSelect = newVariant.querySelector('select[name*="[size]"]');
+    let errorMsg = newVariant.querySelector('.size-error-msg');
+
+    if (!colorSelect || !sizeSelect) return true; 
+
+    let color = colorSelect.value.trim().toLowerCase();
+    let size = sizeSelect.value.trim().toLowerCase();
+
+    if (color && size) {
+        let existingVariants = getExistingVariants(newVariant);  // ⬅️ Bỏ qua chính nó
+
+        let isDuplicate = existingVariants.some(variant => 
+            variant.color === color && variant.size === size
+        );
+
+        if (isDuplicate) {
+            errorMsg.innerText = "⚠ Biến thể này đã tồn tại.";
+            errorMsg.style.display = "block";
+            return false;
+        } else {
+            errorMsg.style.display = "none";
+            return true;
+        }
+    } else {
+        errorMsg.style.display = "none";
+        return true;
+    }
+}
+
+    // Xử lý khi nhấn nút thêm biến thể
+    addVariantButton.addEventListener('click', function () {
+        const newVariant = document.createElement('div');
+        newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
+
+        let colorOptions = colors.map(c => `<option value="${c.attribute_value}">${c.attribute_value}</option>`).join('');
+        let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
+
+        newVariant.innerHTML = `
+            <div class="form-group">
+                <label>Giá</label>
+                <input type="number" class="form-control" name="variants[${variantIndex}][price]">
+            </div>
+            <div class="form-group">
+                <label>Giá Khuyến Mãi</label>
+                <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
+            </div>
+            <div class="form-group">
+                <label>Số lượng</label>
+                <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
+            </div>
+            <div class="form-group">
+                <label>Màu sắc</label>
+                <select class="form-control variant-color" name="variants[${variantIndex}][color]">
+                    <option value="">Chọn màu</option>
+                    ${colorOptions}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kích cỡ</label>
+                <select class="form-control variant-size" name="variants[${variantIndex}][size]">
+                    <option value="">Chọn kích cỡ</option>
+                    ${sizeOptions}
+                </select>
+                <small class="text-danger size-error-msg" style="display: none;"></small>
+            </div>
+            <div class="form-group">
+                <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+                <input type="file" class="form-control"
+                       id="variant_images_${variantIndex}"
+                       name="variants[${variantIndex}][images][]"
+                       multiple accept="image/*">
+                <div class="image-preview" id="image_preview_${variantIndex}"></div>
+            </div>
+            <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
+        `;
+
+        variantFieldsContainer.appendChild(newVariant);
+        variantIndex++;
+
+        let colorSelect = newVariant.querySelector('.variant-color');
+        let sizeSelect = newVariant.querySelector('.variant-size');
+
+        // Khi chọn màu hoặc kích cỡ, kiểm tra trùng lặp
+        colorSelect.addEventListener('change', function () {
+            validateVariant(newVariant);
         });
-    </script>
+
+        sizeSelect.addEventListener('change', function () {
+            validateVariant(newVariant);
+        });
+
+        newVariant.querySelector('.remove-variant').addEventListener('click', function () {
+            newVariant.remove();
+        });
+    });
+
+    // Xử lý xóa biến thể từ CSDL
+    document.querySelectorAll(".delete-variant").forEach(button => {
+        button.addEventListener("click", function () {
+            if (!confirm("Bạn có chắc muốn xóa biến thể này không?")) return;
+            const variantId = this.getAttribute("data-variant-id");
+            const productId = this.getAttribute("data-product-id");
+            if (!productId || !variantId) return alert("Có lỗi xảy ra. Product ID hoặc Variant ID không hợp lệ.");
+
+            fetch(`/admin/products/${productId}/variants/${variantId}/delete`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.success ? "✅ " + data.message : "❌ " + data.message);
+                if (data.success) location.reload();
+            })
+            .catch(error => console.error("Lỗi khi xóa biến thể:", error));
+        });
+    });
+});
+
+        </script>
+        
+        
+        
+        
+        
+        
+        
+
     
     
         

@@ -22,6 +22,7 @@ class SizeController extends Controller
     {
         $request->validate([
             'attribute_value' => 'required|string|max:100',
+            
         ]);
     
         // Kiểm tra xem size đã tồn tại chưa
