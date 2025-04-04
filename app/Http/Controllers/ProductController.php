@@ -191,7 +191,7 @@ class ProductController extends Controller
 
     // Nhóm biến thể theo màu
     $variants = $product->variants->groupBy(function ($variant) {
-        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute->attribute_value;
+        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'color'))->variantAttribute->attribute_value;
     });
 
     return view('admin.product.show', compact('product', 'variants'));
