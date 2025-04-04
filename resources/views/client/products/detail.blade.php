@@ -155,7 +155,7 @@
                         <p class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md size-option
                     {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'opacity-50 line-through bg-white hover:cursor-pointer' }}"
                             data-size="{{ $size }}" onclick="selectSize(this)">
-                            EU {{ $size }}
+                             {{ $size }}
                         </p>
                     @endfor
                     {{-- @php
