@@ -19,7 +19,7 @@ class ProductController extends Controller
         $categoryFilter = $request->input('category');
         $search = $request->input('search');
     
-        $query = Product::with('category');
+        $query = Product::with(['category', 'mainImage']); // Lấy cả ảnh chính
     
         if ($categoryFilter) {
             $query->where('category_id', $categoryFilter);
@@ -29,7 +29,6 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
     
-
         if ($sort == 'asc') {
             $query->orderBy('price', 'asc');
         } elseif ($sort == 'desc') {
@@ -41,6 +40,7 @@ class ProductController extends Controller
     
         return view('admin.product.index', compact('products', 'categories'));
     }
+    
  
 
     public function create()
@@ -71,20 +71,38 @@ class ProductController extends Controller
         // ✅ Validate dữ liệu đầu vào
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
-            'price_sale' => 'nullable|numeric|min:0',
+            'price_sale' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
+
+            
+        
+        'product_images' => 'required|array|min:1',
+            'variants' => 'required|array|min:1',
+            'variants.*.color' => 'required|string|max:50',
+            'variants.*.size' => 'required|string|max:50',
+
             'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'variants' => 'required|array',
             'variants.*.color' => 'required|string',
             'variants.*.size' => 'required|string',
             'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.price_sale' => 'nullable|numeric|min:0',
+            'variants.*.price_sale' => 'nullable|numeric|min:0|lte:variants.*.price',
             'variants.*.stock' => 'required|integer|min:0',
+
+            
+            'product_images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
+'variants.*.images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
+
+
             'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+
         ]);
+        
+        
+        
     
         // ✅ Tạo sản phẩm
         $product = Product::create([
@@ -163,27 +181,6 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', '✅ Sản phẩm và biến thể đã được tạo thành công!');
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * Hiển thị chi tiết một sản phẩm.
-     */
-    // public function show($id)
-    // {
-    //     $product = Product::with([
-    //         'category',
-    //         'variants.variantAttributeValues.variantAttribute', // Load luôn thông tin thuộc tính
-    //         'images'
-    //     ])->findOrFail($id);
- 
-    //     return view('admin.product.show', compact('product'));
-    // }
     public function show($id)
 {
     $product = Product::with([
@@ -194,7 +191,7 @@ class ProductController extends Controller
 
     // Nhóm biến thể theo màu
     $variants = $product->variants->groupBy(function ($variant) {
-        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute->attribute_value;
+        return optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'color'))->variantAttribute->attribute_value;
     });
 
     return view('admin.product.show', compact('product', 'variants'));
@@ -222,6 +219,23 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'price_sale' => 'nullable|numeric|min:0|lt:price',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,category_id',
+    
+            // Validation cho các biến thể
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.price_sale' => 'nullable|numeric|min:0|lt:variants.*.price',
+            'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.color' => 'required|string|exists:variant_attributes,attribute_value',
+            'variants.*.size' => 'required|string|exists:variant_attributes,attribute_value',
+            'variants.*.images' => 'nullable|array|max:5',
+            'variants.*.images.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048', // giới hạn 5 ảnh, tối đa 2MB
+        ]);
         // ✅ 1. Tìm sản phẩm cần cập nhật
         $product = Product::findOrFail($id);
     
@@ -243,7 +257,7 @@ class ProductController extends Controller
                     $path = $image->store('public/products');
                     ProductImage::create([
                         'product_id' => $product->product_id,
-                        'image_url' => str_replace('public/', 'storage/', $path),
+                        'image_url' => str_replace('public/', '', $path),
                         'type' => 'main',
                     ]);
                 }

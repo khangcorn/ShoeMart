@@ -57,4 +57,12 @@ class Product extends Model {
     {
         return $this->hasManyThrough(VariantAttribute::class, ProductVariant::class, 'product_id', 'variant_id', 'product_id', 'variant_id');
     }
+    /**
+ * Lấy ảnh chính của sản phẩm (loại 'main')
+ */
+public function mainImage()
+{
+    return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('type', 'main');
+}
+
 }
