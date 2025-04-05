@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
@@ -77,6 +78,7 @@ Route::prefix('admin')->group(function() {
 
     Route::resource('sliders', SliderController::class);
     Route::resource('shipping-fees', ShippingFeeController::class);
+    Route::resource('coupons', CouponController::class);
 
 });
 // Định nghĩa route DELETE để xóa biến thể
