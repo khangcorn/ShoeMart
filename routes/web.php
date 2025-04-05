@@ -6,6 +6,8 @@ use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\ShippingFeeController;
+use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\SizeController;
@@ -73,6 +75,8 @@ Route::prefix('admin')->group(function() {
     Route::resource('sizes', SizeController::class);
     Route::resource('colors', ColorController::class);
 
+    Route::resource('sliders', SliderController::class);
+    Route::resource('shipping-fees', ShippingFeeController::class);
 
 });
 // Định nghĩa route DELETE để xóa biến thể
