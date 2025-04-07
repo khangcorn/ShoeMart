@@ -12,8 +12,8 @@ class UserAddressFactory extends Factory {
     public function definition(): array {
         return [
             'user_id' => User::query()->inRandomOrder()->value('user_id') ?? User::factory(),
-            'recipient_name' => $this->faker->name,
-            'recipient_phone' => $this->faker->phoneNumber,
+            'rephpcipient_name' => $this->faker->name,
+            'recipient_phone' => substr($this->faker->numerify('+84 (###) ###-####'), 0, 10),
             'recipient_email' => $this->faker->optional()->safeEmail,
             'province' => $this->faker->state,
             'district' => $this->faker->city,
