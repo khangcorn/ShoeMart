@@ -4,12 +4,17 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\ShippingFeeController;
+use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\Route;
@@ -103,12 +108,14 @@ Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('produ
 
 Route::prefix('admin')->group(function() {
     Route::resource('products', ProductController::class);
-    Route::resource('variant_attributes', VariantAttributeController::class);
-   
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
-    Route::get('/attributes/create', [VariantAttributeController::class, 'create'])->name('variant_attributes.create');
-Route::post('/attributes', [VariantAttributeController::class, 'store'])->name('variant_attributes.store');
+    Route::resource('sizes', SizeController::class);
+    Route::resource('colors', ColorController::class);
+
+    Route::resource('sliders', SliderController::class);
+    Route::resource('shipping-fees', ShippingFeeController::class);
+    Route::resource('coupons', CouponController::class);
 
 });
 // Định nghĩa route DELETE để xóa biến thể

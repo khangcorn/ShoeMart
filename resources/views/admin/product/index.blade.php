@@ -197,7 +197,8 @@
                         <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
                             {{ $product->stock }}</td>
                         <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
-                            <img src="{{ asset('./storage/images' . $product->image_url) }}" width="100">
+                            <img src="{{ asset('storage/' . $product->mainImage->image_url) }}" width="100">
+
                         </td>
 
                         {{-- <td class="border border-gray-300 dark:border-gray-700  px-2 py-4 items-center text-center">
