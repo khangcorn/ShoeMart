@@ -18,8 +18,8 @@
         </div>
         <div>
             <label for="name" class="block font-medium">Description</label>
-            <input type="text" name="name" class=" text-black w-full p-2 border rounded @error('name') border-red-500 @enderror" value="{{ old('name', $category->description) }}" required>
-            @error('name')
+            <input type="text" name="description" class=" text-black w-full p-2 border rounded @error('description') border-red-500 @enderror" value="{{ old('description', $category->description) }}" required>
+            @error('description')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>

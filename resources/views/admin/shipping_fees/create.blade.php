@@ -9,24 +9,40 @@
     <form method="POST" action="{{ route('shipping-fees.store') }}">
         @csrf
 
+        {{-- Province --}}
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-600">Province</label>
-            <input type="text" name="province" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+            <input type="text" name="province" value="{{ old('province') }}" class="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('province') border-red-500 @enderror">
+            @error('province')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
+        {{-- District --}}
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-600">District (optional)</label>
-            <input type="text" name="district" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            <input type="text" name="district" value="{{ old('district') }}" class="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('district') border-red-500 @enderror">
+            @error('district')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
+        {{-- Ward --}}
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-600">Ward (optional)</label>
-            <input type="text" name="ward" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            <input type="text" name="ward" value="{{ old('ward') }}" class="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('ward') border-red-500 @enderror">
+            @error('ward')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
+        {{-- Fee --}}
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-600">Fee (VNĐ)</label>
-            <input type="number" step="0.01" name="fee" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+            <input type="number" step="0.01" name="fee" value="{{ old('fee') }}" class="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('fee') border-red-500 @enderror">
+            @error('fee')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="flex justify-between items-center mt-6">

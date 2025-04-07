@@ -198,29 +198,23 @@
             const colors = @json($colors);
             const sizes = @json($sizes);
         
-            // Lấy danh sách biến thể đã có trong form
             function getExistingVariants(ignoreElement = null) {
                 let existingVariants = [];
                 document.querySelectorAll('.variant').forEach(variant => {
                     if (ignoreElement && variant === ignoreElement) return;
-        
                     let colorSelect = variant.querySelector('select[name*="[color]"]');
                     let sizeSelect = variant.querySelector('select[name*="[size]"]');
-        
                     if (colorSelect && sizeSelect) {
                         let color = colorSelect.value.trim().toLowerCase();
                         let size = sizeSelect.value.trim().toLowerCase();
-        
                         if (color && size) {
                             existingVariants.push({ color, size });
                         }
                     }
                 });
-        
                 return existingVariants;
             }
         
-            // Kiểm tra trùng lặp biến thể
             function validateVariant(newVariant) {
                 let colorSelect = newVariant.querySelector('.variant-color');
                 let sizeSelect = newVariant.querySelector('.variant-size');
@@ -234,7 +228,6 @@
                 if (color && size) {
                     let existingVariants = getExistingVariants(newVariant);
                     let isDuplicate = existingVariants.some(v => v.color === color && v.size === size);
-        
                     if (isDuplicate) {
                         errorMsg.innerText = "⚠ Biến thể này đã tồn tại.";
                         errorMsg.style.display = "block";
@@ -249,7 +242,20 @@
                 }
             }
         
-            // Thêm biến thể mới
+            function showError(inputEl, message) {
+                let errorEl = document.createElement('p');
+                errorEl.className = 'text-red-500 text-sm mt-1 input-error';
+                errorEl.textContent = message;
+                inputEl.classList.add('border-red-500');
+                inputEl.parentNode.appendChild(errorEl);
+            }
+        
+            function clearError(inputEl) {
+                inputEl.classList.remove('border-red-500');
+                const errorEl = inputEl.parentNode.querySelector('.input-error');
+                if (errorEl) errorEl.remove();
+            }
+        
             addVariantButton.addEventListener('click', function () {
                 const newVariant = document.createElement('div');
                 newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
@@ -302,7 +308,6 @@
                 colorSelect.addEventListener('change', function () {
                     validateVariant(newVariant);
                 });
-        
                 sizeSelect.addEventListener('change', function () {
                     validateVariant(newVariant);
                 });
@@ -351,24 +356,60 @@
                 });
             });
         
-            // Kiểm tra trùng lặp khi submit
+            // Validate toàn bộ biến thể khi submit
             productForm.addEventListener('submit', function (event) {
                 let allVariants = document.querySelectorAll('.variant');
                 let isValid = true;
         
                 allVariants.forEach(variant => {
-                    if (!validateVariant(variant)) {
+                    if (!validateVariant(variant)) isValid = false;
+        
+                    const price = variant.querySelector('input[name*="[price]"]');
+                    const salePrice = variant.querySelector('input[name*="[price_sale]"]');
+                    const stock = variant.querySelector('input[name*="[stock]"]');
+                    const color = variant.querySelector('select[name*="[color]"]');
+                    const size = variant.querySelector('select[name*="[size]"]');
+        
+                    clearError(price);
+                    clearError(salePrice);
+                    clearError(stock);
+                    clearError(color);
+                    clearError(size);
+        
+                    if (!price.value || parseFloat(price.value) < 0) {
+                        showError(price, "Giá không hợp lệ");
+                        isValid = false;
+                    }
+        
+                    if (salePrice.value && parseFloat(salePrice.value) < 0) {
+                        showError(salePrice, "Giá khuyến mãi không hợp lệ");
+                        isValid = false;
+                    }
+        
+                    if (!stock.value || parseInt(stock.value) < 0) {
+                        showError(stock, "Số lượng không hợp lệ");
+                        isValid = false;
+                    }
+        
+                    if (!color.value) {
+                        showError(color, "Vui lòng chọn màu sắc");
+                        isValid = false;
+                    }
+        
+                    if (!size.value) {
+                        showError(size, "Vui lòng chọn kích cỡ");
                         isValid = false;
                     }
                 });
         
                 if (!isValid) {
                     event.preventDefault();
-                    alert("⚠ Vui lòng kiểm tra lại các biến thể! Có biến thể bị trùng.");
+                    alert("⚠ Vui lòng kiểm tra lại các biến thể. Có lỗi xảy ra!");
                 }
             });
         });
         </script>
+        
         
 
 @endsection

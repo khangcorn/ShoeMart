@@ -83,12 +83,10 @@
                         });
                     @endphp
 
-<<<<<<< HEAD
+
                     @foreach ($product->variants as $variant)
                     <div class="w-1/5 variant-item" data-variant="{{ $variant->variant_id }}"
-=======
                     @foreach ($groupedVariants as $color => $variants)
->>>>>>> c20f0615114c3dab1d9cb602fc3f6d2f08c69151
                         @php
                             $firstVariant = $variants->first();
                             $colorAttribute = optional(
@@ -105,7 +103,7 @@
                             )->variantAttribute;
                             $variantImage = optional($firstVariant->images->first())->image_url;
                         @endphp
-<<<<<<< HEAD
+
                         data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
                         data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
                         data-price="{{ $variant->price }}"
@@ -118,9 +116,7 @@
                             onclick="updateProductDetails(this)">
                     </div>
                 @endforeach
-                
-=======
->>>>>>> c20f0615114c3dab1d9cb602fc3f6d2f08c69151
+
 
                         <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
                             data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"

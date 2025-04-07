@@ -42,7 +42,7 @@ class CouponController extends Controller
     public function edit($id)
     {
         $coupon = Coupon::findOrFail($id);
-        return view('coupons.edit', compact('coupon'));
+        return view('admin.coupons.edit', compact('coupon'));
     }
 
     // Cập nhật thông tin mã giảm giá
