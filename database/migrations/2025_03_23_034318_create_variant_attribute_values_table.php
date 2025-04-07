@@ -37,4 +37,3 @@ class CreateVariantAttributeValuesTable extends Migration
         Schema::dropIfExists('variant_attribute_values');
     }
 }
-
