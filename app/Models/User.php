@@ -26,7 +26,7 @@ class User extends Authenticatable
     // Quan hệ một nhiều với Order
     public function orders()
     {
-        return $this->hasMany(Order::class, 'user_id');
+        return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
 
     // Quan hệ một nhiều với Comment
@@ -38,9 +38,13 @@ class User extends Authenticatable
     // Quan hệ một nhiều với UserAddress
     public function userAddresses()
     {
-        return $this->hasMany(UserAddress::class, 'user_id');
+        return $this->hasMany(UserAddresses::class, 'user_id', 'user_id');
     }
-
+    
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
  
     public function roles()
     {

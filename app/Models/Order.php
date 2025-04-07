@@ -14,6 +14,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'address_id',
         'status_id',
         'shipping_id',
         'coupon_id',
@@ -32,7 +33,7 @@ class Order extends Model
 
     public function status()
     {
-        return $this->belongsTo(OrderStatus::class, 'status_id', 'status_id');
+        return $this->belongsTo(OrderStatus::class, 'status_id',);
     }
 
     public function shipping()
@@ -49,4 +50,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
     }
+    public function userAddresses()
+    {
+        return $this->belongsTo(UserAddresses::class, 'address_id', 'address_id');
+    }
+
 }

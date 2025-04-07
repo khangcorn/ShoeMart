@@ -30,6 +30,14 @@
         </div>
 
         <div>
+            <label for="description" class="block font-medium">Description</label>
+            <textarea name="description" class="w-full p-2 border rounded @error('description') border-red-500 @enderror" rows="4">{{ old('description') }}</textarea>
+            @error('description')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
             <label for="image_url" class="block font-medium">Category Image</label>
             <input type="file" name="image_url" class="w-full p-2 border rounded @error('image_url') border-red-500 @enderror">
             @error('image_url')

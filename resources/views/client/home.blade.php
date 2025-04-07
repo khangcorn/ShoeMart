@@ -1,6 +1,6 @@
 @extends('client.layout')
 
-@section('title', 'Trang chủ')
+@section('title', 'Shoemart. Just Do It. Shoemart VN')
 
 @section('content')
     <style>
@@ -26,21 +26,21 @@
                 src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_1704,c_limit/e0b60c2f-d245-42e9-86ca-f7ea95ba6d45/nike-just-do-it.jpg"
                 alt="">
             <div class="text-center  absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <p class="mb-0 font-semibold text-white"
+                <p class=" font-semibold text-white mb-3"
                     style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
                     Just In
                 </p>
 
                 <span class="uppercase text-4xl font-bold text-white"
-                    style="font: 800 2.5rem / 0.9 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
+                    style="font: 800 4.5rem / 0.9 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
                     Air Max Dn8
                 </span>
 
-                <p class="font-semibold py-2 text-white"
+                <p class="font-semibold  text-white mt-3"
                     style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;"> Introducing the
                     next chapter of Dynamic Air. Get the sensation.</p>
-                <button class="font-bold px-4 py-2 text-black bg-white rounded-full"
-                    style="font: 500 1rem / 1 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">Shop</button>
+                <button class="font-bold px-4 py-2 mt-3 text-black bg-white rounded-full"
+                    style="font: 700 1rem / 1 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">Shop</button>
 
                 <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
 

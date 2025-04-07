@@ -85,97 +85,113 @@
             const addVariantBtn = document.getElementById('add_variant_btn');
             const variantFieldsContainer = document.getElementById('variant_fields');
             let variantIndex = 0;
-
+        
             addVariantBtn.addEventListener('click', function () {
                 const newVariant = document.createElement('div');
-                newVariant.classList.add('variant', 'mt-3');
-
-                newVariant.innerHTML = `
-                        <div class="form-group">
-                            <label>Giá</label>
-                            <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price]" value="">
-                        </div>
-                         <div class="form-group">
-                            <label>Giá Khuyến Mãi</label>
-                            <input type="number" class="  text-black form-control" name="variants[${variantIndex}][price_sale]" value="">
-                        </div>
-
-          <div class="form-group">
-        <label>Số lượng</label>
-        <input type="number" class="form-control" name="variants[${variantIndex}][stock]" value="0">
-    </div>
-
-    <!-- Chọn màu sắc -->
-    <div class="form-group">
-        <label for="color">Màu sắc</label>
-        <select class="form-control" name="variants[${variantIndex}][color]">
-            <option value="">Chọn màu</option>
-            @foreach($colors as $color)
-                <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <!-- Chọn kích cỡ -->
-    <div class="form-group">
-        <label for="size">Chọn kích cỡ:</label>
-        <select class="form-control" name="variants[${variantIndex}][size]">
-            <option value="">Chọn kích cỡ</option>
-            @foreach($sizes as $size)
-                <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
-            @endforeach
-        </select>
-    </div>
-
-
-
-
-                     <!-- Form thêm biến thể -->
-<div class="form-group">
+                newVariant.classList.add('variant', 'mt-3', 'border', 'p-3', 'rounded-lg', 'shadow-md');
+        
+                newVariant.innerHTML =  `
+                    <div class="form-group">
+                        <label>Giá</label>
+                        <input type="number" class="form-control variant-price" name="variants[${variantIndex}][price]" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá Khuyến Mãi</label>
+                        <input type="number" class="form-control variant-sale-price" name="variants[${variantIndex}][price_sale]" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng</label>
+                        <input type="number" class="form-control variant-stock" name="variants[${variantIndex}][stock]" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Màu sắc</label>
+                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
+                            <option value="">Chọn màu</option>
+                            @foreach($colors as $color)
+                                <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kích cỡ</label>
+                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
+                            <option value="">Chọn kích cỡ</option>
+                            @foreach($sizes as $size)
+                                <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
     <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
     <input type="file" class="form-control variant-image-input" 
         id="variant_images_${variantIndex}" 
         name="variants[${variantIndex}][images][]" multiple accept="image/*">
     <div class="image-preview" id="image_preview_${variantIndex}"></div>
 </div>
-
-
-
-                        <button type="button" class="btn btn-danger" onclick="removeVariant(this)">Xóa Biến Thể</button>
-                    `;
+                    <p class="text-danger error-message d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
+                    <button type="button" class="btn btn-danger mt-2 remove-variant">Xóa Biến Thể</button>
+            `;
+        
+                // Thêm vào danh sách biến thể
                 variantFieldsContainer.appendChild(newVariant);
                 variantIndex++;
+        
+                // 🔥 Ẩn thông báo lỗi bằng cả d-none và display: none
+                const errorMsg = newVariant.querySelector('.error-message');
+                errorMsg.classList.add('d-none');
+                errorMsg.style.display = "none";
+        
+                // Gán sự kiện kiểm tra khi chọn Màu hoặc Size
+                const colorSelect = newVariant.querySelector('.variant-color');
+                const sizeSelect = newVariant.querySelector('.variant-size');
+        
+                colorSelect.addEventListener('change', function () {
+                    checkDuplicateVariant();
+                });
+        
+                sizeSelect.addEventListener('change', function () {
+                    checkDuplicateVariant();
+                });
+        
+                // Gán sự kiện xóa biến thể
+                newVariant.querySelector('.remove-variant').addEventListener('click', function () {
+                    newVariant.remove();
+                    checkDuplicateVariant(); // Cập nhật lại danh sách sau khi xóa
+                });
             });
-
-            document.addEventListener('change', function (event) {
-                if (event.target.matches('.size-checkbox')) {
-                    const sizeInput = event.target.nextElementSibling.nextElementSibling;
-                    sizeInput.disabled = !event.target.checked;
-                    updateTotalStock();
-                }
-            });
-
-            document.addEventListener('input', function (event) {
-                if (event.target.matches('.size-stock')) {
-                    updateTotalStock();
+        
+            function checkDuplicateVariant() {
+                let existingVariants = new Set();
+        
+                document.querySelectorAll('.variant').forEach(variant => {
+                    const color = variant.querySelector('.variant-color').value;
+                    const size = variant.querySelector('.variant-size').value;
+                    const errorMsg = variant.querySelector('.error-message');
+        
+                    // 🔥 Ẩn lỗi mặc định trước khi kiểm tra
+                    errorMsg.classList.add('d-none');
+                    errorMsg.style.display = "none";
+        
+                    // Chỉ kiểm tra nếu đã chọn cả Màu & Size
+                    if (color && size) {
+                        const key = `${color}-${size}`; 
+                        if (existingVariants.has(key)) {
+                            errorMsg.classList.remove('d-none'); // Hiển thị lỗi nếu trùng
+                            errorMsg.style.display = "block";
+                        } else {
+                            existingVariants.add(key);
+                        }
+                    }
+                });
+            }
+        
+            // Kiểm tra lần cuối trước khi submit form
+            document.querySelector('form').addEventListener('submit', function (event) {
+                if (document.querySelector('.error-message:not(.d-none)')) {
+                    event.preventDefault(); // 🔥 Chặn form submit nếu có lỗi
+                    alert('Có biến thể bị trùng Color & Size. Hãy kiểm tra lại!');
                 }
             });
         });
-
-        function updateTotalStock() {
-            let totalStock = 0;
-            document.querySelectorAll('.size-stock').forEach(input => {
-                if (!input.disabled) {
-                    totalStock += parseInt(input.value) || 0;
-                }
-            });
-            document.getElementById('total_stock').innerText = totalStock;
-            document.getElementById('total_stock_input').value = totalStock;
-        }
-
-        function removeVariant(button) {
-            button.parentElement.remove();
-            updateTotalStock();
-        }
-    </script>
+        </script>
 @endsection

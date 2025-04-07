@@ -5,11 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
 class UserAddresses extends Model
 {
     use HasFactory;
@@ -21,7 +16,7 @@ class UserAddresses extends Model
 
     protected $fillable = [
         'user_id', 'address_name', 'recipient_name', 'recipient_phone',
-        'province', 'district', 'ward', 'street_address', 'is_default'
+        'city', 'district', 'ward', 'street_address', 'is_default'
     ];
     
 
@@ -42,4 +37,8 @@ class UserAddresses extends Model
     {
         return $this->belongsTo(User::class, 'user_id'); // Liên kết đến User thông qua user_id
     }
+    public function orders()
+{
+    return $this->hasMany(Order::class, 'address_id');
+}
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\Route;
@@ -24,9 +26,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // Authentication
 
@@ -59,30 +58,48 @@ Route::middleware('auth')->group(function () {
 
 });
 Route::middleware('auth')->group(function () {
-    // Hiển thị giỏ hàng của người dùng
+    // Giỏ hàng
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-
-    // Thêm sản phẩm vào giỏ hàng
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-
-    // Cập nhật số lượng sản phẩm trong giỏ hàng
-    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
-
-    // Xóa sản phẩm khỏi giỏ hàng
-    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
-
-    // Xóa toàn bộ giỏ hàng
+    Route::put('/cart/{cartDetailId}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cartDetailId}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::post('/cart/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkoutSelected');
+    Route::get('/cart/count',[CartController::class, 'count'] )->name('cart.count');
+    
+
+
+
+     // Đơn hàng
+     Route::get('/checkout', [OrderController::class, 'create'])->name('cart.checkout');
+    // Có thể sử dụng POST cho việc tạo đơn hàng
+    Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+    Route::post('/order/{order_id}/process-payment', [OrderController::class, 'processPayment'])->name('order.processPayment');
+    Route::get('/order/success', [OrderController::class, 'paymentSuccess'])->name('order.success');    
+    Route::get('/order/details', [OrderController::class, 'showOrderDetails'])->name('order.details');
+    Route::get('/orders', [OrderController::class, 'index'])->name('order.index'); // Danh sách đơn hàng
+    Route::get('/orders/{order_id}', [OrderController::class, 'show'])->name('order.show'); // Chi tiết đơn hàng
+    Route::patch('/orders/{order_id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
+    
+
+
+    Route::get('/address', [AddressController::class, 'index'])->name('address.index');
+    Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
+    Route::post('/address', [AddressController::class, 'store'])->name('address.store');
+
+    Route::get('/address/{address_id}/edit', [AddressController::class, 'edit'])->name('address.edit');
+    Route::put('/address/{address_id}', [AddressController::class, 'update'])->name('address.update');
+    Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
+
+    Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
 });
 
 
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
+Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
-
-
-
 
 Route::prefix('admin')->group(function() {
     Route::resource('products', ProductController::class);
