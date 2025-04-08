@@ -25,16 +25,23 @@
                     <td class="border px-4 py-2">{{ $order->status->name }}</td>
                     <td class="border px-4 py-2">
                         <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
-                        @if($order->status->status_id != 3 && $order->status->status_id != 5) 
-                            <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="text-red-500">Hủy đơn</button>
-                            </form>
-                        @else
-                            <span class="text-gray-500">Đã hủy</span>
-                        @endif
+                        
+                        @if ($order->status->status_id == 2)
+                        <!-- Cho phép hủy -->
+                        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
+                        </form>
+                    @elseif ($order->status->status_id == 6)
+                        <span class="text-gray-500 ml-2">Đã hủy</span>
+                    @else
+                        <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
+                    @endif
+                    
+                    
                     </td>
+                    
                 </tr>
             @endforeach
         </tbody>

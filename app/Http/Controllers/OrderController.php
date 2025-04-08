@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Order;
+use App\Models\OrderCoupon;
+use App\Models\Coupon;
 use App\Models\OrderDetail;
 use App\Models\OrderStatus;
 use App\Models\Product;
@@ -29,15 +31,21 @@ class OrderController extends Controller
      // Hiển thị chi tiết đơn hàng cho người dùng
      public function show($order_id)
      {
-         $order = Order::with(['userAddresses', 'orderDetails.product', 'status'])->find($order_id);
+         $order = Order::with([
+             'userAddresses',
+             'orderDetails.product',
+             'orderDetails.variant.attributes.variantAttribute',
+             'orderCoupons', // THÊM DÒNG NÀY
+             'status'
+         ])->find($order_id);
      
          if (!$order) {
              return redirect()->route('order.index')->with('error', 'Đơn hàng không tồn tại.');
          }
      
-     
          return view('order.show', compact('order'));
      }
+     
      
         
     /**
@@ -91,80 +99,86 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate thông tin đặt hàng
         $request->validate([
             'address_id'     => 'required|exists:user_addresses,address_id',
             'payment_method' => 'required|in:cod,bank_transfer,credit_card,paypal',
-            'shipping_id'    => 'required|exists:shipping_fees,shipping_id',  // Kiểm tra trường shipping_id
+            'shipping_id'    => 'required|exists:shipping_fees,shipping_id',
+            'code'           => 'nullable|string',
         ]);
-
+    
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->user_id)->first();
-        if (!$cart) {
+    
+        if (!$cart || $cart->details()->count() == 0) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
         }
+    
         $cartItems = $cart->details()->with(['product', 'variant'])->get();
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
-        }
-
-        // Tính tổng tiền giỏ hàng
-        $orderTotal = 0;
-        foreach ($cartItems as $item) {
-            if ($item->variant) {
-                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-            } else {
-                $price = $item->product->price_sale ?? $item->product->price;
+    
+        $orderTotal = $cartItems->sum(function ($item) {
+            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
+            return $price * $item->quantity;
+        });
+    
+        // Mã giảm giá
+        $discountAmount = 0;
+        $coupon = null;
+        if ($request->filled('code')) {
+            $coupon = Coupon::where('code', $request->code)->first();
+            if ($coupon) {
+                $discountAmount = $coupon->discount_type === 'percent'
+                    ? $orderTotal * ($coupon->discount_value / 100)
+                    : $coupon->discount_value;
+                $discountAmount = min($discountAmount, $orderTotal);
             }
-            $orderTotal += $price * $item->quantity;
         }
-
-        // Lấy thông tin phí vận chuyển từ bảng shipping_fees
-        $shippingFee = ShippingFee::find($request->shipping_id);  // Lấy phí vận chuyển theo shipping_id
-
-        // Tính tổng tiền bao gồm phí vận chuyển
-        $finalTotal = $orderTotal + $shippingFee->fee; // Cộng phí vận chuyển vào tổng đơn hàng
-        
-        // Tạo mã đơn hàng độc nhất: ORD-YYYYMMDD-XXXXXX
+    
+        $shippingFee = ShippingFee::findOrFail($request->shipping_id);
+        $finalTotal = $orderTotal + $shippingFee->fee - $discountAmount;
         $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-
-        // Tạo đơn hàng (bản ghi trong bảng orders)
+    
         $order = Order::create([
             'order_code'     => $orderCode,
             'user_id'        => $user->user_id,
-            'address_id'     => $request->address_id, // Địa chỉ đã chọn
-            'total'          => $finalTotal, // Tổng tiền có bao gồm phí vận chuyển
-            'status_id'      => 1, // 1: "Mới"
-            'shipping_fee'   => $shippingFee->fee, // Lưu phí vận chuyển vào đơn hàng
+            'address_id'     => $request->address_id,
+            'status_id'      => 2,
+            'shipping_id'    => $request->shipping_id,
+            'shipping_fee'   => $shippingFee->fee,
             'payment_method' => $request->payment_method,
-            'shipping_id'    => $request->shipping_id,  // Lưu shipping_id
+            'total'          => $finalTotal,
+            'coupon_id'      => $coupon?->coupon_id,
         ]);
-
-        // Tạo chi tiết đơn hàng cho từng mặt hàng
+    
         foreach ($cartItems as $item) {
-            if ($item->variant) {
-                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-            } else {
-                $price = $item->product->price_sale ?? $item->product->price;
-            }
+            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
             $subtotal = $price * $item->quantity;
-
+            $discount = 0; // nếu muốn chia discount theo từng item, tính thêm ở đây
+    
             $order->orderDetails()->create([
                 'product_id'      => $item->product->product_id,
-                'variant_id'      => $item->variant ? $item->variant->variant_id : null,
+                'variant_id'      => $item->variant?->variant_id,
                 'quantity'        => $item->quantity,
                 'price'           => $price,
-                'discount_amount' => 0, // Nếu có giảm giá, cập nhật ở đây
+                'discount_amount' => $discount,
                 'subtotal'        => $subtotal,
-                'total_price'     => $subtotal, // Nếu có giảm giá: subtotal - discount_amount
+                'total_price'     => $subtotal - $discount,
             ]);
         }
-
-        // Xóa giỏ hàng sau khi đặt hàng thành công
+    
+        if ($coupon) {
+            OrderCoupon::create([
+                'order_id'       => $order->order_id,
+                'coupon_id'      => $coupon->coupon_id,
+                'applied_amount' => $discountAmount,
+            ]);
+        }
+    
         $cart->details()->delete();
-
+    
         return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
     }
+    
+    
 
     /**
      * Xử lý thanh toán đơn hàng qua Stripe
@@ -232,22 +246,20 @@ class OrderController extends Controller
     }
     
 
-public function cancel($order_id)
-{
-    // Tìm đơn hàng
-    $order = Order::find($order_id);
+    public function cancel($order_id)
+    {
+        $order = Order::find($order_id);
+        
+        // Chỉ cho phép hủy nếu đơn hàng đang "Chờ xác nhận" (status_id = 2)
+        if ($order && $order->status_id == 2) {
+            $order->status_id = 6; // "Đã hủy"
+            $order->save();
     
-    // Kiểm tra nếu đơn hàng tồn tại và chưa bị hủy
-    if ($order && $order->status_id != 3 && $order->status_id != 5) {
-        // Cập nhật trạng thái của đơn hàng thành "Đã hủy bởi người mua" (status_id = 3)
-        $order->status_id = 3; 
-        $order->save();
-
-        // Trả về thông báo thành công
-        return redirect()->route('order.index')->with('success', 'Đơn hàng đã được hủy bởi bạn.');
+            return redirect()->route('order.index')->with('success', 'Đơn hàng đã được hủy.');
+        }
+    
+        return redirect()->route('order.index')->with('error', 'Không thể hủy đơn hàng.');
     }
-
-    return redirect()->route('order.index')->with('error', 'Không thể hủy đơn hàng.');
-}
+    
 
 }

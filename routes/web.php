@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderCouponController;
+
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
@@ -14,6 +17,7 @@ use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Models\VariantAttribute;
@@ -112,10 +116,14 @@ Route::prefix('admin')->group(function() {
     Route::resource('users', AdminUserController::class);
     Route::resource('sizes', SizeController::class);
     Route::resource('colors', ColorController::class);
-
+    Route::resource('order-coupons', OrderCouponController::class);
+    Route::resource('order-statuses', OrderStatusController::class);
     Route::resource('sliders', SliderController::class);
     Route::resource('shipping-fees', ShippingFeeController::class);
     Route::resource('coupons', CouponController::class);
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
 });
 // Định nghĩa route DELETE để xóa biến thể

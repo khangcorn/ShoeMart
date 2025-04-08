@@ -76,6 +76,11 @@
             </select>
             <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ $shippingFees->first()->fee ?? 10000 }}">
         </div>
+        <div class="form-group">
+            <label for="code">Mã giảm giá (nếu có)</label>
+            <input type="text" name="code" class="form-control" placeholder="Nhập mã giảm giá">
+        </div>
+        
 
         <!-- Thông tin giỏ hàng -->
         <div class="mb-6">

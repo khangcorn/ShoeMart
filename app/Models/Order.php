@@ -54,5 +54,11 @@ class Order extends Model
     {
         return $this->belongsTo(UserAddresses::class, 'address_id', 'address_id');
     }
+    // Order.php
+public function orderCoupons()
+{
+    return $this->hasMany(\App\Models\OrderCoupon::class, 'order_id', 'order_id');
+}
+
 
 }
