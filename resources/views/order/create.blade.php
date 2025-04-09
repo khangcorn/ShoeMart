@@ -79,6 +79,9 @@
         <div class="form-group">
             <label for="code">Mã giảm giá (nếu có)</label>
             <input type="text" name="code" class="form-control" placeholder="Nhập mã giảm giá">
+            @if(session('error'))
+            <p class="text-blue-800 text-sm mt-1">{{ session('error') }}</p>
+        @endif
         </div>
         
 

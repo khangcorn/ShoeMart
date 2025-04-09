@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\DB;
 
 use Stripe\Stripe;
 use Stripe\Charge;
@@ -115,68 +116,118 @@ class OrderController extends Controller
     
         $cartItems = $cart->details()->with(['product', 'variant'])->get();
     
-        $orderTotal = $cartItems->sum(function ($item) {
-            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
-            return $price * $item->quantity;
-        });
+        DB::beginTransaction();
+    
+        try {
+            $orderTotal = $cartItems->sum(function ($item) {
+                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
+                return $price * $item->quantity;
+            });
     
         // Mã giảm giá
-        $discountAmount = 0;
-        $coupon = null;
-        if ($request->filled('code')) {
-            $coupon = Coupon::where('code', $request->code)->first();
-            if ($coupon) {
-                $discountAmount = $coupon->discount_type === 'percent'
-                    ? $orderTotal * ($coupon->discount_value / 100)
-                    : $coupon->discount_value;
-                $discountAmount = min($discountAmount, $orderTotal);
-            }
-        }
-    
-        $shippingFee = ShippingFee::findOrFail($request->shipping_id);
-        $finalTotal = $orderTotal + $shippingFee->fee - $discountAmount;
-        $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-    
-        $order = Order::create([
-            'order_code'     => $orderCode,
-            'user_id'        => $user->user_id,
-            'address_id'     => $request->address_id,
-            'status_id'      => 2,
-            'shipping_id'    => $request->shipping_id,
-            'shipping_fee'   => $shippingFee->fee,
-            'payment_method' => $request->payment_method,
-            'total'          => $finalTotal,
-            'coupon_id'      => $coupon?->coupon_id,
-        ]);
-    
-        foreach ($cartItems as $item) {
-            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
-            $subtotal = $price * $item->quantity;
-            $discount = 0; // nếu muốn chia discount theo từng item, tính thêm ở đây
-    
-            $order->orderDetails()->create([
-                'product_id'      => $item->product->product_id,
-                'variant_id'      => $item->variant?->variant_id,
-                'quantity'        => $item->quantity,
-                'price'           => $price,
-                'discount_amount' => $discount,
-                'subtotal'        => $subtotal,
-                'total_price'     => $subtotal - $discount,
-            ]);
-        }
-    
-        if ($coupon) {
-            OrderCoupon::create([
-                'order_id'       => $order->order_id,
-                'coupon_id'      => $coupon->coupon_id,
-                'applied_amount' => $discountAmount,
-            ]);
-        }
-    
-        $cart->details()->delete();
-    
-        return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
+$discountAmount = 0;
+$coupon = null;
+if ($request->filled('code')) {
+    $coupon = Coupon::where('code', $request->code)
+        ->where('status', 'active')
+        ->where('expiration_date', '>=', now())
+        ->first();
+
+    if (!$coupon) {
+        return back()->with('error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn.');
     }
+
+    // Kiểm tra usage_limit
+    if ($coupon->usage_limit <= 0) {
+        return back()->with('error', 'Mã giảm giá đã được sử dụng hết.');
+    }
+
+    // Kiểm tra xem user đã dùng chưa
+    $alreadyUsed =OrderCoupon::whereHas('order', function ($query) use ($user) {
+        $query->where('user_id', $user->user_id);
+    })->where('coupon_id', $coupon->coupon_id)->exists();
+
+    if ($alreadyUsed) {
+        return back()->with('error', 'Bạn đã sử dụng mã giảm giá này rồi.');
+    }
+
+    // Áp dụng giảm giá
+    $discountAmount = $coupon->discount_type === 'percentage'
+    ? $orderTotal * ($coupon->discount_value / 100)
+    : $coupon->discount_value;
+
+    // Nếu có giới hạn giá trị giảm, lấy min
+    if ($coupon->max_discount_value) {
+        $discountAmount = min($discountAmount, $coupon->max_discount_value);
+    }
+
+    // Không vượt quá tổng đơn hàng
+    $discountAmount = min($discountAmount, $orderTotal);
+}
+
+    
+            $shippingFee = ShippingFee::findOrFail($request->shipping_id);
+            $finalTotal = $orderTotal + $shippingFee->fee - $discountAmount;
+    
+            $order = Order::create([
+                'order_code'     => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                'user_id'        => $user->user_id,
+                'address_id'     => $request->address_id,
+                'status_id'      => 2,
+                'shipping_id'    => $request->shipping_id,
+                'shipping_fee'   => $shippingFee->fee,
+                'payment_method' => $request->payment_method,
+                'total'          => $finalTotal,
+                'coupon_id'      => $coupon?->coupon_id,
+            ]);
+    
+            foreach ($cartItems as $item) {
+                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
+                $subtotal = $price * $item->quantity;
+    
+                $order->orderDetails()->create([
+                    'product_id'      => $item->product->product_id,
+                    'variant_id'      => $item->variant?->variant_id,
+                    'quantity'        => $item->quantity,
+                    'price'           => $price,
+                    'discount_amount' => 0,
+                    'subtotal'        => $subtotal,
+                    'total_price'     => $subtotal,
+                ]);
+    
+                // ✅ Trừ stock của variant
+                if ($item->variant) {
+                    $item->variant->decrement('stock', $item->quantity);
+                }
+            }
+    
+            if ($coupon) {
+                // Ghi nhận mã đã sử dụng
+                OrderCoupon::create([
+                    'order_id'       => $order->order_id,
+                    'coupon_id'      => $coupon->coupon_id,
+                    'applied_amount' => $discountAmount,
+                ]);
+            
+                // Trừ lượt sử dụng (usage_limit)
+                $coupon->decrement('usage_limit');
+            
+                // Tăng số lần đã sử dụng (usage_count)
+                $coupon->increment('usage_count');
+            }
+            
+    
+            // Xóa giỏ hàng sau khi đặt hàng
+            $cart->details()->delete();
+    
+            DB::commit();
+            return redirect()->route('order.success')->with('success', 'Đặt hàng thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+    
     
     
 

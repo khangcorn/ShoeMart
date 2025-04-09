@@ -30,6 +30,8 @@
                         <th class="border px-4 py-3">Type</th>
                         <th class="border px-4 py-3">Value</th>
                         <th class="border px-4 py-3">Max Discount</th>
+                        <th class="border px-4 py-3">Usage Limit</th>
+                        <th class="border px-4 py-3">Usage count</th>
                         <th class="border px-4 py-3">Expiration</th>
                         <th class="border px-4 py-3">Status</th>
                         <th class="border px-4 py-3">Actions</th>
@@ -44,9 +46,12 @@
                             <td class="px-4 py-3 text-gray-700">
                                 {{ $coupon->discount_type === 'percentage' ? $coupon->discount_value . '%' : number_format($coupon->discount_value, 0, ',', '.') . '₫' }}
                             </td>
+                          
                             <td class="px-4 py-3 text-gray-700">
                                 {{ $coupon->max_discount_value ? number_format($coupon->max_discount_value, 0, ',', '.') . '₫' : '-' }}
                             </td>
+                            <td class="px-4 py-3 text-gray-700 capitalize">{{ $coupon->usage_limit }}</td>
+                            <td class="px-4 py-3 text-gray-700 capitalize">{{ $coupon->usage_count }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ $coupon->expiration_date }}</td>
                             <td class="px-4 py-3">
                                 <span class="inline-block px-2 py-1 text-xs rounded {{ 
