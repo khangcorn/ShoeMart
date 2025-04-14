@@ -16,11 +16,13 @@ use App\Http\Controllers\ShippingFeeController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
+use App\Http\Controllers\GHNController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Models\VariantAttribute;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -129,18 +131,9 @@ Route::prefix('admin')->group(function() {
 // Định nghĩa route DELETE để xóa biến thể
 Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
     ->name('products.variants.delete');
+ 
+  
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+// routes/web.php

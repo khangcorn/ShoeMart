@@ -27,7 +27,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+        "app/Helpers/AddressHelper.php"
+    ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -54,6 +57,7 @@
             "dont-discover": []
         }
     },
+    
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
@@ -65,4 +69,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
+    
 }

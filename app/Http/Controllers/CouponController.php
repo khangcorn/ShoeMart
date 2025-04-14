@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\OrderCoupon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CouponController extends Controller
 {
@@ -72,4 +75,22 @@ class CouponController extends Controller
 
         return redirect()->route('coupons.index')->with('success', 'Coupon deleted successfully');
     }
+    // app/Http/Controllers/CouponController.php
+    public function check(Request $request)
+    {
+        $code = $request->input('code');
+    
+        $coupon = Coupon::where('code', $code)->where('usage_limit', '>', 0)->first();
+    
+        if ($coupon) {
+            return response()->json([
+                'valid' => true,
+                'discount_amount' => $coupon->discount_amount,
+            ]);
+        }
+    
+        return response()->json(['valid' => false]);
+    }
+    
+
 }

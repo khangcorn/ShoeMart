@@ -16,8 +16,10 @@ class ShippingFeeController extends Controller
 
     public function create()
     {
-        return view('admin.shipping_fees.create');
+        $data = json_decode(file_get_contents(public_path('data/vn-addresses.json')), true);
+        return view('admin.shipping_fees.create', compact('data'));
     }
+    
 
     public function store(Request $request)
     {
@@ -37,10 +39,12 @@ class ShippingFeeController extends Controller
     public function edit($id)
     {
         $shippingFee = ShippingFee::findOrFail($id);
-
-        return view('admin.shipping_fees.edit', compact('shippingFee'));
+        $data = json_decode(file_get_contents(public_path('data/vn-addresses.json')), true);
+        
+        return view('admin.shipping_fees.edit', compact('shippingFee', 'data'));
     }
-
+    
+    
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -49,13 +53,14 @@ class ShippingFeeController extends Controller
             'ward'     => 'nullable|string|max:100',
             'fee'      => 'required|numeric|min:0',
         ]);
-
+    
         $shippingFee = ShippingFee::findOrFail($id);
         $shippingFee->update($request->only('province', 'district', 'ward', 'fee'));
-
+    
         return redirect()->route('shipping-fees.index')
                          ->with('success', 'Shipping fee updated successfully.');
     }
+    
 
     public function destroy($id)
     {
@@ -65,4 +70,5 @@ class ShippingFeeController extends Controller
         return redirect()->route('shipping-fees.index')
                          ->with('success', 'Shipping fee deleted successfully.');
     }
+    
 }

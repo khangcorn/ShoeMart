@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,4 +60,8 @@ class HomeController extends Controller
         return view('client.products.all', compact('products'));
         
     }
+ 
+
+
+
 }

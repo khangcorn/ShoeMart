@@ -64,25 +64,32 @@
             </select>
         </div>
 
-        <!-- Phí vận chuyển -->
-        <div class="mb-6">
-            <h3 class="text-xl font-semibold mb-2">Phí vận chuyển</h3>
-            <select name="shipping_id" class="w-full p-2 border border-gray-300 rounded-md" onchange="updateShippingFee(this)">
-                @foreach($shippingFees as $fee)
-                    <option value="{{ $fee->shipping_id }}" data-fee="{{ $fee->fee }}">
-                        {{ number_format($fee->fee, 0, ',', '.') }} đ
-                    </option>
-                @endforeach
-            </select>
-            <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ $shippingFees->first()->fee ?? 10000 }}">
+     
+        @if ($shippingFee)
+        <div class="mt-4">
+            <p class="text-gray-700">Phí vận chuyển (tạm tính): 
+                <strong>{{ number_format($shippingFee->fee) }} VNĐ</strong>
+            </p>
+            <input type="hidden" name="shipping_fee" value="{{ $shippingFee->fee }}">
+            <input type="hidden" name="shipping_id" value="{{ $shippingFee->shipping_id }}">
         </div>
+    @endif
+    
+    
+    
         <div class="form-group">
             <label for="code">Mã giảm giá (nếu có)</label>
-            <input type="text" name="code" class="form-control" placeholder="Nhập mã giảm giá">
+            <div class="flex items-center gap-2">
+                <input type="text" name="code" class="form-control" placeholder="Nhập mã giảm giá">
+                <a href="{{ route('coupons.index') }}">Xem mã giảm giá</a>
+
+                
+            </div>
             @if(session('error'))
-            <p class="text-blue-800 text-sm mt-1">{{ session('error') }}</p>
-        @endif
+                <p class="text-blue-800 text-sm mt-1">{{ session('error') }}</p>
+            @endif
         </div>
+        
         
 
         <!-- Thông tin giỏ hàng -->
@@ -101,8 +108,9 @@
                 @endforeach
             </ul>
             <p class="mt-4 text-lg font-bold">
-                Tổng tiền: <span id="totalPrice">{{ number_format($total + ($shippingFees->first()->fee ?? 0), 0, ',', '.') }}</span> đ
+                Tổng tiền: <span id="totalPrice">{{ number_format($total + (($shippingFee->fee ?? 0)), 0, ',', '.') }}</span> đ
             </p>
+            
         </div>
 
         <div class="flex items-center gap-4">
@@ -417,4 +425,5 @@
         }
         return true;
     }
+    
     </script>
