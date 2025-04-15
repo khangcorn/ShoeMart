@@ -79,16 +79,20 @@
     
     <div class="mb-6">
         <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
+    
         <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <input type="text" name="codes" id="couponInput" class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md" placeholder="Nhập mã giảm giá (Cách nhau dấu phẩy)">
-            <button type="button" id="applyCouponBtn" class="bg-blue-600 text-black px-4 py-2 rounded-md hover:bg-blue-700">
-                Áp dụng
-            </button>
+            <input type="text" name="codes" id="couponInput"
+                   class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md"
+                   placeholder="Nhập mã giảm giá (cách nhau dấu phẩy)">
+      
         </div>
-        <a href="{{ route('vouchers.index') }}"  class="text-blue-600 hover:underline text-sm">
+    
+        <a href="{{ route('vouchers.index') }}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
             🔍 Xem danh sách mã giảm giá
         </a>
+    
         <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
+    
         @if(session('error'))
             <p class="text-red-500 text-sm mt-1">{{ session('error') }}</p>
         @endif
@@ -216,17 +220,20 @@
     </div>
 </div>
 
-    <script>
-        
-    // Mở popup danh sách địa chỉ
+<script>
+    // Mở popup chọn địa chỉ
     function openAddressPopup() {
         document.getElementById('addressPopup').classList.remove('hidden');
     }
 
-    // Ẩn popup danh sách khi thêm địa chỉ
+    // Đóng popup chọn địa chỉ
+    function closeAddressPopup() {
+        document.getElementById('addressPopup').classList.add('hidden');
+    }
+
+    // Mở form thêm địa chỉ mới
     function openAddAddressForm() {
-        let addressCount = document.querySelectorAll("#addressList > div").length;
-        
+        const addressCount = document.querySelectorAll("#addressList > div").length;
         if (addressCount >= 3) {
             alert("Bạn chỉ có thể lưu tối đa 3 địa chỉ!");
             return;
@@ -235,19 +242,19 @@
         document.getElementById("addressPopup").classList.add("hidden");
         document.getElementById("addressFormPopup").classList.remove("hidden");
 
-        // Reset form về trạng thái thêm mới
         document.getElementById("addressFormTitle").innerText = "Thêm địa chỉ mới";
-        document.getElementById("addressId").value = "";
-        document.getElementById("addressName").value = "";
-        document.getElementById("recipientName").value = "";
-        document.getElementById("streetAddress").value = "";
-        document.getElementById("ward").value = "";
-        document.getElementById("district").value = "";
-        document.getElementById("city").value = "";
+        ['addressId', 'addressName', 'recipientName', 'streetAddress', 'ward', 'district', 'city'].forEach(id => {
+            document.getElementById(id).value = "";
+        });
     }
 
+    // Đóng form thêm/sửa địa chỉ và quay lại danh sách
+    function closeAddressForm() {
+        document.getElementById("addressFormPopup").classList.add("hidden");
+        document.getElementById("addressPopup").classList.remove("hidden");
+    }
 
-    // Ẩn popup danh sách khi sửa địa chỉ
+    // Sửa địa chỉ
     function editAddress(id, name, recipient, street, ward, district, city) {
         document.getElementById("addressPopup").classList.add("hidden");
         document.getElementById("addressFormPopup").classList.remove("hidden");
@@ -262,21 +269,10 @@
         document.getElementById("city").value = city;
     }
 
-    // Đóng popup form nhập địa chỉ và quay lại danh sách
-    function closeAddressForm() {
-        document.getElementById("addressFormPopup").classList.add("hidden");
-        document.getElementById("addressPopup").classList.remove("hidden");
-    }
-
-    // Đóng popup danh sách địa chỉ
-    function closeAddressPopup() {
-        document.getElementById("addressPopup").classList.add("hidden");
-    }
-
-
+    // Gửi form lưu địa chỉ qua fetch
     function saveAddress() {
-        let form = document.getElementById("addressForm");
-        let formData = new FormData(form);
+        const form = document.getElementById("addressForm");
+        const formData = new FormData(form);
 
         fetch("{{ route('address.store') }}", {
             method: 'POST',
@@ -285,30 +281,23 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
         })
-        .then(response => {
-            return response.json().catch(() => {
-                return response.text().then(text => {
-                    throw new Error("Server response is not JSON: " + text);
-                });
-            });
-        })
+        .then(res => res.json())
         .then(data => {
-            console.log("Server Response:", data);
             if (data.success) {
                 alert("Địa chỉ đã được lưu!");
                 updateAddressList(data.newAddress);
-                document.getElementById("addressFormPopup").classList.add("hidden");
-                document.getElementById("addressPopup").classList.remove("hidden");
+                closeAddressForm();
             } else {
-                alert("Lỗi khi lưu địa chỉ: " + data.message);
+                alert("Lỗi: " + data.message);
             }
         })
-        .catch(error => console.error("Lỗi:", error));
+        .catch(err => console.error("Lỗi:", err));
     }
+
     function updateAddressList(newAddress) {
-        let addressList = document.getElementById("addressList");
-        
-        let newAddressHTML = `
+        const addressList = document.getElementById("addressList");
+
+        const newHTML = `
             <div class="border p-4 rounded-md mb-2">
                 <label class="inline-flex items-center">
                     <input type="radio" name="address_id" value="${newAddress.address_id}" onchange="selectAddress(this)">
@@ -324,94 +313,56 @@
             </div>
         `;
 
-        addressList.innerHTML = newAddressHTML + addressList.innerHTML;
+        addressList.innerHTML = newHTML + addressList.innerHTML;
 
-        // Kiểm tra số lượng địa chỉ và ẩn nút "Thêm địa chỉ mới" nếu đủ 3
-        let addressCount = document.querySelectorAll("#addressList > div").length;
-        if (addressCount >= 3) {
+        if (addressList.querySelectorAll('div').length >= 3) {
             document.querySelector("button[onclick='openAddAddressForm()']").style.display = "none";
         }
     }
 
-
-
     function selectAddress(radio) {
-    let selectedAddressId = document.getElementById('selectedAddressId');
-    let selectedAddressDiv = document.getElementById('selectedAddress');
+        const selectedAddressId = document.getElementById('selectedAddressId');
+        const selectedText = radio.closest('div').querySelector('span').innerHTML;
+        const selectedDiv = document.getElementById('selectedAddress');
 
-    if (!selectedAddressDiv) {
-        console.error("Không tìm thấy phần tử selectedAddress.");
-        return;
+        selectedDiv.innerHTML = `
+            <div>${selectedText}</div>
+            <input type="hidden" name="address_id" id="selectedAddressId" value="${radio.value}">
+        `;
     }
-
-    if (!selectedAddressId) {
-        selectedAddressId = document.createElement('input');
-        selectedAddressId.type = "hidden";
-        selectedAddressId.id = "selectedAddressId";
-        selectedAddressId.name = "address_id";
-        selectedAddressDiv.appendChild(selectedAddressId);
-    }
-
-    let selectedText = radio.closest('div').querySelector('span').innerHTML;
-    selectedAddressDiv.innerHTML = `<div>${selectedText}</div>`;
-    selectedAddressId.value = radio.value;
-}
 
     function confirmAddressSelection() {
-        let selectedRadio = document.querySelector('input[name="address_id"]:checked');
-
+        const selectedRadio = document.querySelector('input[name="address_id"]:checked');
         if (selectedRadio) {
-            let addressDiv = selectedRadio.closest('div');
-            let selectedText = addressDiv.querySelector('span').innerHTML;
-
-            console.log("Địa chỉ được chọn:", selectedText);
-
-            // Cập nhật địa chỉ hiển thị trên giao diện
-            document.getElementById('selectedAddress').innerHTML = `
-                <div>${selectedText}</div>
-                <input type="hidden" name="address_id" id="selectedAddressId" value="${selectedRadio.value}">
-            `;
-
+            selectAddress(selectedRadio);
             showNotification("Thay đổi địa chỉ thành công!");
-
             closeAddressPopup();
         } else {
             alert("Vui lòng chọn địa chỉ trước khi nhấn OK!");
         }
     }
 
-    // Hàm đóng popup
-    function closeAddressPopup() {
-        document.getElementById('addressPopup').classList.add('hidden');
-    }
-
     function showNotification(message) {
-        let notification = document.getElementById("topNotification");
-
-        if (!notification) {
-            notification = document.createElement("div");
-            notification.id = "topNotification";
-            notification.className = "fixed top-0 left-0 w-full bg-green-500 text-white p-4 text-center font-semibold shadow-md";
-            document.body.prepend(notification);
+        let note = document.getElementById("topNotification");
+        if (!note) {
+            note = document.createElement("div");
+            note.id = "topNotification";
+            note.className = "fixed top-0 left-0 w-full bg-green-500 text-white p-4 text-center font-semibold shadow-md z-50";
+            document.body.prepend(note);
         }
-
-        notification.innerText = message;
-        notification.style.display = "block";
-
-        // Ẩn sau 5 giây
-        setTimeout(() => {
-            notification.style.display = "none";
-        }, 3000);
+        note.innerText = message;
+        note.style.display = "block";
+        setTimeout(() => note.style.display = "none", 3000);
     }
 
-
-
-
+    // Cập nhật phí vận chuyển (nếu có dropdown chọn)
     function updateShippingFee(select) {
-        let fee = select.options[select.selectedIndex].getAttribute('data-fee');
-        document.getElementById('shipping_fee').value = fee;
-        let totalPrice = {{ $total }} + parseInt(fee);
-        document.getElementById('totalPrice').innerText = totalPrice.toLocaleString('vi-VN') + " đ";
+        const fee = parseInt(select.options[select.selectedIndex].dataset.fee || 0);
+        document.querySelector('input[name="shipping_fee"]').value = fee;
+
+        const baseTotal = {{ $total }};
+        const total = baseTotal + fee;
+        document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
     }
 
     function validateOrder() {
@@ -421,6 +372,83 @@
         }
         return true;
     }
-    
-    
-    </script>
+
+    // Xử lý nút áp dụng mã giảm giá
+    document.addEventListener('DOMContentLoaded', function () {
+    const applyBtn = document.createElement('button');
+    applyBtn.type = 'button';
+    applyBtn.textContent = 'Áp dụng';
+    applyBtn.className = 'mt-2 bg-green-500 text-white py-1 px-3 rounded-md ml-2';
+    document.querySelector('#couponInput').after(applyBtn);
+
+    applyBtn.addEventListener('click', function () {
+        const codes = document.getElementById('couponInput').value.trim();
+        if (!codes) {
+            document.getElementById('couponResult').innerText = "Vui lòng nhập mã.";
+            return;
+        }
+
+        fetch('{{ route("coupon.check") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ codes })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);  // In ra dữ liệu trả về từ server để kiểm tra
+
+            const couponResult = document.getElementById('couponResult');
+
+            // Kiểm tra nếu có success và các dữ liệu cần thiết
+            if (data.valid_coupons && data.valid_coupons.length > 0) {
+                let message = '';
+                let totalDiscount = 0;
+
+                // Lặp qua mảng valid_coupons và tính tổng giảm giá
+                data.valid_coupons.forEach(item => {
+                    let discountValue = parseFloat(item.discount_value); // Giá trị giảm giá
+                    let maxDiscount = parseFloat(item.max_discount_value); // Giới hạn giảm giá tối đa
+                    let discount;
+
+                    // Kiểm tra loại giảm giá và tính toán
+                    if (item.discount_type === "percentage") {
+                        // Tính giá trị giảm giá theo phần trăm
+                        discount = (parseFloat('{{ $total }}') * discountValue) / 100;
+
+                        // Kiểm tra nếu discount vượt quá giới hạn giảm giá tối đa
+                        if (maxDiscount && discount > maxDiscount) {
+                            discount = maxDiscount;
+                        }
+                    } else {
+                        // Nếu là giảm giá cố định
+                        discount = discountValue;
+                    }
+
+                    message += `✔️ ${item.code}: Giảm ${discount.toLocaleString('vi-VN')} đ<br>`;
+                    totalDiscount += discount;
+                });
+
+                // Cập nhật lại tổng tiền
+                const total = parseFloat('{{ $total }}') + parseFloat('{{ $shippingFee->fee ?? 0 }}') - totalDiscount;
+
+                // Hiển thị tổng tiền sau khi giảm
+                document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
+
+                // Hiển thị kết quả giảm giá
+                couponResult.innerHTML = message + `<strong>Tổng giảm: ${totalDiscount.toLocaleString('vi-VN')} đ</strong>`;
+            } else {
+                couponResult.innerHTML = `<span class="text-red-500">❌ ${data.message || 'Lỗi không xác định'}</span>`;
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi:", error);
+            document.getElementById('couponResult').innerHTML = `<span class="text-red-500">Đã xảy ra lỗi khi kiểm tra mã.</span>`;
+        });
+    });
+});
+
+
+</script>

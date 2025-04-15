@@ -95,5 +95,34 @@ class CouponController extends Controller
         return response()->json(['valid' => false]);
     }
     
+// app/Http/Controllers/CouponController.php
+public function validateCoupons(Request $request)
+{
+    $codes = explode(',', $request->input('codes'));
+    $codes = array_map('trim', $codes);
+
+    $validCoupons = [];
+    $discountTotal = 0;
+
+    foreach ($codes as $code) {
+        $coupon = Coupon::where('code', $code)
+                        ->where('usage_limit', '>', 0)
+                        ->where('expiration_date', '>=', now()) // Sử dụng expiration_date thay vì expiry_date
+                        ->first();
+
+        if ($coupon) {
+            $validCoupons[] = $coupon;
+            $discountTotal += $coupon->discount_amount; // hoặc discount_percent nếu dùng %
+        }
+    }
+
+    return response()->json([
+        'valid_coupons' => $validCoupons,
+        'discount_total' => $discountTotal
+    ]);
+}
+
+
+
 
 }

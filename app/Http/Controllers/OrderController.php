@@ -162,11 +162,14 @@ class OrderController extends Controller
                 return $price * $item->quantity;
             });
     
-            // Mã giảm giá
+            // Khởi tạo các biến cho mã giảm giá
             $discountAmount = 0;
             $shippingDiscount = 0;
             $couponOrder = null;  // Mã giảm giá cho đơn hàng
             $couponShipping = null;  // Mã giảm giá cho phí vận chuyển
+    
+            // Tính phí vận chuyển (dù có mã giảm giá hay không)
+            $shippingFee = ShippingFee::find($request->shipping_id) ?: (object) ['fee' => 0]; // Mặc định là 0 nếu không có phí vận chuyển
     
             // Kiểm tra và tách mã giảm giá từ input
             if ($request->filled('codes')) {
@@ -189,59 +192,55 @@ class OrderController extends Controller
                 }
             }
     
-            // Tiến hành xử lý các mã giảm giá như trước
-          // Xử lý mã giảm giá cho đơn hàng
-if ($couponOrder) {
-    if ($couponOrder->usage_limit <= 0 || $couponOrder->usage_count >= $couponOrder->usage_limit) {
-        return back()->with('error', 'Mã giảm giá cho đơn hàng đã được sử dụng hết.');
-    }
-
-    // Kiểm tra giá trị tối thiểu
-    if ($couponOrder->min_order_value && $orderTotal < $couponOrder->min_order_value) {
-        return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá.');
-    }
-
-    if ($couponOrder->apply_to === 'order') {
-        if ($couponOrder->discount_type === 'percentage') {
-            $discountAmount = $orderTotal * ($couponOrder->discount_value / 100);
-
-            // Áp dụng giới hạn tối đa nếu có
-            if ($couponOrder->max_discount_value) {
-                $discountAmount = min($discountAmount, $couponOrder->max_discount_value);
+            // Xử lý mã giảm giá cho đơn hàng
+            if ($couponOrder) {
+                if ($couponOrder->usage_limit <= 0 || $couponOrder->usage_count >= $couponOrder->usage_limit) {
+                    return back()->with('error', 'Mã giảm giá cho đơn hàng đã được sử dụng hết.');
+                }
+    
+                // Kiểm tra giá trị tối thiểu
+                if ($couponOrder->min_order_value && $orderTotal < $couponOrder->min_order_value) {
+                    return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá.');
+                }
+    
+                if ($couponOrder->apply_to === 'order') {
+                    if ($couponOrder->discount_type === 'percentage') {
+                        $discountAmount = $orderTotal * ($couponOrder->discount_value / 100);
+    
+                        // Áp dụng giới hạn tối đa nếu có
+                        if ($couponOrder->max_discount_value) {
+                            $discountAmount = min($discountAmount, $couponOrder->max_discount_value);
+                        }
+                    } elseif ($couponOrder->discount_type === 'fixed') {
+                        $discountAmount = $couponOrder->discount_value;
+                    }
+                }
             }
-        } elseif ($couponOrder->discount_type === 'fixed') {
-            $discountAmount = $couponOrder->discount_value;
-        }
-    }
-}
-
-// Xử lý mã giảm giá cho phí vận chuyển
-if ($couponShipping) {
-    if ($couponShipping->usage_limit <= 0 || $couponShipping->usage_count >= $couponShipping->usage_limit) {
-        return back()->with('error', 'Mã giảm giá vận chuyển đã được sử dụng hết.');
-    }
-
-    // Kiểm tra giá trị tối thiểu đơn hàng
-    if ($couponShipping->min_order_value && $orderTotal < $couponShipping->min_order_value) {
-        return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá vận chuyển.');
-    }
-
-    if ($couponShipping->apply_to === 'shipping') {
-        $shippingFee = ShippingFee::find($request->shipping_id) ?: (object) ['fee' => 0];
-
-        if ($couponShipping->discount_type === 'percentage') {
-            $shippingDiscount = $shippingFee->fee * ($couponShipping->discount_value / 100);
-
-            // Áp dụng giới hạn tối đa nếu có
-            if ($couponShipping->max_discount_value) {
-                $shippingDiscount = min($shippingDiscount, $couponShipping->max_discount_value);
+    
+            // Xử lý mã giảm giá cho phí vận chuyển
+            if ($couponShipping) {
+                if ($couponShipping->usage_limit <= 0 || $couponShipping->usage_count >= $couponShipping->usage_limit) {
+                    return back()->with('error', 'Mã giảm giá vận chuyển đã được sử dụng hết.');
+                }
+    
+                // Kiểm tra giá trị tối thiểu đơn hàng
+                if ($couponShipping->min_order_value && $orderTotal < $couponShipping->min_order_value) {
+                    return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá vận chuyển.');
+                }
+    
+                if ($couponShipping->apply_to === 'shipping') {
+                    if ($couponShipping->discount_type === 'percentage') {
+                        $shippingDiscount = $shippingFee->fee * ($couponShipping->discount_value / 100);
+    
+                        // Áp dụng giới hạn tối đa nếu có
+                        if ($couponShipping->max_discount_value) {
+                            $shippingDiscount = min($shippingDiscount, $couponShipping->max_discount_value);
+                        }
+                    } elseif ($couponShipping->discount_type === 'fixed') {
+                        $shippingDiscount = $couponShipping->discount_value;
+                    }
+                }
             }
-        } elseif ($couponShipping->discount_type === 'fixed') {
-            $shippingDiscount = $couponShipping->discount_value;
-        }
-    }
-}
-
     
             // Tính tổng đơn hàng sau khi áp dụng mã giảm giá
             $finalTotal = $orderTotal + ($shippingFee->fee ?? 0) - $discountAmount - $shippingDiscount;
@@ -253,7 +252,7 @@ if ($couponShipping) {
                 'address_id'     => $request->address_id,
                 'status_id'      => 2,
                 'shipping_id'    => $request->shipping_id,
-                'shipping_fee'   => $shippingFee->fee ?? 0,
+                'shipping_fee'   => $shippingFee->fee ?? 0, // Lưu phí vận chuyển vào database
                 'shipping_discount'  => $shippingDiscount,
                 'discount_amount'=> $discountAmount,
                 'payment_method' => $request->payment_method,
@@ -311,7 +310,7 @@ if ($couponShipping) {
     
             DB::commit();
     
-            // Truyền các biến vào view
+            // Trả về view thành công
             return view('order.success', [
                 'shippingDiscount' => $shippingDiscount,
                 'discount' => $discountAmount,

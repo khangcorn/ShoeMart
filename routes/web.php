@@ -136,6 +136,8 @@ Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [Produc
  
   
 
+// routes/web.php hoặc routes/api.php
+Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->name('coupon.check');
 
 
 // routes/web.php
