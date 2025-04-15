@@ -7,7 +7,7 @@
                 "wards": ["Phúc Xá", "Cống Vị", "Điện Biên"]
             },
             {
-                "district": "Hoàn Kiếm",
+                "district": "Quận Hoàn Kiếm",
                 "wards": ["Hàng Bạc", "Phường Hàng Gai", "Phường Cửa Nam"]
             }
         ]
@@ -16,7 +16,7 @@
         "province": "Hồ Chí Minh",
         "districts": [
             {
-                "district": "1",
+                "district": "Quận 1",
                 "wards": ["Bến Nghé", "Đa Kao", "Tân Định"]
             },
             {

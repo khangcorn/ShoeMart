@@ -77,18 +77,23 @@
     
     
     
-        <div class="form-group">
-            <label for="code">Mã giảm giá (nếu có)</label>
-            <div class="flex items-center gap-2">
-                <input type="text" name="code" class="form-control" placeholder="Nhập mã giảm giá">
-                <a href="{{ route('coupons.index') }}">Xem mã giảm giá</a>
-
-                
-            </div>
-            @if(session('error'))
-                <p class="text-blue-800 text-sm mt-1">{{ session('error') }}</p>
-            @endif
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+            <input type="text" name="codes" id="couponInput" class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md" placeholder="Nhập mã giảm giá (Cách nhau dấu phẩy)">
+            <button type="button" id="applyCouponBtn" class="bg-blue-600 text-black px-4 py-2 rounded-md hover:bg-blue-700">
+                Áp dụng
+            </button>
         </div>
+        <a href="{{ route('vouchers.index') }}"  class="text-blue-600 hover:underline text-sm">
+            🔍 Xem danh sách mã giảm giá
+        </a>
+        <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
+        @if(session('error'))
+            <p class="text-red-500 text-sm mt-1">{{ session('error') }}</p>
+        @endif
+    </div>
+    
         
         
 
@@ -300,12 +305,6 @@
         })
         .catch(error => console.error("Lỗi:", error));
     }
-
-
-
-
-
-
     function updateAddressList(newAddress) {
         let addressList = document.getElementById("addressList");
         
@@ -381,9 +380,6 @@
         }
     }
 
-
-
-
     // Hàm đóng popup
     function closeAddressPopup() {
         document.getElementById('addressPopup').classList.add('hidden');
@@ -425,5 +421,6 @@
         }
         return true;
     }
+    
     
     </script>

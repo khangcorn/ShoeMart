@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Log;
+
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -47,6 +50,17 @@ class HomeController extends Controller
         // Trả về view với thông tin sản phẩm và các giá trị màu sắc, kích thước
         return view('client.products.detail', compact('product', 'colors', 'sizes'));
     }
+    public function indexVoucher()
+    {
+        // Lấy tất cả các mã giảm giá đang hoạt động
+        $coupons = Coupon::where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        // Trả về view với danh sách mã giảm giá
+        return view('client.vouchers.index', compact('coupons'));
+    }
+    
 
     // ✅ **Thêm phương thức để load tất cả sản phẩm**
     public function getall()

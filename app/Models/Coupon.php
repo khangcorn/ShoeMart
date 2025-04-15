@@ -17,11 +17,13 @@ class Coupon extends Model
 
     protected $fillable = [
         'code',
+        'apply_to', 
         'discount_type',
         'discount_value',
         'max_discount_value',
         'expiration_date',
         'usage_limit',
+        'min_order_value',
         'usage_count',
         'status'
     ];
@@ -29,6 +31,7 @@ class Coupon extends Model
     protected $casts = [
         'discount_value' => 'decimal:2',
         'max_discount_value' => 'decimal:2',
+        'min_order_value' => 'decimal:2',
         'expiration_date' => 'date',
         'usage_count' => 'integer',
         'usage_limit' => 'integer',
