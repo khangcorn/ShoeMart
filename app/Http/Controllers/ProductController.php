@@ -73,40 +73,16 @@ class ProductController extends Controller
         
         // ✅ Validate dữ liệu đầu vào
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products,name',
             'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'price_sale' => 'nullable|numeric|min:0|lte:price',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
-
-            
-        
         'product_images' => 'required|array|min:1',
-            'variants' => 'required|array|min:1',
-            'variants.*.color' => 'required|string|max:50',
-            'variants.*.size' => 'required|string|max:50',
-
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'variants' => 'required|array',
-            'variants.*.color' => 'required|string',
-            'variants.*.size' => 'required|string',
-            'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.price_sale' => 'nullable|numeric|min:0|lte:variants.*.price',
-            'variants.*.stock' => 'required|integer|min:0',
-
-            
             'product_images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
-'variants.*.images.*' => 'required|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048',
-
-
-            'variants.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-
         ]);
-        
-        
-        
-    
+
         // ✅ Tạo sản phẩm
         $product = Product::create([
             'name' => $request->name,
@@ -130,9 +106,14 @@ class ProductController extends Controller
                 }
             }
         }
-    
+        $variants = $request->input('variants', []);
+        if (is_array($variants) && count($variants) > 0) {
         // ✅ Xử lý biến thể sản phẩm
         foreach ($request->variants as $variantData) {
+
+            if (empty($variantData['price']) || empty($variantData['stock'])) {
+                continue;
+            }
             // 🆕 Tạo biến thể trước khi lưu ảnh
             $variant = ProductVariant::create([
                 'product_id' => $product->product_id,
@@ -180,9 +161,10 @@ class ProductController extends Controller
                 }
             }
         }
-    
+        }
         return redirect()->route('products.index')->with('success', '✅ Sản phẩm và biến thể đã được tạo thành công!');
     }
+    
     
     public function show($id)
 {
@@ -336,14 +318,6 @@ if ($request->hasFile("variants.{$index}.images")) {
     
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được cập nhật thành công!');
     }
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     public function destroy($id)

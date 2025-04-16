@@ -406,6 +406,11 @@
             if (data.valid_coupons && data.valid_coupons.length > 0) {
                 let message = '';
                 let totalDiscount = 0;
+                let orderDiscount = 0;  // Giảm cho đơn hàng
+                let shippingDiscount = 0;  // Giảm cho phí vận chuyển
+
+                let orderCouponApplied = false;  // Biến kiểm tra mã giảm giá cho đơn hàng đã được áp dụng chưa
+                let shippingCouponApplied = false;  // Biến kiểm tra mã giảm giá cho phí vận chuyển đã được áp dụng chưa
 
                 // Lặp qua mảng valid_coupons và tính tổng giảm giá
                 data.valid_coupons.forEach(item => {
@@ -422,24 +427,66 @@
                         if (maxDiscount && discount > maxDiscount) {
                             discount = maxDiscount;
                         }
+
+                        // Phân biệt giảm giá cho đơn hàng và phí vận chuyển
+                        if (item.apply_to === 'order') {
+                            if (orderCouponApplied) {
+                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho đơn hàng.</span><br>`;
+                                return;  // Dừng lại nếu đã có mã giảm giá cho đơn hàng
+                            }
+                            orderDiscount += discount;  // Giảm cho đơn hàng
+                            orderCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho đơn hàng
+                        } else if (item.apply_to === 'shipping') {
+                            if (shippingCouponApplied) {
+                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho phí vận chuyển.</span><br>`;
+                                return;  // Dừng lại nếu đã có mã giảm giá cho phí vận chuyển
+                            }
+                            shippingDiscount += discount;  // Giảm cho phí vận chuyển
+                            shippingCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho phí vận chuyển
+                        }
                     } else {
                         // Nếu là giảm giá cố định
                         discount = discountValue;
+
+                        // Phân biệt giảm giá cho đơn hàng và phí vận chuyển
+                        if (item.apply_to === 'order') {
+                            if (orderCouponApplied) {
+                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho đơn hàng.</span><br>`;
+                                return;  // Dừng lại nếu đã có mã giảm giá cho đơn hàng
+                            }
+                            orderDiscount += discount;  // Giảm cho đơn hàng
+                            orderCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho đơn hàng
+                        } else if (item.apply_to === 'shipping') {
+                            if (shippingCouponApplied) {
+                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho phí vận chuyển.</span><br>`;
+                                return;  // Dừng lại nếu đã có mã giảm giá cho phí vận chuyển
+                            }
+                            shippingDiscount += discount;  // Giảm cho phí vận chuyển
+                            shippingCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho phí vận chuyển
+                        }
                     }
 
                     message += `✔️ ${item.code}: Giảm ${discount.toLocaleString('vi-VN')} đ<br>`;
                     totalDiscount += discount;
                 });
 
-                // Cập nhật lại tổng tiền
-                const total = parseFloat('{{ $total }}') + parseFloat('{{ $shippingFee->fee ?? 0 }}') - totalDiscount;
+                // Cập nhật lại tổng tiền sau khi áp dụng các giảm giá
+                let total = parseFloat('{{ $total }}') + parseFloat('{{ $shippingFee->fee ?? 0 }}');
+                total -= orderDiscount; // Trừ giảm giá đơn hàng
+                total -= shippingDiscount; // Trừ giảm giá phí vận chuyển
 
                 // Hiển thị tổng tiền sau khi giảm
                 document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
 
                 // Hiển thị kết quả giảm giá
-                couponResult.innerHTML = message + `<strong>Tổng giảm: ${totalDiscount.toLocaleString('vi-VN')} đ</strong>`;
-            } else {
+                couponResult.innerHTML = `
+                    ${message}
+                    <br>
+                    <strong>Giảm cho đơn hàng: ${orderDiscount.toLocaleString('vi-VN')} đ</strong><br>
+                    <strong>Giảm cho phí vận chuyển: ${shippingDiscount.toLocaleString('vi-VN')} đ</strong><br>
+                    <strong>Tổng giảm: ${totalDiscount.toLocaleString('vi-VN')} đ</strong>
+                `;
+             } else {
                 couponResult.innerHTML = `<span class="text-red-500">❌ ${data.message || 'Lỗi không xác định'}</span>`;
             }
         })
