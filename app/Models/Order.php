@@ -61,5 +61,9 @@ public function orderCoupons()
     return $this->hasMany(\App\Models\OrderCoupon::class, 'order_id', 'order_id');
 }
 
+public function refunds()
+{
+    return $this->hasMany(Refund::class);
+}
 
 }

@@ -22,6 +22,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingFee; 
 use App\Helpers\AddressHelper;
+use App\Models\Refund;
 
 class OrderController extends Controller
 {
@@ -173,24 +174,24 @@ class OrderController extends Controller
     
             // Kiểm tra và tách mã giảm giá từ input
             if ($request->filled('codes')) {
-                $codes = explode(',', $request->codes);  // Tách mã giảm giá vào mảng
-    
-                // Xử lý mã giảm giá cho đơn hàng
-                if (isset($codes[0])) {
-                    $couponOrder = Coupon::where('code', trim($codes[0]))  // Lấy mã đầu tiên cho đơn hàng
+                $codes = explode(',', $request->codes);  // Tách các mã giảm giá
+            
+                foreach ($codes as $code) {
+                    $coupon = Coupon::where('code', trim($code))
                         ->where('status', 'active')
                         ->where('expiration_date', '>=', now())
                         ->first();
-                }
-    
-                // Xử lý mã giảm giá cho phí vận chuyển
-                if (isset($codes[1])) {
-                    $couponShipping = Coupon::where('code', trim($codes[1]))  // Lấy mã thứ hai cho phí vận chuyển
-                        ->where('status', 'active')
-                        ->where('expiration_date', '>=', now())
-                        ->first();
+            
+                    if ($coupon) {
+                        if ($coupon->apply_to === 'order' && !$couponOrder) {
+                            $couponOrder = $coupon;
+                        } elseif ($coupon->apply_to === 'shipping' && !$couponShipping) {
+                            $couponShipping = $coupon;
+                        }
+                    }
                 }
             }
+            
     
             // Xử lý mã giảm giá cho đơn hàng
             if ($couponOrder) {
@@ -331,6 +332,7 @@ class OrderController extends Controller
     
     
     
+    
 
     
     
@@ -415,6 +417,44 @@ class OrderController extends Controller
     
         return redirect()->route('order.index')->with('error', 'Không thể hủy đơn hàng.');
     }
+    public function requestRefund(Request $request)
+    {
+        // Kiểm tra quyền sở hữu đơn hàng
+        $order = Order::findOrFail($request->order_id);
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+    
+        // Kiểm tra điều kiện hoàn tiền (Đơn hàng đã giao và chưa có yêu cầu hoàn tiền)
+        if ($order->status_id != 5 || $order->refund) {
+            return back()->with('error', 'Đơn hàng không đủ điều kiện hoàn tiền.');
+        }
+    
+        // Xử lý tải lên hình ảnh và video (nếu có)
+        $attachments = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('refund_attachments', 'public');
+                $attachments[] = $path;
+            }
+        }
+    
+        // Tạo yêu cầu hoàn tiền
+        Refund::create([
+            'order_id' => $order->order_id,
+            'user_id' => Auth::id(),
+            'amount' => $order->total,
+            'status' => 'pending', // Trạng thái ban đầu là chờ xử lý
+            'reason' => $request->reason,
+            'attachments' => json_encode($attachments),
+        ]);
+    
+        // Cập nhật trạng thái đơn hàng (đánh dấu đã yêu cầu hoàn tiền)
+        $order->update(['refund' => true]);
+    
+        return back()->with('success', 'Yêu cầu hoàn tiền đã được gửi. Đơn hàng của bạn sẽ được xử lý.');
+    }
+    
     
 
 }

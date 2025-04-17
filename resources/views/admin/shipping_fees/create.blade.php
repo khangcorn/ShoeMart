@@ -53,52 +53,67 @@
 </div>
 
 <script>
-    // Chuyển dữ liệu từ PHP sang JavaScript
-    const data = @json($data);  // Dữ liệu từ file JSON
+   document.addEventListener('DOMContentLoaded', function () {
+    fetch("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json")
+        .then(response => response.json())
+        .then(data => {
+            const provinceSelect = document.getElementById("province");
+            const districtSelect = document.getElementById("district");
+            const wardSelect = document.getElementById("ward");
 
-    // Lắng nghe sự kiện thay đổi của dropdown Tỉnh / Thành phố
-    document.getElementById("province").addEventListener("change", function() {
-        const provinceName = this.value;  // Tỉnh / Thành phố đã chọn
-        const province = data.find(p => p.province === provinceName);  // Tìm tỉnh trong dữ liệu
-
-        const districtSelect = document.getElementById("district");
-        districtSelect.innerHTML = '<option value="" disabled selected>-- Chọn Quận / Huyện --</option>';  // Reset quận
-
-        // Kiểm tra nếu tỉnh có quận thì thêm các quận vào dropdown
-        if (province && province.districts) {
-            province.districts.forEach(district => {
-                const option = document.createElement("option");
-                option.value = district.district;
-                option.textContent = district.district;
-                districtSelect.appendChild(option);  // Thêm quận vào dropdown
-            });
-        }
-
-        // Reset phường khi thay đổi tỉnh
-        document.getElementById("ward").innerHTML = '<option value="" disabled selected>-- Chọn Phường / Xã --</option>';
-    });
-
-    // Lắng nghe sự kiện thay đổi của dropdown Quận / Huyện
-    document.getElementById("district").addEventListener("change", function() {
-        const districtName = this.value;  // Quận / Huyện đã chọn
-        const provinceName = document.getElementById("province").value;  // Tỉnh / Thành phố đã chọn
-        const province = data.find(p => p.province === provinceName);  // Tìm tỉnh
-
-        const wardSelect = document.getElementById("ward");
-        wardSelect.innerHTML = '<option value="" disabled selected>-- Chọn Phường / Xã --</option>';  // Reset phường
-
-        // Kiểm tra nếu quận có phường thì thêm các phường vào dropdown
-        if (province) {
-            const district = province.districts.find(d => d.district === districtName);
-            if (district && district.wards) {
-                district.wards.forEach(ward => {
-                    const option = document.createElement("option");
-                    option.value = ward;
-                    option.textContent = ward;
-                    wardSelect.appendChild(option);  // Thêm phường vào dropdown
-                });
+            // Hàm loại bỏ tiền tố "Tỉnh", "Huyện", "Phường"
+            function removePrefix(name) {
+                return name.replace(/(Tỉnh|Thành phố|Huyện|Quận|Phường|Xã)/, "").trim();
             }
-        }
-    });
+
+            // Load tất cả Tỉnh / Thành phố
+            data.forEach(province => {
+                const option = document.createElement("option");
+                option.value = province.Name;
+                option.textContent = removePrefix(province.Name);  // Loại bỏ tiền tố "Tỉnh"
+                provinceSelect.appendChild(option);
+            });
+
+            // Khi chọn Tỉnh / Thành phố
+            provinceSelect.addEventListener("change", function () {
+                const selectedProvince = data.find(p => p.Name === this.value);
+                districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
+                wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+
+                if (selectedProvince && selectedProvince.Districts) {
+                    selectedProvince.Districts.forEach(district => {
+                        const option = document.createElement("option");
+                        option.value = district.Name;
+                        option.textContent = removePrefix(district.Name);  // Loại bỏ tiền tố "Huyện"
+                        districtSelect.appendChild(option);
+                    });
+                }
+            });
+
+            // Khi chọn Quận / Huyện
+            districtSelect.addEventListener("change", function () {
+                const provinceName = provinceSelect.value;
+                const districtName = this.value;
+                const selectedProvince = data.find(p => p.Name === provinceName);
+                const selectedDistrict = selectedProvince?.Districts.find(d => d.Name === districtName);
+
+                wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+
+                if (selectedDistrict && selectedDistrict.Wards) {
+                    selectedDistrict.Wards.forEach(ward => {
+                        const option = document.createElement("option");
+                        option.value = ward.Name;
+                        option.textContent = removePrefix(ward.Name);  // Loại bỏ tiền tố "Xã"
+                        wardSelect.appendChild(option);
+                    });
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Lỗi khi tải dữ liệu địa chỉ:", error);
+        });
+});
+
 </script>
+
 @endsection

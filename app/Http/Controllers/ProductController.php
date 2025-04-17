@@ -49,8 +49,8 @@ class ProductController extends Controller
     public function create()
     {
         // Lấy danh sách sản phẩm và danh mục
-        $categories = Category::all();
-    
+     
+        $categories = Category::whereNotNull('parent_id')->get();
         // Lấy màu sắc và kích cỡ từ variant_attributes
         $colors = DB::table('variant_attributes')
             ->where('attribute_name', 'Color')

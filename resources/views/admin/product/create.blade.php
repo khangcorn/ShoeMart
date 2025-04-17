@@ -73,7 +73,7 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
-
+        
         <div>
             <label for="product_images" class="block text-sm font-medium text-gray-700">Hình Ảnh Sản Phẩm Chính</label>
             <input type="file" id="product_images" name="product_images[]" multiple

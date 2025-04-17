@@ -19,6 +19,7 @@ use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\GHNController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
+use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Models\VariantAttribute;
@@ -115,6 +116,11 @@ Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVouch
 
 
 Route::prefix('admin')->group(function() {
+    Route::get('refunds', [RefundController::class, 'index'])->name('refunds.index');
+    Route::patch('refunds/{refundId}/approve', [RefundController::class, 'approve'])->name('refunds.approve');
+    
+    // Route để từ chối yêu cầu hoàn tiền
+    Route::patch('refunds/{refundId}/reject', [RefundController::class, 'reject'])->name('refunds.reject');
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
@@ -138,6 +144,9 @@ Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [Produc
 
 // routes/web.php hoặc routes/api.php
 Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->name('coupon.check');
+// Trong routes/web.php
+Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'])->name('order.requestRefund');
+
 
 
 // routes/web.php
