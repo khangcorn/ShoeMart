@@ -17,6 +17,18 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
+        {{-- Apply To --}}
+<div class="mb-4">
+    <label for="apply_to" class="block text-gray-700">Apply To:</label>
+    <select name="apply_to" id="apply_to" class="w-full px-4 py-2 mt-2 border rounded-lg @error('apply_to') border-red-500 @enderror">
+        <option value="order" {{ old('apply_to') == 'order' ? 'selected' : '' }}>Order (Giảm giá đơn hàng)</option>
+        <option value="shipping" {{ old('apply_to') == 'shipping' ? 'selected' : '' }}>Shipping (Giảm phí vận chuyển)</option>
+    </select>
+    @error('apply_to')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+    @enderror
+</div>
+
 
         {{-- Discount Type --}}
         <div class="mb-4">
@@ -65,6 +77,15 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
+        {{-- Min Order Value --}}
+<div class="mb-4">
+    <label for="min_order_value" class="block text-gray-700">Min Order Value:</label>
+    <input type="number" name="min_order_value" id="min_order_value" value="{{ old('min_order_value') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('min_order_value') border-red-500 @enderror">
+    @error('min_order_value')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+    @enderror
+</div>
+
 
         {{-- Status --}}
         <div class="mb-4">

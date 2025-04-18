@@ -26,6 +26,15 @@
                 <label for="code" class="block text-sm font-medium text-gray-700">Code</label>
                 <input type="text" name="code" id="code" value="{{ old('code', $coupon->code) }}" class="w-full mt-1 px-3 py-2 border rounded-md" required>
             </div>
+            <!-- Apply To -->
+<div>
+    <label for="apply_to" class="block text-sm font-medium text-gray-700">Apply To</label>
+    <select name="apply_to" id="apply_to" class="w-full mt-1 px-3 py-2 border rounded-md" required>
+        <option value="order" {{ old('apply_to', $coupon->apply_to) === 'order' ? 'selected' : '' }}>Order (Giảm đơn hàng)</option>
+        <option value="shipping" {{ old('apply_to', $coupon->apply_to) === 'shipping' ? 'selected' : '' }}>Shipping (Giảm phí ship)</option>
+    </select>
+</div>
+
 
             <!-- Discount Type -->
             <div>
@@ -59,6 +68,12 @@
                 <label for="usage_limit" class="block text-sm font-medium text-gray-700">Usage Limit</label>
                 <input type="number" name="usage_limit" id="usage_limit" value="{{ old('usage_limit', $coupon->usage_limit) }}" class="w-full mt-1 px-3 py-2 border rounded-md">
             </div>
+            <!-- Min Order Value -->
+<div>
+    <label for="min_order_value" class="block text-sm font-medium text-gray-700">Min Order Value</label>
+    <input type="number" name="min_order_value" id="min_order_value" value="{{ old('min_order_value', $coupon->min_order_value) }}" step="0.01" class="w-full mt-1 px-3 py-2 border rounded-md">
+</div>
+
 
             <!-- Status -->
             <div>

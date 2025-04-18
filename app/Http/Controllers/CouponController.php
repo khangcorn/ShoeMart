@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\OrderCoupon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CouponController extends Controller
 {
@@ -25,11 +28,13 @@ class CouponController extends Controller
     {
         $request->validate([
             'code' => 'required|unique:coupons,code|max:50',
+            'apply_to' => 'required|in:order,shipping',
             'discount_type' => 'required|in:fixed,percentage',
             'discount_value' => 'required|numeric',
             'max_discount_value' => 'nullable|numeric',
             'expiration_date' => 'required|date',
             'usage_limit' => 'required|integer',
+            'min_order_value' => 'nullable|numeric', 
             'status' => 'required|in:active,expired,disabled',
         ]);
 
@@ -50,6 +55,7 @@ class CouponController extends Controller
     {
         $request->validate([
             'code' => 'required|max:50|unique:coupons,code,' . $id,
+            'apply_to' => 'required|in:order,shipping',
             'discount_type' => 'required|in:fixed,percentage',
             'discount_value' => 'required|numeric',
             'max_discount_value' => 'nullable|numeric',
@@ -72,4 +78,51 @@ class CouponController extends Controller
 
         return redirect()->route('coupons.index')->with('success', 'Coupon deleted successfully');
     }
+    // app/Http/Controllers/CouponController.php
+    public function check(Request $request)
+    {
+        $code = $request->input('code');
+    
+        $coupon = Coupon::where('code', $code)->where('usage_limit', '>', 0)->first();
+    
+        if ($coupon) {
+            return response()->json([
+                'valid' => true,
+                'discount_amount' => $coupon->discount_amount,
+            ]);
+        }
+    
+        return response()->json(['valid' => false]);
+    }
+    
+// app/Http/Controllers/CouponController.php
+public function validateCoupons(Request $request)
+{
+    $codes = explode(',', $request->input('codes'));
+    $codes = array_map('trim', $codes);
+
+    $validCoupons = [];
+    $discountTotal = 0;
+
+    foreach ($codes as $code) {
+        $coupon = Coupon::where('code', $code)
+                        ->where('usage_limit', '>', 0)
+                        ->where('expiration_date', '>=', now()) // Sử dụng expiration_date thay vì expiry_date
+                        ->first();
+
+        if ($coupon) {
+            $validCoupons[] = $coupon;
+            $discountTotal += $coupon->discount_amount; // hoặc discount_percent nếu dùng %
+        }
+    }
+
+    return response()->json([
+        'valid_coupons' => $validCoupons,
+        'discount_total' => $discountTotal
+    ]);
+}
+
+
+
+
 }

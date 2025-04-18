@@ -49,19 +49,28 @@
 
     @php
     $subtotal = $order->orderDetails->sum('total_price');
-    $shippingFee = $order->shipping_fee ?? 0;
-    $discount = $order->orderCoupons->sum('applied_amount');
-    $finalTotal = $subtotal + $shippingFee - $discount;
+    $discount = $order->discount_amount ?? 0;
+    $shipping = $order->shipping_fee ?? 0;
+    $shippingDiscount = $order->shipping_discount ?? 0; // Giảm giá phí vận chuyển
+    $finalTotal = $subtotal + $shipping - $discount - $shippingDiscount;
 @endphp
 
-<div class="mb-4">
-    <h3 class="text-xl font-semibold">Tổng tiền</h3>
+<div class="mt-4">
     <p>Tạm tính: {{ number_format($subtotal, 0, ',', '.') }} đ</p>
-    <p>Phí vận chuyển: {{ number_format($shippingFee, 0, ',', '.') }} đ</p>
-    @if ($discount > 0)
-        <p>Giảm giá: -{{ number_format($discount, 0, ',', '.') }} đ</p>
+    <p>Phí vận chuyển: {{ number_format($shipping, 0, ',', '.') }} đ</p>
+
+    @if (isset($discount) && $discount > 0)
+        <p class="text-green-600">Giảm giá đơn hàng: -{{ number_format($discount, 0, ',', '.') }} đ</p>
     @endif
-    <p class="font-bold text-lg">Thành tiền: {{ number_format($finalTotal, 0, ',', '.') }} đ</p>
+
+    @if (isset($shippingDiscount) && $shippingDiscount > 0)
+    <p class="text-green-600">Giảm giá phí vận chuyển: -{{ number_format($shippingDiscount, 0, ',', '.') }} đ</p>
+@endif
+
+
+    <p class="font-bold text-lg mt-2">
+        Tổng thanh toán: {{ number_format($finalTotal, 0, ',', '.') }} đ
+    </p>
 </div>
 
     

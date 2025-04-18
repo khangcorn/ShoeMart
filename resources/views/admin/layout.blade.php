@@ -18,6 +18,7 @@
     <script src="{{ asset('js/darkmode.js') }}" defer></script>
     <script src="{{ asset('js/layout.js') }}" defer></script>
 </head>
+@stack('scripts')
 <body class="bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
 
     <!-- Nội dung của bạn ở đây -->

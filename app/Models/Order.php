@@ -21,6 +21,7 @@ class Order extends Model
         'order_code',
         'total',
         'shipping_fee',
+        'shipping_discount',
         'discount_amount',
         'total_price',
         'payment_method',
@@ -60,5 +61,9 @@ public function orderCoupons()
     return $this->hasMany(\App\Models\OrderCoupon::class, 'order_id', 'order_id');
 }
 
+public function refunds()
+{
+    return $this->hasMany(Refund::class);
+}
 
 }
