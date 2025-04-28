@@ -22,6 +22,7 @@ use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
+use App\Http\Controllers\WishlistController;
 use App\Models\VariantAttribute;
 
 use Illuminate\Support\Facades\Route;
@@ -102,8 +103,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/address/{address_id}/edit', [AddressController::class, 'edit'])->name('address.edit');
     Route::put('/address/{address_id}', [AddressController::class, 'update'])->name('address.update');
     Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
-
     Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
+    Route::prefix('wishlist')->name('wishlist.')->group(function () {
+        Route::get('/', [WishlistController::class, 'index'])->name('index');
+        Route::post('/add', [WishlistController::class, 'store'])->name('store');
+        Route::get('/delete', [WishlistController::class, 'delete'])->name('delete');
+    });
 });
 
 

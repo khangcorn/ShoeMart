@@ -210,7 +210,7 @@
                     <button id="add-to-bag"  class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold " data-product="{{ $product->product_id }} " data-variant="{{ $variant->variant_id  }}">
                         Add to Bag
                     </button>
-                    <button
+                    <button  onclick="addToWishlist({{ $product->product_id }})"
                         class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
