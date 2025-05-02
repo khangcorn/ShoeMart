@@ -32,8 +32,12 @@
             <p>Find a Store</p> |
             <div class="flex items-center gap-2">
                 @if (Auth::check())
-                    <p class="text-black font-medium">Hello {{ Auth::user()->username }}</p>
+                    <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
+                    <a href="{{ route('profile') }}" class="text-black font-medium">
+                        Hello {{ Auth::user()->username }}
+                    </a>
                 @else
+                    <!-- Nếu chưa đăng nhập, link sẽ đưa tới trang đăng nhập -->
                     <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
                         Login
                     </a>
@@ -45,9 +49,8 @@
                     </path>
                 </svg>
             </div>
-            
-
         </div>
+        
     </div>
 </div>
 <header class="bg-white ">
@@ -146,6 +149,7 @@
 
 
         </div>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 
 </header>

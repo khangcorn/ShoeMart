@@ -305,20 +305,33 @@ function addToCart() {
             quantity: quantity 
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Thêm vào giỏ hàng thành công!");
-            updateCartCount(); // ⚡ Gọi lại updateCartCount để cập nhật từ API
+    .then(response => {
+        console.log("Response status:", response.status);  // Xem trạng thái phản hồi
+        return response.text();  // Chúng ta lấy content dưới dạng text
+    })
+    .then(text => {
+        console.log("Response body:", text);  // Kiểm tra body của response
+        if (text.includes('Login') || text.includes('email')) {  // Kiểm tra xem có phải là trang login không
+            // Nếu là trang login (HTML), chuyển hướng đến trang đăng nhập
+            window.location.href = "/login";
         } else {
-            alert(data.message);
+            // Nếu là JSON, tiếp tục xử lý dữ liệu JSON
+            try {
+                const data = JSON.parse(text);
+                if (data.message) {
+                    alert(data.message);  // Hiển thị thông báo thành công
+                }
+            } catch (error) {
+                console.error("Error parsing JSON:", error);  // Xử lý lỗi nếu không phải JSON
+            }
         }
     })
     .catch(error => {
-        console.error("Error:", error);
+        console.error("Error khi thêm vào giỏ hàng:", error);
         alert("Lỗi khi thêm vào giỏ hàng!");
     });
 }
+
 
 document.addEventListener("DOMContentLoaded", updateCartCount);
 

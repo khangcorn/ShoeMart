@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
+use App\Models\CartDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\UserAddresses;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Role;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,6 +29,17 @@ class UserController extends Controller
     {
         return view('client.auth.login');
     }
+    protected function authenticated(Request $request, $user)
+    {
+        // Kiểm tra xem có URL đã lưu trong session không
+        if (session()->has('url.intended')) {
+            return redirect()->to(session('url.intended'));  // Quay lại trang trước
+        }
+
+        // Nếu không có URL trước đó, chuyển hướng về trang chủ hoặc trang nào đó
+        return redirect()->route('home');
+    }
+
 
     // Xử lý đăng ký
     public function register(Request $request)
@@ -57,20 +71,50 @@ class UserController extends Controller
         return redirect()->route('login')->with('success', 'User registered successfully');
     }
 
-    // Xử lý đăng nhập
     public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+    
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return redirect()->route('profile');
+            // Kiểm tra nếu có sản phẩm đã lưu trong session
+            $cartItems = session('cart.items');
+            Log::info('Cart items retrieved from session after login:', ['cart_items' => $cartItems]);
+        
+            if ($cartItems) {
+                // Thêm các sản phẩm vào giỏ hàng
+                $user = Auth::user();
+                $cart = Cart::firstOrCreate(['user_id' => $user->user_id]);
+                foreach ($cartItems as $item) {
+                    // Thêm từng sản phẩm vào giỏ hàng
+                    CartDetail::firstOrCreate([
+                        'cart_id' => $cart->cart_id,
+                        'product_id' => $item['product_id'],
+                        'variant_id' => $item['variant_id'],
+                    ], [
+                        'quantity' => $item['quantity'],
+                        'price' => $this->getProductPrice($item['product_id'], $item['variant_id']),
+                    ]);
+                }
+                // Xóa các sản phẩm khỏi session sau khi thêm vào giỏ
+                session()->forget('cart.items');
+            }
+        
+            // Quay lại trang trước đó nếu có, nếu không thì chuyển đến profile
+            return redirect()->intended(route('profile'));
         }
-
-        return back()->withErrors(['email' => 'Email hoặc mật khẩu không chính xác.']);
+        
+    
+        return back()->withErrors([
+            'email' => 'Email hoặc mật khẩu không chính xác.',
+        ]);
     }
+    
+
+    
+    
 
     // Xử lý đăng xuất
     public function logout()
@@ -84,7 +128,11 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $address = UserAddresses::where('user_id', $user->user_id)->first();
-        return view('client.auth.profile', compact('user', 'address'));
+        $wallet = $user->wallet; // Nếu bạn có quan hệ User -> Wallet (hasOne)
+        $transactions = $wallet ? $wallet->transactions()->latest()->limit(10)->get() : collect(); // Lấy lịch sử giao dịch ví
+
+        return view('client.auth.profile', compact('user', 'address', 'wallet', 'transactions'));
+
     }
 
     // Cập nhật địa chỉ

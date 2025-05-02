@@ -16,6 +16,16 @@
     }, 5000);
 </script>
 @endif
+@if(session('error'))
+<div id="topNotification" class="bg-green-500 text-white p-4 text-center font-semibold">
+    {{ session('error') }}
+</div>
+<script>
+    setTimeout(() => {
+        document.getElementById('topNotification').style.display = 'none';
+    }, 5000);
+</script>
+@endif
 <div class="container mx-auto p-6">
     <h2 class="text-2xl font-semibold mb-4">Thanh toán</h2>
 
@@ -53,16 +63,15 @@
             </div>
         </div>
 
-        <!-- Phương thức thanh toán -->
+       <!-- Phương thức thanh toán -->
         <div class="mb-6">
             <h3 class="text-xl font-semibold mb-2">Phương thức thanh toán</h3>
             <select name="payment_method" class="w-full p-2 border border-gray-300 rounded-md">
                 <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                <option value="bank_transfer">Chuyển khoản</option>
-                <option value="credit_card">Thẻ tín dụng</option>
-                <option value="paypal">PayPal</option>
+                <option value="wallet">Thanh toán qua ví</option>
             </select>
         </div>
+
 
         <!-- Phí vận chuyển -->
         <div class="mb-6">
@@ -96,7 +105,10 @@
                 Tổng tiền: <span id="totalPrice">{{ number_format($total + ($shippingFees->first()->fee ?? 0), 0, ',', '.') }}</span> đ
             </p>
         </div>
-
+        @foreach($cartDetailIds as $id)
+        <input type="hidden" name="cart_detail_ids[]" value="{{ $id }}">
+        @endforeach
+    
         <div class="flex items-center gap-4">
             <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-md" onclick="return validateOrder()">
                 Xác nhận đơn hàng
@@ -132,7 +144,7 @@
             </div>
             <div class="mb-2">
                 <label class="block font-semibold">Số điện thoại:</label>
-                <input type="text" id="recipientPhone" name="recipient_phone" class="w-full p-2 border rounded-md" required>
+                <input type="tel" id="recipientPhone" name="recipient_phone" class="w-full p-2 border rounded-md" required>
             </div>
             <div class="mb-2">
                 <label class="block font-semibold">Xã:</label>
@@ -158,7 +170,8 @@
         </form>
     </div>
 </div>
-
+<!-- Khu vực hiển thị thông báo lỗi -->
+<div id="error-message" class="alert alert-danger" style="display: none;"></div>
 
 <!-- Popup danh sách địa chỉ -->
 <div id="addressPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
@@ -166,7 +179,7 @@
         <h2 class="text-xl font-semibold mb-4">Thay đổi địa chỉ nhận hàng</h2>
         <div id="addressList">
             @foreach($user->userAddresses as $address)
-                <div class="border p-4 rounded-md mb-2">
+            <div class="border p-4 rounded-md mb-2 address-item" data-address-id="{{ $address->address_id }}">
                     <label class="inline-flex items-center">
                         <input type="radio" name="address_id" value="{{ $address->address_id }}"
                             {{ $address->is_default ? 'checked' : '' }} onchange="selectAddress(this)">
@@ -175,22 +188,37 @@
                             {{ $address->street_address }}, {{ $address->ward }}, {{ $address->district }}, {{ $address->city }}
                         </span>
                     </label>
-                    <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
-                    onclick="editAddress({{ $address->address_id }}, '{{ $address->address_name }}', '{{ $address->recipient_name }}', '{{ $address->street_address }}', '{{ $address->ward }}', '{{ $address->district }}', '{{ $address->city }}')">
-                    Sửa
-                </button>                
+                        <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
+                        onclick="editAddress({{ $address->address_id }}, '{{ $address->address_name }}', '{{ $address->recipient_name }}',{{  $address->recipient_phone }}, '{{ $address->street_address }}', '{{ $address->ward }}', '{{ $address->district }}', '{{ $address->city }}')">
+                        Sửa
+                    </button>                
                 </div>
             @endforeach
         </div>
+    @if(!empty($address))
         <div class="mt-4 flex justify-end gap-4">
-            <button onclick="confirmAddressSelection()" 
+            <button
+                onclick="confirmAddressSelection()"
                 class="bg-blue-500 text-white px-4 py-2 rounded-md">
                 Chọn địa chỉ làm mặc định
             </button>
+
             <button onclick="openAddAddressForm()" class="bg-green-500 text-black px-4 py-2 rounded-md">
                 Thêm địa chỉ mới
             </button>
         </div>
+    @else
+        <span class="text-red-500">Bạn chưa có địa chỉ giao hàng.</span>
+        <input type="hidden" name="address_id" id="selectedAddressId" value="">
+
+        <div class="mt-4 flex justify-end gap-4">
+            <button onclick="openAddAddressForm()" class="bg-green-500 text-black px-4 py-2 rounded-md">
+                Thêm địa chỉ mới
+            </button>
+        </div>
+    @endif
+
+    
         
     </div>
 </div>
@@ -227,7 +255,7 @@
 
 
     // Ẩn popup danh sách khi sửa địa chỉ
-    function editAddress(id, name, recipient, street, ward, district, city) {
+    function editAddress(id, name, recipient, phone, street, ward, district, city) {
         document.getElementById("addressPopup").classList.add("hidden");
         document.getElementById("addressFormPopup").classList.remove("hidden");
 
@@ -235,6 +263,7 @@
         document.getElementById("addressId").value = id;
         document.getElementById("addressName").value = name;
         document.getElementById("recipientName").value = recipient;
+        document.getElementById("recipientPhone").value = phone;
         document.getElementById("streetAddress").value = street;
         document.getElementById("ward").value = ward;
         document.getElementById("district").value = district;
@@ -254,69 +283,110 @@
 
 
     function saveAddress() {
-        let form = document.getElementById("addressForm");
-        let formData = new FormData(form);
+    const addressStoreUrl = "{{ route('address.store') }}";
+    let form = document.getElementById("addressForm");
+    let formData = new FormData(form);
 
-        fetch("{{ route('address.store') }}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            return response.json().catch(() => {
-                return response.text().then(text => {
-                    throw new Error("Server response is not JSON: " + text);
+    // Lấy ID địa chỉ nếu đang sửa
+    let addressId = document.getElementById('addressId').value;
+    let isEditing = addressId !== "";
+
+    // Gán thêm _method nếu là PUT
+    if (isEditing) {
+        formData.append('_method', 'PUT');
+    }
+
+    // Kiểm tra checkbox "đặt làm mặc định"
+    let isDefault = document.querySelector('input[name="is_default"]:checked') ? 1 : 0;
+    formData.append('is_default', isDefault);
+
+    let url = isEditing ? `/address/${addressId}` : addressStoreUrl;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Địa chỉ đã được lưu!");
+
+            // Cập nhật giao diện
+            updateAddressList(data.newAddress);
+
+            // Nếu là mặc định thì cập nhật checked
+            if (data.newAddress.is_default) {
+                document.querySelectorAll('input[name="address_id"]').forEach(radio => {
+                    radio.checked = (radio.value == data.newAddress.address_id);
                 });
-            });
-        })
-        .then(data => {
-            console.log("Server Response:", data);
-            if (data.success) {
-                alert("Địa chỉ đã được lưu!");
-                updateAddressList(data.newAddress);
-                document.getElementById("addressFormPopup").classList.add("hidden");
-                document.getElementById("addressPopup").classList.remove("hidden");
-            } else {
-                alert("Lỗi khi lưu địa chỉ: " + data.message);
             }
-        })
-        .catch(error => console.error("Lỗi:", error));
-    }
 
-
-
-
-
-
-    function updateAddressList(newAddress) {
-        let addressList = document.getElementById("addressList");
-        
-        let newAddressHTML = `
-            <div class="border p-4 rounded-md mb-2">
-                <label class="inline-flex items-center">
-                    <input type="radio" name="address_id" value="${newAddress.address_id}" onchange="selectAddress(this)">
-                    <span class="ml-2">
-                        <strong>${newAddress.address_name}</strong> - ${newAddress.recipient_name} <br>
-                        ${newAddress.street_address}, ${newAddress.ward}, ${newAddress.district}, ${newAddress.city}
-                    </span>
-                </label>
-                <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
-                    onclick="editAddress(${newAddress.address_id}, '${newAddress.address_name}', '${newAddress.recipient_name}', '${newAddress.street_address}', '${newAddress.ward}', '${newAddress.district}', '${newAddress.city}')">
-                    Sửa
-                </button>
-            </div>
-        `;
-
-        addressList.innerHTML = newAddressHTML + addressList.innerHTML;
-
-        // Kiểm tra số lượng địa chỉ và ẩn nút "Thêm địa chỉ mới" nếu đủ 3
-        let addressCount = document.querySelectorAll("#addressList > div").length;
-        if (addressCount >= 3) {
-            document.querySelector("button[onclick='openAddAddressForm()']").style.display = "none";
+            // Đóng form thêm/sửa
+            document.getElementById("addressFormPopup").classList.add("hidden");
+            document.getElementById("addressPopup").classList.remove("hidden");
+        } else {
+            alert("Lỗi khi lưu địa chỉ: " + data.message);
         }
+    })
+    .catch(error => {
+        console.error("Lỗi:", error);
+        alert("Có lỗi xảy ra.");
+    });
+}
+
+
+
+
+
+
+
+
+function updateAddressList(newAddress) {
+    let addressList = document.getElementById("addressList");
+
+    // Tìm phần tử địa chỉ cũ theo ID
+    let existingAddress = document.querySelector(`#addressList [data-address-id="${newAddress.address_id}"]`);
+
+    // Nếu có địa chỉ cũ thì xóa hẳn ra khỏi danh sách
+    if (existingAddress) {
+        existingAddress.remove();
     }
+
+    // Tạo HTML mới cho địa chỉ
+    let newAddressHTML = `
+        <div class="border p-4 rounded-md mb-2 address-item" data-address-id="${newAddress.address_id}">
+            <label class="inline-flex items-center">
+                <input type="radio" name="address_id" value="${newAddress.address_id}" 
+                    ${newAddress.is_default ? 'checked' : ''} onchange="selectAddress(this)">
+                <span class="ml-2">
+                    <strong class="address-name">${newAddress.address_name}</strong> - 
+                    <span class="recipient-name">${newAddress.recipient_name}</span><br>
+                    <span class="street-address">${newAddress.street_address}</span>, 
+                    <span class="ward">${newAddress.ward}</span>, 
+                    <span class="district">${newAddress.district}</span>, 
+                    <span class="city">${newAddress.city}</span>
+                </span>
+            </label>
+            <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
+                onclick="editAddress(${newAddress.address_id}, '${newAddress.address_name}', '${newAddress.recipient_name}', ${newAddress.recipient_phone}, '${newAddress.street_address}', '${newAddress.ward}', '${newAddress.district}', '${newAddress.city}')">
+                Sửa
+            </button>
+        </div>
+    `;
+
+    // Chèn địa chỉ mới lên đầu danh sách
+    addressList.insertAdjacentHTML('afterbegin', newAddressHTML);
+
+    // Kiểm tra số lượng địa chỉ và ẩn nút "Thêm địa chỉ mới" nếu đủ 3
+    let addressCount = document.querySelectorAll("#addressList .address-item").length;
+    if (addressCount >= 3) {
+        document.querySelector("button[onclick='openAddAddressForm()']").style.display = "none";
+    }
+}
+
 
 
 
@@ -342,28 +412,53 @@
     selectedAddressId.value = radio.value;
 }
 
-    function confirmAddressSelection() {
-        let selectedRadio = document.querySelector('input[name="address_id"]:checked');
+function confirmAddressSelection() {
+    let selectedRadio = document.querySelector('input[name="address_id"]:checked');
 
-        if (selectedRadio) {
-            let addressDiv = selectedRadio.closest('div');
-            let selectedText = addressDiv.querySelector('span').innerHTML;
+    if (selectedRadio) {
+        let addressId = parseInt(selectedRadio.value); // Lấy ID từ radio đang chọn
+        let addressDiv = selectedRadio.closest('div');
+        let selectedText = addressDiv.querySelector('span').innerHTML;
 
-            console.log("Địa chỉ được chọn:", selectedText);
+        document.getElementById('selectedAddress').innerHTML = `
+            <div>${selectedText}</div>
+            <input type="hidden" name="address_id" id="selectedAddressId" value="${addressId}">
+        `;
 
-            // Cập nhật địa chỉ hiển thị trên giao diện
-            document.getElementById('selectedAddress').innerHTML = `
-                <div>${selectedText}</div>
-                <input type="hidden" name="address_id" id="selectedAddressId" value="${selectedRadio.value}">
-            `;
+        // Gửi request cập nhật mặc định
+        fetch(`/address/${addressId}/set-default`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.success) {
+                showNotification("Địa chỉ mặc định đã được thay đổi!");
 
-            showNotification("Thay đổi địa chỉ thành công!");
+                // Cập nhật lại các radio
+                document.querySelectorAll('input[name="address_id"]').forEach(input => {
+                    input.checked = (parseInt(input.value) === addressId);
+                });
+            } else {
+                alert("Lỗi khi thay đổi địa chỉ mặc định.");
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi:", error);
+            alert("Đã có lỗi xảy ra.");
+        });
 
-            closeAddressPopup();
-        } else {
-            alert("Vui lòng chọn địa chỉ trước khi nhấn OK!");
-        }
+        closeAddressPopup();
+    } else {
+        alert("Vui lòng chọn địa chỉ trước khi nhấn OK!");
     }
+}
+
+
 
 
 
@@ -409,4 +504,26 @@
         }
         return true;
     }
+    // $(document).ready(function() {
+    //     $('#orderForm').on('submit', function(e) {
+    //         e.preventDefault(); // Ngừng submit form thông thường
+
+    //         var formData = $(this).serialize(); // Lấy dữ liệu form
+
+    //         $.ajax({
+    //             url: '{{ route('order.store') }}', // Route store của bạn
+    //             method: 'POST',
+    //             data: formData,
+    //             success: function(response) {
+    //                 // Nếu thành công, redirect hoặc hiển thị thông báo thành công
+    //                 window.location.href = '/order/success';
+    //             },
+    //             error: function(xhr) {
+    //                 // Nếu có lỗi, hiển thị thông báo lỗi
+    //                 var errorMessage = xhr.responseJSON.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+    //                 $('#error-message').text(errorMessage).show(); // Hiển thị lỗi vào phần tử
+    //             }
+    //         });
+    //     });
+    // });
     </script>

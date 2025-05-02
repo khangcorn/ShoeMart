@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -11,8 +12,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\VariantAttributeController;
+use App\Http\Controllers\WalletController;
 use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -67,6 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkoutSelected');
     Route::get('/cart/count',[CartController::class, 'count'] )->name('cart.count');
     
+    Route::get('/', [WalletController::class, 'index']);
+    Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+    Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+    Route::post('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
+    Route::delete('/wallet/unlink-bank/{bank}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
 
 
 
@@ -86,12 +94,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/address', [AddressController::class, 'index'])->name('address.index');
     Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
     Route::post('/address', [AddressController::class, 'store'])->name('address.store');
-
     Route::get('/address/{address_id}/edit', [AddressController::class, 'edit'])->name('address.edit');
     Route::put('/address/{address_id}', [AddressController::class, 'update'])->name('address.update');
     Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
-
     Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
+    
+    Route::post('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])->name('orders.confirmReceived');
+    // Hoàn trả đơn hàng
+    Route::post('/orders/{order_id}/return', [OrderController::class, 'returnOrder'])->name('orders.return');
+
+    // Tự động cập nhật trạng thái đơn hàng sau 7 ngày
+    Route::get('/orders/auto-complete', [OrderController::class, 'autoCompleteOrderStatus'])->name('orders.autoComplete');
 });
 
 
