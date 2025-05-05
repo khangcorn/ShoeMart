@@ -1,6 +1,20 @@
 @extends('client.layout')
 
 @section('content')
+<!-- Thông báo lỗi -->
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+<!-- Thông báo thành công -->
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
     <div class="container mx-auto p-4 max-w-screen-lg mt-16">
         <div class="flex flex-wrap md:flex-nowrap">
             <!-- Hình ảnh sản phẩm chính -->
@@ -8,13 +22,26 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <div class="flex space-x-3.5">
-                                <!-- Cột chứa ảnh biến thể -->
-                                <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
-                                    @foreach ($product->variants as $variant)
-                                    @php
-                                        $variantImage = optional($variant->images->first())->image_url;
-                                    @endphp
+                            <div class="flex space-x-3.5 ">
+                                <!-- Cột chứa ảnh chi tiết biến thể -->
+                                <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
+                                    <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
+                                        @foreach ($product->variants as $variant)
+                                            @foreach ($variant->images as $image)
+                                                <img 
+                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
+                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
+                                                    alt="{{ $variant->color ?? 'No Color' }}"
+                                                    data-color="{{ $variant->color }}"
+                                                    data-price="{{ $variant->price }}"
+                                                    data-size="{{ $variant->size }}"
+                                                    data-stock="{{ $variant->stock }}"
+                                                    data-images="{{ json_encode($variant->images) }}"
+                                                    onclick="updateProductDetails(this)">
+                                            @endforeach
+                                        @endforeach
+                                    </div>
+                                </div>
                                 
                                     <img class="" 
                                         src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
@@ -64,30 +91,44 @@
                 
                 
                 <!-- Ảnh biến thể dưới -->
-                <div class=" border-1 flex py-4 overflow-x-auto" id="variant-images-container">
-
-                    @foreach ($product->variants as $variant)
-                    <div class="w-1/5 variant-item" data-variant="{{ $variant->variant_id }}"
+                <div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+                    @php
+                        $groupedVariants = $product->variants->groupBy(function ($variant) {
+                            return optional(
+                                $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color')
+                            )->variantAttribute->attribute_value ?? 'No Color';
+                        });
+                    @endphp
+                
+                    @foreach ($groupedVariants as $color => $variants)
                         @php
-                            $colorAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute;
-                            $sizeAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'))->variantAttribute;
-                            $variantImage = optional($variant->images->first())->image_url;
+                            $firstVariant = $variants->first();
+                            $colorAttribute = optional(
+                                $firstVariant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color')
+                            )->variantAttribute;
+                            $sizeAttribute = optional(
+                                $firstVariant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size')
+                            )->variantAttribute;
+                            $variantImage = optional($firstVariant->images->first())->image_url;
                         @endphp
-                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $variant->price }}"
-                        data-stock="{{ $variant->stock }}"
-                        data-images="{{ json_encode($variant->images) }}">
                 
-                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                            alt="{{ $variant->color ?? 'No Color' }}"
+                        <div class="w-1/5 variant-item cursor-pointer"
+                            data-variant="{{ $firstVariant->variant_id }}"
+                            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                            data-price="{{ $firstVariant->price }}"
+                            data-stock="{{ $firstVariant->stock }}"
+                            data-images="{{ json_encode($firstVariant->images) }}"
                             onclick="updateProductDetails(this)">
-                    </div>
-                @endforeach
+                            
+                            <img class="object-cover w-[85px] h-[85px] rounded-md"
+                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                                alt="{{ $color }}">
+                        </div>
+                    @endforeach
+                </div>
                 
 
-                </div>
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
                     <div class=" mb-1 mt-4 flex justify-between">

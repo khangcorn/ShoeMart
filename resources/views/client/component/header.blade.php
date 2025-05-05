@@ -17,6 +17,7 @@
         </div>
     </div>
 </nav> --}}
+
 <div class=" bg-gray-100">
     <div class="flex h-10 items-center justify-between mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div>
@@ -27,21 +28,32 @@
                     clip-rule="evenodd"></path>
             </svg>
         </div>
+
         <div class="flex gap-4 items-center font-semibold text-sm">
             <p>Help</p> |
             <p>Find a Store</p> |
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 relative">
                 @if (Auth::check())
                     <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
-                    <a href="{{ route('profile') }}" class="text-black font-medium">
-                        Hello {{ Auth::user()->username }}
-                    </a>
+                    
+            
+                    <div class="flex items-center gap-2 relative group">
+                        <a href="{{ route('profile') }}" class="text-black font-medium ">
+                            Hello {{ Auth::user()->username }}
+                        </a>
+                        <div class="dropdown-content absolute hidden bg-white shadow-md rounded-lg mt-2 p-4 w-48 ">
+                            <a href="{{ route('profile') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Thông tin cá nhân</a>
+                            <a href="{{ route('order.index') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Đơn hàng của tôi</a>
+                        </div>
+                    </div>
+                    
                 @else
                     <!-- Nếu chưa đăng nhập, link sẽ đưa tới trang đăng nhập -->
                     <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
                         Login
                     </a>
                 @endif
+            
                 <svg aria-hidden="true" class="icon-btn" focusable="false" viewBox="0 0 24 24" role="img" width="20px"
                     height="20px" fill="none" aria-label="Profile">
                     <path stroke="currentColor" stroke-width="2"
@@ -50,10 +62,41 @@
                 </svg>
             </div>
         </div>
-        
     </div>
 </div>
+<style>
+ /* Hiển thị dropdown khi hover vào phần tử chứa tên người dùng */
+.group:hover .dropdown-content,
+.group:focus-within .dropdown-content,
+.dropdown-content:hover {
+    display: block;
+    opacity: 1;
+    pointer-events: auto; /* Cho phép tương tác khi dropdown hiển thị */
+}
+
+/* Phần tử dropdown */
+.dropdown-content {
+    display: none; /* Ban đầu ẩn */
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 200px;
+    padding: 10px;
+    z-index: 50; /* Đảm bảo nó hiển thị trên các phần tử khác */
+    top: 100%; /* Đảm bảo dropdown xuất hiện dưới tên người dùng */
+    left: 0;
+    transform: translateY(5px); /* Tạo khoảng cách nhẹ để dropdown không dính vào tên người dùng */
+    pointer-events: none; /* Không cho phép tương tác khi ẩn */
+    opacity: 0; /* Ban đầu ẩn */
+    transition: opacity 0.2s ease;
+}
+
+
+
+</style>
 <header class="bg-white ">
+
     <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
 
         <div class="flex h-16 items-center justify-between">
@@ -69,11 +112,6 @@
                 
 
             </div>
-            <li>
-                <a href="{{ route('order.index') }}" class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]">
-                    Đơn hàng của tôi
-                </a>
-            </li>
             
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">

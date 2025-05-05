@@ -1,23 +1,78 @@
 @extends('client.layout')
 
 @section('content')
+
+
+
+<style>
+    .notification {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+}
+
+/* Khi ẩn thông báo */
+.notification.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Tạo hiệu ứng cho thông báo */
+.notification p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.notification p:first-child {
+    font-weight: bold;
+}
+
+</style>
 <div class="container mx-auto p-6">
+    @php
+    $latestNotification = auth()->user()->unreadNotifications()->latest()->first();
+@endphp
+
+@if ($latestNotification)
+    <div class="notification">
+        <p>{{ $latestNotification->data['message'] }}</p>
+        <p>Thời gian: {{ $latestNotification->created_at->format('d/m/Y H:i') }}</p>
+    </div>
+
+    @php
+        $latestNotification->markAsRead(); // đánh dấu là đã đọc
+    @endphp
+@endif
+
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         @if (session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md my-4">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md my-4">
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if (session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
+            {{ session('error') }}
+        </div>
+    @endif
+    
+    @if ($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
 
         <!-- Thông tin cá nhân -->
         <div class="flex justify-between gap-6 p-6 bg-white rounded-lg shadow-md">
@@ -72,7 +127,7 @@
             </div>
             <div class="mb-4">
                 <label class="block mb-2 font-medium">Chọn tài khoản ngân hàng:</label>
-                <select name="bank_id" class="w-full p-2 border rounded" required>
+                <select name="user_bank_id" class="w-full p-2 border rounded" required>
                     <option value="">Chọn ngân hàng</option>
                     @foreach ($user->banks as $bank)
                         <option value="{{ $bank->id }}">
@@ -260,25 +315,30 @@
                         <td class="px-4 py-2">{{ $transaction->transaction_id }}</td>
                         <td class="px-4 py-2">
                             @if ($transaction->type == 'deposit')
-                            Nạp tiền
-                        @elseif ($transaction->type == 'withdraw')
-                            Rút tiền
-                        @elseif ($transaction->type == 'refund')
-                            Hoàn tiền hủy đơn
-                        @else
-                            Thanh toán đơn hàng
-                        @endif
-                        
+                                Nạp tiền
+                            @elseif ($transaction->type == 'withdraw')
+                                Rút tiền
+                            @elseif ($transaction->type == 'refund')
+                                Hoàn tiền
+                            @else
+                                Thanh toán đơn hàng
+                            @endif
                         </td>
                         <td class="px-4 py-2">{{ number_format($transaction->amount, 0, ',', '.') }} ₫</td>
                         <td class="px-4 py-2">{{ $transaction->description }}</td>
                         <td class="px-4 py-2">
-                            @if ($transaction->status == 'completed')
+                            @if ($transaction->status == 'pending')
+                                <span class="text-yellow-500 font-semibold">Chờ duyệt</span>
+                            @elseif ($transaction->status == 'approved')
+                                <span class="text-blue-500 font-semibold">Đã duyệt</span>
+                            @elseif ($transaction->status == 'completed')
                                 <span class="text-green-600 font-semibold">Hoàn tất</span>
-                            @elseif ($transaction->status == 'pending')
-                                <span class="text-yellow-500 font-semibold">Đang xử lý</span>
-                            @else
+                            @elseif ($transaction->status == 'rejected')
+                                <span class="text-red-500 font-semibold">Đã từ chối</span>
+                            @elseif ($transaction->status == 'failed')
                                 <span class="text-red-500 font-semibold">Thất bại</span>
+                            @else
+                                <span class="text-gray-500 font-semibold">{{ ucfirst($transaction->status) }}</span>
                             @endif
                         </td>
                         <td class="px-4 py-2">{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
@@ -286,8 +346,15 @@
                 @endforeach
             </tbody>
         </table>
+        {{-- <div class="mt-4">
+            {{ $transactions->links() }}
+        </div>
+         --}}
     </div>
-</div>
+
+
+<!-- Phân trang -->
+
         <!-- Logout -->
         <div class="bg-white p-6 rounded-lg shadow-md mt-6 text-center">
             <form action="{{ route('logout') }}" method="POST">
@@ -345,5 +412,14 @@
             wards.options[wards.options.length] = new Option(ward.Name, ward.Id);
         }
     }
+    document.addEventListener('DOMContentLoaded', function () {
+    const notifications = document.querySelectorAll('.notification');
+    notifications.forEach(function (notification) {
+        setTimeout(function () {
+            notification.classList.add('hide');
+        }, 10000); // 10 giây
+    });
+});
+
 </script>
 @endsection

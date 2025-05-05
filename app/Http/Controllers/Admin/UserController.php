@@ -12,14 +12,16 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(15)->through(function($user) {
+        $users = User::with('wallet')->paginate(15)->through(function($user) {
             return [
                 'id' => $user->user_id,
                 'email' => $user->email,
                 'contact' => $user->username . ' | ' . $user->phone,
                 'avatar' => $user->avatar,
+                'balance' => $user->wallet?->balance ?? 0,
             ];
         });
+        
         return view('admin.auth.index', compact('users'));
      
     }

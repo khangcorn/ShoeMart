@@ -11,6 +11,11 @@ use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderStatusController;
+use App\Http\Controllers\Admin\RefundController;
+use App\Http\Controllers\Admin\WithdrawRequestController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WalletController;
 use App\Models\VariantAttribute;
@@ -75,6 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
     Route::post('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
     Route::delete('/wallet/unlink-bank/{bank}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
+    Route::post('wallet/withdraw', [WithdrawRequestController::class, 'store'])->name('wallet.withdraw');
 
 
 
@@ -88,7 +94,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index'); // Danh sách đơn hàng
     Route::get('/orders/{order_id}', [OrderController::class, 'show'])->name('order.show'); // Chi tiết đơn hàng
     Route::patch('/orders/{order_id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
-    
+    Route::patch('/orders/return-request', [OrderController::class, 'returnRequest'])->name('order.returnRequest');
+
 
 
     Route::get('/address', [AddressController::class, 'index'])->name('address.index');
@@ -115,13 +122,29 @@ Route::get('/products', [HomeController::class, 'getall'])->name('products.all')
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 
 Route::prefix('admin')->group(function() {
+    Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('admin.refunds.index');
+    Route::post('/refund-requests/{id}/approve', [\App\Http\Controllers\Admin\RefundRequestController::class, 'approve'])->name('admin.refunds.approve');
+    Route::post('/refund-requests/{id}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('admin.refunds.reject');
+    
+    // Route để từ chối yêu cầu hoàn tiền
+    Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
+    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
     Route::resource('products', ProductController::class);
     Route::resource('variant_attributes', VariantAttributeController::class);
    
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
-    Route::get('/attributes/create', [VariantAttributeController::class, 'create'])->name('variant_attributes.create');
-Route::post('/attributes', [VariantAttributeController::class, 'store'])->name('variant_attributes.store');
+    Route::resource('sizes', SizeController::class);
+    Route::resource('colors', ColorController::class);
+    Route::resource('order-coupons', OrderCouponController::class);
+    Route::resource('order-statuses', OrderStatusController::class);
+    Route::resource('sliders', SliderController::class);
+    Route::resource('shipping-fees', ShippingFeeController::class);
+    Route::resource('coupons', CouponController::class);
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
 
 });
 // Định nghĩa route DELETE để xóa biến thể

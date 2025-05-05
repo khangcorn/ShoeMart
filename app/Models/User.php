@@ -71,6 +71,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserBank::class, 'user_id');
     }
+    public function notifications()
+    {
+        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
+    }
 
 
 }

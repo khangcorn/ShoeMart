@@ -14,12 +14,18 @@ class WalletController extends Controller
     // Xem số dư và lịch sử ví
     public function index()
     {
-        $wallet = Wallet::where('user_id', Auth::id())->with('transactions')->first();
-        return response()->json($wallet);
+        $wallet = Wallet::where('user_id', Auth::id())->firstOrFail();
+    
+        // Gọi phương thức quan hệ transactions() để paginate
+        $transactions = $wallet->transactions()->latest()->paginate(10);
+    
+        return view('wallet.index', compact('wallet', 'transactions'));
     }
+    
+    
+    
 
     // Nạp tiền vào ví
-   // WalletController.php
 
 public function deposit(Request $request)
 {
@@ -71,47 +77,43 @@ public function deposit(Request $request)
 
     // Rút tiền khỏi ví
     public function withdraw(Request $request)
-    {
-        $request->validate([
-            'amount' => 'required|numeric|min:10000|max:100000000',
-            'bank_id' => 'required|exists:user_banks,id', // Kiểm tra rằng tài khoản ngân hàng tồn tại
-        ],[
-            'amount.required' => 'Bạn chưa nhập số tiền.',
-            'amount.numeric' => 'Số tiền là một số.',
-            'amount.min' => 'Số tiền rút ít nhất là 10000.',
-            'amount.max' => 'Số tiền rút nhiều nhất là 100000000.',
-        ]);
-    
-        $wallet = Wallet::where('user_id', Auth::id())->firstOrFail();
-    
-        if ($wallet->balance < $request->amount) {
-            return back()->withErrors(['amount' => 'Số dư không đủ để rút tiền'])->withInput();
-        }
-    
-        $userBank = UserBank::findOrFail($request->bank_id); // Lấy thông tin ngân hàng liên kết
-    
-        DB::beginTransaction();
-        try {
-            // Trừ tiền trong ví
-            $wallet->decrement('balance', $request->amount);
-    
-            // Tạo giao dịch rút tiền
-            WalletTransaction::create([
-                'wallet_id' => $wallet->wallet_id,
-                'type' => 'withdraw',
-                'amount' => $request->amount,
-                'description' => 'Rút tiền về tài khoản: ' . $userBank->bank_name . ' - ' . $userBank->account_number,
-                'status' => 'pending', // Admin xác nhận sau
-                'bank_account' => $userBank->account_number,
-            ]);
-    
-            DB::commit();
-            return back()->with('success', 'Rút tiền thành công! Số dư hiện tại: ' . number_format($wallet->balance, 0, ',', '.') . ' ₫');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Lỗi nạp tiền: ' . $e->getMessage());
-        }
+{
+    $request->validate([
+        'amount' => 'required|numeric|min:10000|max:100000000',
+        'bank_id' => 'required|exists:user_banks,id', // Kiểm tra rằng tài khoản ngân hàng tồn tại
+    ]);
+
+    $wallet = Wallet::where('user_id', Auth::id())->firstOrFail();
+
+    if ($wallet->balance < $request->amount) {
+        return back()->withErrors(['amount' => 'Số dư không đủ để rút tiền'])->withInput();
     }
+
+    $userBank = UserBank::findOrFail($request->bank_id); // Lấy thông tin ngân hàng liên kết
+
+    DB::beginTransaction();
+    try {
+        // Trừ tiền trong ví
+        $wallet->decrement('balance', $request->amount);
+
+        // Tạo giao dịch rút tiền
+        WalletTransaction::create([
+            'wallet_id' => $wallet->wallet_id,
+            'type' => 'withdraw',
+            'amount' => $request->amount,
+            'description' => 'Rút tiền về tài khoản: ' . $userBank->bank_name . ' - ' . $userBank->account_number,
+            'status' => 'completed', // Sau khi duyệt, trạng thái sẽ là 'completed'
+            'bank_account' => $userBank->account_number,
+        ]);
+
+        DB::commit();
+        return back()->with('success', 'Rút tiền thành công! Số dư hiện tại: ' . number_format($wallet->balance, 0, ',', '.') . ' ₫');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Lỗi rút tiền: ' . $e->getMessage());
+    }
+}
+
     
 
     // Liên kết ngân hàng

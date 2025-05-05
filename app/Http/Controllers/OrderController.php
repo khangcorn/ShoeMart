@@ -14,6 +14,7 @@ use App\Models\OrderDetail;
 use App\Models\OrderStatus;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\RefundRequest;
 use App\Models\ShippingFee;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Log;
@@ -342,24 +343,9 @@ class OrderController extends Controller
             // Cập nhật trạng thái đơn hàng thành "Đã nhận hàng" (id = 4)
             $order->status_id = 4;
             $order->save();
+        
             
-            // Hoàn tiền nếu thanh toán không phải COD
-            if ($order->payment_method != 'cod') {
-                $wallet = auth()->user()->wallet;
-                $wallet->balance += $order->total;
-                $wallet->save();
-                
-                // Ghi lịch sử giao dịch hoàn tiền
-                \App\Models\WalletTransaction::create([
-                    'wallet_id' => $wallet->wallet_id,
-                    'amount' => $order->total,
-                    'type' => 'refund',
-                    'description' => 'Hoàn tiền khi nhận hàng cho đơn hàng #' . $order->order_code,
-                    'status' => 'completed',
-                ]);
-            }
-            
-            return redirect()->route('order.index')->with('success', 'Đơn hàng đã giao thành công.');
+            return redirect()->route('order.index')->with('success', 'Nhận hàng thành công.');
         } catch (\Exception $e) {
             // Log lỗi nếu có exception
             Log::error('Lỗi khi nhận hàng: ' . $e->getMessage());
@@ -407,7 +393,70 @@ class OrderController extends Controller
             return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi hoàn tiền.');
         }
     }
+    public function returnRequest(Request $request)
+    {
+        Log::info('Return request received for order_id: ' . $request->order_id);
+        
+        // Kiểm tra dữ liệu gửi lên
+        Log::info('Request Data: ', $request->all());
     
+        // Validate request
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
+            'reason' => 'required|string|max:1000',
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mov,avi,tmp|max:10240',
+            'amount' => 'required|numeric',
+        ]);
+        
+        // Tìm đơn hàng
+        $order = Order::findOrFail($request->order_id);
+        
+        Log::info('Order found: ', ['order_id' => $order->order_id]);
+    
+        // Kiểm tra xem đã có yêu cầu trả hàng chưa
+        if ($order->returnRequest) {
+            Log::info('Return request already exists for order_id: ' . $order->order_id);
+            return redirect()->back()->with('error', 'Bạn đã gửi yêu cầu trước đó.');
+        }
+    
+        // Xử lý file đính kèm
+        $attachmentPaths = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                Log::info('Uploading file: ' . $file->getClientOriginalName());
+                $attachmentPaths[] = $file->store('refunds', 'public');
+            }
+        }
+    
+        Log::info('Attachments stored: ', $attachmentPaths);
+    
+        try {
+            $refundRequest = RefundRequest::create([
+                'order_id' => $order->order_id,
+                'user_id' => auth()->id(),
+                'reason' => $request->reason,
+                'attachments' => json_encode($attachmentPaths),
+                'amount' => $request->amount,
+                'status' => 'pending',
+            ]);
+        
+            Log::info('Refund request created successfully for order_id: ' . $refundRequest->order_id);
+            return redirect()->back()->with('success', 'Yêu cầu trả hàng đã được gửi.');
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi tạo refund request: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Đã xảy ra lỗi khi gửi yêu cầu trả hàng.');
+        }
+        
+        // Ghi thông tin hoàn tất yêu cầu hoàn tiền
+        Log::info('Refund request created for order_id: ' . $refundRequest->order_id);
+        
+        // Trả về kết quả
+        return redirect()->back()->with('success', 'Yêu cầu trả hàng đã được gửi.');
+    }
+    
+    
+    
+
     public function autoCompleteOrderStatus()
     {
         // Cập nhật tất cả các đơn hàng có trạng thái "Đã giao hàng" (id = 7)
