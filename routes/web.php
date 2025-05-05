@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -15,7 +16,11 @@ use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\WithdrawRequestController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderCouponController;
+use App\Http\Controllers\ShippingFeeController;
 use App\Http\Controllers\SizeController;
+use App\Http\Controllers\SliderController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WalletController;
 use App\Models\VariantAttribute;
