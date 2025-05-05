@@ -73,7 +73,7 @@
                             <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="text-red-500">Hủy đơn</button>
+                                <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
                             </form>
                         
                         @elseif ($order->status->status_id == 3)
@@ -86,6 +86,7 @@
                         
                         
                     </td>
+                    
                 </tr>
             @endforeach
         </tbody>

@@ -19,9 +19,12 @@
             <select name="parent_id" class="w-full p-2 border rounded @error('parent_id') border-red-500 @enderror">
                 <option value="">Select Parent Category</option>
                 @foreach($categories as $category)
-                    <option value="{{ $category->category_id }}" {{ old('parent_id') == $category->category_id ? 'selected' : '' }}>
-                        {{ $category->name }}
-                    </option>
+                    <!-- Chỉ cho phép chọn danh mục cha nếu nó không phải là danh mục con -->
+                    @if($category->parent_id == null)
+                        <option value="{{ $category->category_id }}" {{ old('parent_id') == $category->category_id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endif
                 @endforeach
             </select>
             @error('parent_id')

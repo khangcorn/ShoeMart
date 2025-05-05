@@ -1,7 +1,6 @@
 @extends('admin.layout')
 
 @section('content')
-
 <div class="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-700">Danh sách đơn hàng</h1>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+
 use Stripe\Stripe;
 use Stripe\Charge;
 use Illuminate\Http\Request;
@@ -10,6 +12,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Order;
+use App\Models\OrderCoupon;
+use App\Models\UserAddress;
+use App\Models\User; // Nếu chưa có
+use App\Models\Coupon;
 use App\Models\OrderDetail;
 use App\Models\OrderStatus;
 use App\Models\Product;
@@ -32,17 +38,23 @@ class OrderController extends Controller
      // Hiển thị chi tiết đơn hàng cho người dùng
      public function show($order_id)
      {
-         $order = Order::with(['userAddresses', 'orderDetails.product', 'status'])->find($order_id);
+         $order = Order::with([
+             'userAddresses',
+             'orderDetails.product',
+             'orderDetails.variant.attributes.variantAttribute',
+             'orderCoupons', // THÊM DÒNG NÀY
+             'status'
+         ])->find($order_id);
      
          if (!$order) {
              return redirect()->route('order.index')->with('error', 'Đơn hàng không tồn tại.');
          }
      
-     
          return view('order.show', compact('order'));
      }
      
-        
+     
+
     /**
      * Hiển thị giao diện đặt hàng (chi tiết đơn hàng)
      */
@@ -81,12 +93,13 @@ class OrderController extends Controller
         });
     
         $addresses = $user->userAddresses;
-        $shippingFees = ShippingFee::all();
     
         return view('order.create', compact('cartItems', 'total', 'addresses', 'shippingFees', 'cartDetailIds'));
 
     }
     
+    
+
 
 
 
@@ -95,7 +108,6 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate thông tin đặt hàng
         $request->validate([
             'address_id'     => 'required|exists:user_addresses,address_id',
             'payment_method' => 'required|in:cod,bank_transfer,credit_card,paypal,wallet', 

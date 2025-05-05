@@ -1,29 +1,31 @@
 <?php
 
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderCouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\ShippingFeeController;
+use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
+use App\Http\Controllers\GHNController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\WithdrawRequestController;
-use App\Http\Controllers\ColorController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\OrderCouponController;
-use App\Http\Controllers\ShippingFeeController;
 use App\Http\Controllers\SizeController;
-use App\Http\Controllers\SliderController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WalletController;
 use App\Models\VariantAttribute;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -125,6 +127,8 @@ Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
 Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+
 
 Route::prefix('admin')->group(function() {
     Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('admin.refunds.index');
@@ -135,8 +139,6 @@ Route::prefix('admin')->group(function() {
     Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
     Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
     Route::resource('products', ProductController::class);
-    Route::resource('variant_attributes', VariantAttributeController::class);
-   
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
     Route::resource('sizes', SizeController::class);
@@ -155,18 +157,14 @@ Route::prefix('admin')->group(function() {
 // Định nghĩa route DELETE để xóa biến thể
 Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
     ->name('products.variants.delete');
+ 
+  
+
+// routes/web.php hoặc routes/api.php
+Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->name('coupon.check');
+// Trong routes/web.php
+Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'])->name('order.requestRefund');
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+// routes/web.php

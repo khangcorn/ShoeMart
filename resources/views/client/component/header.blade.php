@@ -34,6 +34,7 @@
             <p>Find a Store</p> |
             <div class="flex items-center gap-2 relative">
                 @if (Auth::check())
+<<<<<<< HEAD
                     <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
                     
             
@@ -52,6 +53,13 @@
                     <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
                         Login
                     </a>
+=======
+                <p class="text-black font-medium">Hello {{ Auth::user()->username }}</p>
+                @else
+                <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
+                    Login
+                </a>
+>>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
                 @endif
             
                 <svg aria-hidden="true" class="icon-btn" focusable="false" viewBox="0 0 24 24" role="img" width="20px"
@@ -61,6 +69,11 @@
                     </path>
                 </svg>
             </div>
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
         </div>
     </div>
 </div>
@@ -103,16 +116,25 @@
             <div>
                 <a href="{{ url('/') }}" class="relative">
                     <svg class="h-12 w-12" aria-hidden="true" focusable="false" viewBox="0 0 24 24"
-                         role="img" fill="none">
+                        role="img" fill="none">
                         <path fill="currentColor" fill-rule="evenodd"
-                              d="M21 8.719L7.836 14.303C6.74 14.768 5.818 15 5.075 15c-.836 0-1.445-.295-1.819-.884-.485-.76-.273-1.982.559-3.272.494-.754 1.122-1.446 1.734-2.108-.144.234-1.415 2.349-.025 3.345.275.2.666.298 1.147.298.386 0 .829-.063 1.316-.19L21 8.719z"
-                              clip-rule="evenodd"></path>
+                            d="M21 8.719L7.836 14.303C6.74 14.768 5.818 15 5.075 15c-.836 0-1.445-.295-1.819-.884-.485-.76-.273-1.982.559-3.272.494-.754 1.122-1.446 1.734-2.108-.144.234-1.415 2.349-.025 3.345.275.2.666.298 1.147.298.386 0 .829-.063 1.316-.19L21 8.719z"
+                            clip-rule="evenodd"></path>
                     </svg>
                 </a>
-                
+
 
             </div>
+<<<<<<< HEAD
             
+=======
+            <li>
+                <a href="{{ route('order.index') }}" class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]">
+                    Đơn hàng của tôi
+                </a>
+            </li>
+
+>>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
                     <li>
@@ -140,6 +162,10 @@
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href="{{ route('products.all') }}"> Products</a>
                     </li>
+                    <li>
+                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
+                            href="{{ route('vouchers.index') }}"> Vouchers</a>
+                    </li>
                 </ul>
             </div>
             <div class="flex items-center space-x-4">
@@ -151,8 +177,8 @@
                         </path>
                     </svg>
                 </div>
-                <div>
-                    <svg class="cursor-pointer" aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img"
+                <div onclick="window.location.href='/wishlist'" class="cursor-pointer">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img"
                         width="24px" height="24px" fill="none">
                         <path stroke="currentColor" stroke-width="1.5"
                             d="M16.794 3.75c1.324 0 2.568.516 3.504 1.451a4.96 4.96 0 010 7.008L12 20.508l-8.299-8.299a4.96 4.96 0 010-7.007A4.923 4.923 0 017.205 3.75c1.324 0 2.568.516 3.504 1.451l.76.76.531.531.53-.531.76-.76a4.926 4.926 0 013.504-1.451">
@@ -167,27 +193,31 @@
                             d="M8.25 8.25V6a2.25 2.25 0 012.25-2.25h3a2.25 2.25 0 110 4.5H3.75v8.25a3.75 3.75 0 003.75 3.75h9a3.75 3.75 0 003.75-3.75V8.25H17.5">
                         </path>
                     </svg>
-                
+
                     <!-- 🔥 Hiển thị số lượng sản phẩm -->
                     <div id="cart-count" class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full shadow-md"
                         style="display: {{ $cartCount > 0 ? 'flex' : 'none' }};">
                         {{ $cartCount }}
                     </div>
                 </a>
-                
-                
-                
+
+
+
                 <div class="block sm:hidden">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px"
                         fill="none">
                         <path stroke="currentColor" stroke-width="1.5" d="M21 5.25H3M21 12H3m18 6.75H3"></path>
                     </svg>
                 </div>
-            </a>
+                </a>
 
 
+<<<<<<< HEAD
         </div>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+=======
+            </div>
+>>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
 
 
 </header>

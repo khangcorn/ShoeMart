@@ -9,20 +9,24 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            //
+            $table->unsignedBigInteger('address_id')->nullable()->after('coupon_id');
+            $table->foreign('address_id')->references('address_id')->on('user_addresses')->onDelete('set null');
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    
+    public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('orders', 'address_id')) {
+                // Dùng array để Laravel tự sinh đúng tên foreign key
+                $table->dropForeign(['address_id']);
+                $table->dropColumn('address_id');
+            }
         });
     }
+    
+    
 };
