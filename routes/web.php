@@ -25,6 +25,7 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WalletController;
 use App\Models\VariantAttribute;
+use App\Http\Controllers\WishlistController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -128,6 +129,7 @@ Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariant
 Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
 
 
 Route::prefix('admin')->group(function() {

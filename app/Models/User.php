@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class User extends Authenticatable
 {
     use HasFactory,Notifiable;
@@ -74,6 +75,10 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
+    }
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
     }
 
 

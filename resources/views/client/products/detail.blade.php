@@ -46,7 +46,7 @@
                                     
                                     
                                     </div>
-<<<<<<< HEAD
+
                                 </div>
                                 
                                     <img class="" 
@@ -55,8 +55,7 @@
                                         onclick="updateProductDetails(this)">
                                 @endforeach
                                 
-=======
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
+
                                 </div>
                                 
 
@@ -169,7 +168,7 @@
 </div>
 
 
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
+
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
                     <div class=" mb-1 mt-4 flex justify-between">
