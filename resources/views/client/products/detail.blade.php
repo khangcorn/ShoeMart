@@ -1,20 +1,6 @@
 @extends('client.layout')
 
 @section('content')
-<!-- Thông báo lỗi -->
-@if(session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-
-<!-- Thông báo thành công -->
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-
     <div class="container mx-auto p-4 max-w-screen-lg mt-16">
         <div class="flex flex-wrap md:flex-nowrap">
             <!-- Hình ảnh sản phẩm chính -->
@@ -27,17 +13,22 @@
                                 <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
                                     <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
                                         @foreach ($product->variants as $variant)
-                                            @foreach ($variant->images as $image)
-                                                <img 
-                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
-                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
-                                                    alt="{{ $variant->color ?? 'No Color' }}"
-                                                    data-color="{{ $variant->color }}"
-                                                    data-price="{{ $variant->price }}"
-                                                    data-size="{{ $variant->size }}"
-                                                    data-images="{{ json_encode($variant->images) }}"
-                                                    onclick="updateProductDetails(this)">
-                                            @endforeach
+                                        @php $count = 0; @endphp
+                                        @foreach ($variant->images as $image)
+                                            @if ($count >= 7)
+                                                @break
+                                            @endif
+                                    
+                                            <img 
+                                                class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
+                                                src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
+                                                alt="{{ $variant->color ?? 'No Color' }}"
+                                                data-color="{{ $variant->color }}"
+                                                data-price="{{ $variant->price }}"
+                                                data-size="{{ $variant->size }}"
+                                                data-images="{{ json_encode($variant->images) }}"
+                                                onclick="updateProductDetails(this)">
+                                            @php $count++; @endphp
                                         @endforeach
                                     @endforeach
                                     
@@ -46,16 +37,6 @@
                                     
                                     
                                     </div>
-
-                                </div>
-                                
-                                    <img class="" 
-                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
-                                        alt="{{ $variant->color ?? 'No Color' }}" 
-                                        onclick="updateProductDetails(this)">
-                                @endforeach
-                                
-
                                 </div>
                                 
 
@@ -105,53 +86,39 @@
                 
                 
 
-                <!-- Ảnh biến thể dưới -->
-                <div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
-                    @php
-                        $groupedVariants = $product->variants->groupBy(function ($variant) {
-                            return optional(
-                                $variant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Color',
-                                ),
-                            )->variantAttribute->attribute_value ?? 'No Color';
-                        });
-                    @endphp
 
 
-                    @foreach ($product->variants as $variant)
-                    <div class="w-1/5 variant-item" data-variant="{{ $variant->variant_id }}"
-                    @foreach ($groupedVariants as $color => $variants)
-                        @php
-                            $firstVariant = $variants->first();
-                            $colorAttribute = optional(
-                                $firstVariant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Color',
-                                ),
-                            )->variantAttribute;
-                            $sizeAttribute = optional(
-                                $firstVariant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Size',
-                                ),
-                            )->variantAttribute;
-                            $variantImage = optional($firstVariant->images->first())->image_url;
-                        @endphp
 
-                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $variant->price }}"
-                        data-stock="{{ $variant->stock }}"
-                        data-images="{{ json_encode($variant->images) }}">
-                
-                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                            alt="{{ $variant->color ?? 'No Color' }}"
-                            onclick="updateProductDetails(this)">
-                    </div>
-                @endforeach
+           
+<div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+    @php
+        $groupedVariants = $product->variants->groupBy(function ($variant) {
+            return optional(
+                $variant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Color',
+                ),
+            )->variantAttribute->attribute_value ?? 'No Color';
+        });
+    @endphp
 
+    @foreach ($groupedVariants as $color => $variants)
+        @php
+            $firstVariant = $variants->first();
+            $colorAttribute = optional(
+                $firstVariant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Color',
+                ),
+            )->variantAttribute;
+            $sizeAttribute = optional(
+                $firstVariant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Size',
+                ),
+            )->variantAttribute;
+            $variantImage = optional($firstVariant->images->first())->image_url;
+        @endphp
 
         <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
             data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
@@ -166,7 +133,6 @@
         </div>
     @endforeach
 </div>
-
 
 
                 <!-- Hiển thị màu sắc của sản phẩm -->
@@ -243,7 +209,7 @@
                     <button id="add-to-bag"  class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold " data-product="{{ $product->product_id }} " data-variant="{{ $variant->variant_id  }}">
                         Add to Bag
                     </button>
-                    <button  onclick="addToWishlist({{ $product->product_id }})"
+                    <button
                         class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
@@ -395,33 +361,20 @@ function addToCart() {
             quantity: quantity 
         })
     })
-    .then(response => {
-        console.log("Response status:", response.status);  // Xem trạng thái phản hồi
-        return response.text();  // Chúng ta lấy content dưới dạng text
-    })
-    .then(text => {
-        console.log("Response body:", text);  // Kiểm tra body của response
-        if (text.includes('Login') || text.includes('email')) {  // Kiểm tra xem có phải là trang login không
-            // Nếu là trang login (HTML), chuyển hướng đến trang đăng nhập
-            window.location.href = "/login";
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Thêm vào giỏ hàng thành công!");
+            updateCartCount(); // ⚡ Gọi lại updateCartCount để cập nhật từ API
         } else {
-            // Nếu là JSON, tiếp tục xử lý dữ liệu JSON
-            try {
-                const data = JSON.parse(text);
-                if (data.message) {
-                    alert(data.message);  // Hiển thị thông báo thành công
-                }
-            } catch (error) {
-                console.error("Error parsing JSON:", error);  // Xử lý lỗi nếu không phải JSON
-            }
+            alert(data.message);
         }
     })
     .catch(error => {
-        console.error("Error khi thêm vào giỏ hàng:", error);
+        console.error("Error:", error);
         alert("Lỗi khi thêm vào giỏ hàng!");
     });
 }
-
 
 document.addEventListener("DOMContentLoaded", updateCartCount);
 
