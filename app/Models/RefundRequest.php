@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Refund extends Model
+class RefundRequest extends Model
 {
     use HasFactory;
 
@@ -14,23 +14,22 @@ class Refund extends Model
     protected $fillable = [
         'order_id',
         'user_id',
-        'status',
         'amount',
         'reason',
-        'note',
         'attachments',
+        'status',
         'approved_by',
+        'approved_at',
     ];
 
-    // ✅ Casts để định dạng đúng kiểu dữ liệu
     protected $casts = [
+        'attachments' => 'array',
         'approved_at' => 'datetime',
-        'attachments' => 'array', // Để xử lý JSON thành mảng
     ];
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'order_id', 'order_id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function user()
@@ -42,4 +41,7 @@ class Refund extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+    // Trong model RefundRequest
+
+
 }

@@ -21,7 +21,7 @@
                 @foreach ($orders as $order)
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-gray-700">{{ $order->order_code }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $order->user->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-3 text-gray-700">{{ $order->user->username ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $order->status->name ?? 'Chưa rõ' }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $order->created_at->format('d/m/Y') }}</td>
                         <td class="px-4 py-3">

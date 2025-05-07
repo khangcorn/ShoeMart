@@ -8,10 +8,12 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ShippingFee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Session;
     class CartController extends Controller
     {
         /**
@@ -53,6 +55,16 @@ use Illuminate\Support\Facades\Log;
 
 
         }
+        private function getProductPrice($productId, $variantId = null)
+        {
+            if ($variantId) {
+                $productVariant = ProductVariant::findOrFail($variantId);
+                return $productVariant->price_sale ?? $productVariant->price;
+            }
+            $product = Product::findOrFail($productId);
+            return $product->price_sale ?? $product->price;
+        }
+    
 
         /**
          * Thêm sản phẩm vào giỏ hàng
@@ -60,13 +72,25 @@ use Illuminate\Support\Facades\Log;
         public function addToCart(Request $request)
         {
             try {
-                Log::info('Request đến addToCart:', $request->all()); // Ghi log request
-        
                 // Kiểm tra người dùng đã đăng nhập chưa
                 if (!Auth::check()) {
-                    return response()->json(['message' => 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.'], 401);
-                }
+                    // Lưu sản phẩm vào session
+                    $cartItems = session('cart.items', []);  // Nếu session('cart.items') không tồn tại, tạo mảng rỗng
+                    $cartItems[] = [ // Thêm sản phẩm vào mảng
+                        'product_id' => $request->product_id,
+                        'variant_id' => $request->variant_id,
+                        'quantity' => $request->quantity,
+                    ];
+                    session(['cart.items' => $cartItems]);
         
+                    // Log để kiểm tra session
+                    Log::info('Cart items saved to session in CartController:', ['cart_items' => session('cart.items')]);
+        
+                    session(['url.intended' => URL::previous()]);
+                    return redirect()->route('login');
+                }
+                
+                
                 $user = Auth::user();
         
                 // Validate dữ liệu đầu vào
@@ -99,6 +123,7 @@ use Illuminate\Support\Facades\Log;
                 $currentQuantityInCart = $cartItem ? $cartItem->quantity : 0;
                 $remainingStock = $stock - $currentQuantityInCart;
         
+                // Kiểm tra số lượng thêm vào có vượt quá tồn kho không
                 if ($request->quantity > $remainingStock) {
                     return response()->json([
                         'message' => "Bạn đã có $currentQuantityInCart sản phẩm trong giỏ. Không thể thêm số lượng đã chọn."
@@ -124,12 +149,11 @@ use Illuminate\Support\Facades\Log;
         
                 return response()->json(['message' => 'Thêm vào giỏ hàng thành công!']);
             } catch (\Exception $e) {
+                Log::error('Lỗi khi thêm vào giỏ hàng: ' . $e->getMessage());
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Thêm vào giỏ hàng thành công!',
-                    'cart_count' => CartDetail::where('cart_id', $cart->cart_id)->sum('quantity') // Tổng số lượng sản phẩm trong giỏ hàng
+                    'success' => false,
+                    'message' => 'Lỗi khi thêm vào giỏ hàng.',
                 ]);
-                
             }
         }
         
@@ -237,90 +261,51 @@ use Illuminate\Support\Facades\Log;
         
 
 
-public function checkoutSelected(Request $request)
-{
-    $cartDetails = $request->input('cart_details');
-
-    if (empty($cartDetails)) {
-        return response()->json(['success' => false, 'message' => 'Không có sản phẩm nào được chọn.']);
-    }
-
-    DB::beginTransaction();
-    try {
-        // Tạo đơn hàng
-        $order = Order::create([
-            'user_id' => auth()->id(),
-            'status' => 'pending', // Đang chờ xác nhận
-            'total_price' => 0, // Sẽ cập nhật sau
-        ]);
-
-        $totalPrice = 0;
-
-        foreach ($cartDetails as $cartDetailId) {
-            $cartDetail = CartDetail::find($cartDetailId);
-            if (!$cartDetail) continue;
-
-            $price = $cartDetail->variant 
-                ? ($cartDetail->variant->price_sale ?? $cartDetail->variant->price) 
-                : ($cartDetail->product->price_sale ?? $cartDetail->product->price);
-
-            OrderDetail::create([
-                'order_id' => $order->order_id,
-                'product_id' => $cartDetail->product_id,
-                'variant_id' => $cartDetail->variant_id,
-                'quantity' => $cartDetail->quantity,
-                'price' => $price,
-            ]);
-
-            $totalPrice += $price * $cartDetail->quantity;
-
-            // Xóa sản phẩm khỏi giỏ hàng sau khi đặt hàng thành công
-            $cartDetail->delete();
-        }
-
-        // Cập nhật tổng tiền đơn hàng
-        $order->update(['total_price' => $totalPrice]);
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Thanh toán thành công!',
-            'order_id' => $order->order_id, // Trả về order_id để redirect
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['success' => false, 'message' => 'Lỗi trong quá trình thanh toán.']);
-    }
-            // Tạo đơn hàng
-            $order = Order::create([
-                'user_id' => $user->user_id,
-                'status_id' => 1, // Trạng thái "Đơn mới"
-                'total' => $totalPrice,
-                'order_code' => 'ORD' . time(),
-            ]);
-
-            // Lưu chi tiết đơn hàng
+        public function checkoutSelected(Request $request)
+        {
+            $cartDetailIds = $request->input('cart_details');
+        
+            if (empty($cartDetailIds)) {
+                return redirect()->route('cart.index')->with('error', 'Không có sản phẩm nào được chọn.');
+            }
+        
+            $user = auth()->user();
+            $cart = Cart::where('user_id', $user->user_id)->first();
+        
+            if (!$cart) {
+                return redirect()->route('cart.index')->with('error', 'Giỏ hàng trống.');
+            }
+        
+            // Lấy chi tiết sản phẩm được chọn
+            $cartItems = $cart->details()
+                ->with(['product', 'variant'])
+                ->whereIn('cart_detail_id', $cartDetailIds)
+                ->get();
+        
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart.index')->with('error', 'Không tìm thấy sản phẩm được chọn.');
+            }
+            $total = 0;
             foreach ($cartItems as $item) {
-                OrderDetail::create([
-                    'order_id' => $order->order_id,
-                    'product_id' => $item->product_id,
-                    'variant_id' => $item->variant_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->variant ? ($item->variant->price_sale ?? $item->variant->price) : ($item->product->price_sale ?? $item->product->price),
-                ]);
+                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
+                $total += $price * $item->quantity;
             }
 
-            // Xóa sản phẩm đã chọn khỏi giỏ hàng
-            CartDetail::whereIn('cart_detail_id', $cartDetailIds)->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Đặt hàng thành công!',
-                'redirect_url' => route('order.show', $order->order_id),
+        
+            // Danh sách địa chỉ, phương thức thanh toán, shipping để hiển thị ở trang checkout
+            $addresses = $user->addresses;
+            $shippingFees = ShippingFee::all();
+        
+            return view('client.order.create', [
+                'cartItems' => $cartItems,
+                'selectedItems' => $cartDetailIds,
+                'addresses' => $addresses,
+                'shippingFees' => $shippingFees,
+                'total' => $total, 
             ]);
+            
         }
+        
         
         public function count()
         {

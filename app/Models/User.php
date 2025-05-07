@@ -16,6 +16,15 @@ class User extends Authenticatable
     protected $table = 'users';
     protected $primaryKey = 'user_id';
     public $timestamps = true;
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            Wallet::create([
+                'user_id' => $user->user_id, 
+                'balance' => 0,
+            ]);
+        });
+    }
 
     protected $fillable = ['username', 'password', 'email', 'phone', 'address', 'avatar'];
 
@@ -54,5 +63,18 @@ class User extends Authenticatable
     {
         return $this->roles()->where('name', $role)->exists();
     }
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'user_id');
+    }
+    public function banks()
+    {
+        return $this->hasMany(UserBank::class, 'user_id');
+    }
+    public function notifications()
+    {
+        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
+    }
+
 
 }

@@ -19,19 +19,19 @@ class UserAddresses extends Model
         'city', 'district', 'ward', 'street_address', 'is_default'
     ];
     
-
     protected static function boot()
     {
         parent::boot();
-
+    
         static::saving(function ($address) {
             if ($address->is_default) {
                 static::where('user_id', $address->user_id)
-                    ->where('address_id', '!=', $address->address_id) // Sửa lại đúng khóa chính
+                    ->where('address_id', '!=', $address->address_id)
                     ->update(['is_default' => false]);
             }
         });
     }
+    
 
     public function user()
     {
