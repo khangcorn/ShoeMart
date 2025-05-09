@@ -5,9 +5,9 @@
 @section('content')
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
-        <h4 class="text-lg font-semibold">Sliders</h4>
+        <h4 class="text-lg font-semibold">Shipping-fees</h4>
         <a href="{{ route('shipping-fees.create') }}" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 shadow">
-            + Add Slider
+            + Add Shipping-fees
         </a>
     </div>
 

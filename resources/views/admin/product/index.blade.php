@@ -1,6 +1,85 @@
 @extends('admin.layout')
 
 @section('content')
+@if(session('success'))
+    <div id="error-messages" class="success-alert" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close-btn" onclick="this.parentElement.remove()">&times;</button>
+    </div>
+@endif
+<style>
+    /* CSS nếu cần thêm */
+/* Đảm bảo thông báo xuất hiện ở đầu trang */
+.mb-4 {
+    position: fixed;
+    top: 10px;  /* Khoảng cách từ trên */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa thông báo */
+    z-index: 9999; /* Đảm bảo thông báo luôn nằm trên các phần tử khác */
+    width: 80%; /* Độ rộng của thông báo */
+    max-width: 600px; /* Giới hạn độ rộng */
+}
+#button {
+    position: absolute;
+    top: 10px; /* Điều chỉnh khoảng cách từ trên */
+    right: 10px; /* Điều chỉnh khoảng cách từ bên phải */
+    background: transparent; /* Đảm bảo nút không có nền */
+    border: none; /* Bỏ đường viền */
+    font-size: 20px; /* Điều chỉnh kích thước icon */
+    cursor: pointer; /* Thêm con trỏ chuột khi hover */
+}
+.success-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    background-color: #d1fae5;
+    border: 1px solid #10b981;
+    color: #065f46;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    max-width: 90%;
+    width: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeInSlideDown 0.5s ease-out;
+}
+
+/* Nút đóng */
+.success-alert .close-btn {
+    background: none;
+    border: none;
+    color: #065f46;
+    font-size: 22px;
+    cursor: pointer;
+    margin-left: 16px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.success-alert .close-btn:hover {
+    color: #034732;
+}
+
+/* Hiệu ứng xuất hiện */
+@keyframes fadeInSlideDown {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+</style>
+
     <div class="py-4 px-4">
 
         <div class="flex  items-center justify-between">
@@ -173,33 +252,39 @@
                             {{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}
                         </td>
 
-                        <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
-                            {{ $product->name }}</td>
-                        <td
-                            class="border relative border-gray-300 dark:border-gray-700 px-4 py-5 items-center text-center">
-                            <span
-                                class="line-through text-gray-500">{{ number_format($product->price, 0, ',', '.') }}</span>
-                            /
-                            {{ $product->price_sale ? number_format($product->price_sale, 0, ',', '.') : 'Không có' }}
-                            <span class="underline">vnđ</span>
-                            <p class="text-[11px] text-white bg-red-500 px-1 rounded-full absolute top-1 right-1">
-                                @if ($product->price_sale && $product->price > 0)
-                                    {{ round((($product->price - $product->price_sale) / $product->price) * 100, 2) }}%
-                                @else
-                                    N/A
-                                @endif
-                            </p>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
+                            {{ $product->name }}
                         </td>
+                        <td class="border relative border-gray-300 dark:border-gray-700 px-4 py-5 items-center text-center">
+                            @if ($product->price_sale && $product->price_sale > 0)
+                                <span class="line-through text-gray-500">{{ number_format($product->price, 0, ',', '.') }}</span>
+                                /
+                                {{ number_format($product->price_sale, 0, ',', '.') }}
+                                <span class="underline">vnđ</span>
+                                <p class="text-[11px] text-white bg-red-500 px-1 rounded-full absolute top-1 right-1">
+                                    {{ round((($product->price - $product->price_sale) / $product->price) * 100, 2) }}%
+                                </p>
+                            @else
+                                {{ number_format($product->price, 0, ',', '.') }}
+                                <span class="underline">vnđ</span>
+                            @endif
+                        </td>
+                        
+                            
 
 
 
 
                         <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
                             {{ $product->stock }}</td>
-                        <td class="border border-gray-300 dark:border-gray-700  px-2 py-5 items-center text-center">
-                            <img src="{{ asset('storage/' . $product->mainImage->image_url) }}" width="100">
-
-                        </td>
+                            <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
+                                @if($product->mainImage)
+                                    <img src="{{ asset('storage/' . $product->mainImage->image_url) }}" width="100">
+                                @else
+                                    <span class="text-gray-500">Không có ảnh</span>
+                                @endif
+                            </td>
+                            
 
                         {{-- <td class="border border-gray-300 dark:border-gray-700  px-2 py-4 items-center text-center">
                     @if ($product->variants->isNotEmpty())
@@ -286,4 +371,34 @@
 
 
     </div>
+    <script>
+      // Kiểm tra trong localStorage xem có thông báo không
+const successMessage = localStorage.getItem('success_message');
+if (successMessage) {
+    // Tạo phần tử thông báo
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('mb-4', 'bg-green-100', 'border', 'border-green-300', 'text-green-700', 'px-4', 'py-3', 'rounded', 'relative');
+    messageContainer.textContent = successMessage;
+
+    // Tạo nút đóng thông báo
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '&times;';
+    closeButton.classList.add('absolute', 'top-2', 'right-2', 'text-green-700', 'hover:text-green-900');
+    closeButton.onclick = () => messageContainer.remove();
+
+    // Thêm nút vào phần tử thông báo
+    messageContainer.appendChild(closeButton);
+
+    // Thêm thông báo vào body hoặc phần tử thích hợp
+    document.body.appendChild(messageContainer);
+
+    // Xóa thông báo khỏi localStorage sau khi hiển thị
+    localStorage.removeItem('success_message');
+}
+if (document.getElementById('error-messages')) {
+        setTimeout(function() {
+            document.getElementById('error-messages').style.display = 'none';
+        }, 5000); // 5000ms = 5 giây
+    }
+    </script>
 @endsection

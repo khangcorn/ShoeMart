@@ -89,7 +89,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
     Route::delete('/wallet/unlink-bank/{bank}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
     Route::post('wallet/withdraw', [WithdrawRequestController::class, 'store'])->name('wallet.withdraw');
-
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist', [WishlistController::class, 'delete'])->name('wishlist.delete');
 
 
      // Đơn hàng
@@ -129,6 +131,7 @@ Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariant
 Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
 Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
 
 
@@ -136,11 +139,13 @@ Route::prefix('admin')->group(function() {
     Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('admin.refunds.index');
     Route::post('/refund-requests/{id}/approve', [\App\Http\Controllers\Admin\RefundRequestController::class, 'approve'])->name('admin.refunds.approve');
     Route::post('/refund-requests/{id}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('admin.refunds.reject');
-    
+
+
     // Route để từ chối yêu cầu hoàn tiền
     Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
     Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
-    Route::resource('products', ProductController::class);
+    Route::resource('products', \App\Http\Controllers\ProductController::class);
+
     Route::resource('categories', CategoryController::class);
     Route::resource('users', AdminUserController::class);
     Route::resource('sizes', SizeController::class);
@@ -152,8 +157,10 @@ Route::prefix('admin')->group(function() {
     Route::resource('coupons', CouponController::class);
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
-    Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
     Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])
+     ->name('admin.orders.ajaxUpdateStatus');
+
 
 });
 // Định nghĩa route DELETE để xóa biến thể

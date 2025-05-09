@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\OrderCoupon;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CouponController extends Controller
 {
@@ -14,6 +16,12 @@ class CouponController extends Controller
     public function index()
     {
         $coupons = Coupon::all();
+        foreach ($coupons as $coupon) {
+            // Kiểm tra giá trị của expiration_date 
+            $coupon->expiration_date = Carbon::parse($coupon->expiration_date)
+                                            ->setTimezone('Asia/Ho_Chi_Minh');
+        }
+        
         return view('admin.coupons.index', compact('coupons'));
     }
 
@@ -38,23 +46,29 @@ class CouponController extends Controller
             'status' => 'required|in:active,expired,disabled',
         ]);
 
-        Coupon::create($request->all());
+        $data = $request->except('expiration_date');
+        $data['expiration_date'] = \Carbon\Carbon::parse($request->expiration_date);
+    
+        Coupon::create($data);
 
         return redirect()->route('coupons.index')->with('success', 'Coupon created successfully');
     }
 
     // Hiển thị form sửa mã giảm giá
-    public function edit($id)
+    public function edit($coupon_id)
     {
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::findOrFail($coupon_id);
+    
+        // Chuyển đổi múi giờ của expiration_date trước khi trả về view
+        $coupon->expiration_date = Carbon::parse($coupon->expiration_date)->setTimezone('Asia/Ho_Chi_Minh');
         return view('admin.coupons.edit', compact('coupon'));
     }
 
     // Cập nhật thông tin mã giảm giá
-    public function update(Request $request, $id)
+    public function update(Request $request, $coupon_id)
     {
         $request->validate([
-            'code' => 'required|max:50|unique:coupons,code,' . $id,
+            'code' => 'required|max:50|unique:coupons,code,' . $coupon_id . ',coupon_id', // 
             'apply_to' => 'required|in:order,shipping',
             'discount_type' => 'required|in:fixed,percentage',
             'discount_value' => 'required|numeric',
@@ -63,17 +77,22 @@ class CouponController extends Controller
             'usage_limit' => 'required|integer',
             'status' => 'required|in:active,expired,disabled',
         ]);
+    
+        $coupon = Coupon::findOrFail($coupon_id);
 
-        $coupon = Coupon::findOrFail($id);
-        $coupon->update($request->all());
-
+        $data = $request->except('expiration_date');
+        $data['expiration_date'] = \Carbon\Carbon::parse($request->expiration_date);
+    
+        $coupon->update($data);
+    
         return redirect()->route('coupons.index')->with('success', 'Coupon updated successfully');
     }
+    
 
     // Xóa mã giảm giá
-    public function destroy($id)
+    public function destroy($coupon_id)
     {
-        $coupon = Coupon::findOrFail($id);
+        $coupon = Coupon::findOrFail($coupon_id);
         $coupon->delete();
 
         return redirect()->route('coupons.index')->with('success', 'Coupon deleted successfully');
@@ -81,19 +100,63 @@ class CouponController extends Controller
     // app/Http/Controllers/CouponController.php
     public function check(Request $request)
     {
-        $code = $request->input('code');
+        $data = json_decode($request->getContent(), true);
     
-        $coupon = Coupon::where('code', $code)->where('usage_limit', '>', 0)->first();
+        // Log dữ liệu nhận được
+        Log::info('Dữ liệu nhận được từ frontend: ', $data);
     
-        if ($coupon) {
-            return response()->json([
-                'valid' => true,
-                'discount_amount' => $coupon->discount_amount,
-            ]);
+        $code = $data['codes'] ?? null;
+    
+        if (!$code) {
+            return response()->json(['valid_coupons' => [], 'message' => 'Không tìm thấy mã.']);
         }
     
-        return response()->json(['valid' => false]);
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (!$coupon) {
+            return response()->json(['valid_coupons' => [], 'message' => 'Mã không tồn tại.']);
+        }
+        
+        if ($coupon->status !== 'active') {
+            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá không hoạt động.']);
+        }
+        
+        if (now()->gt($coupon->expiration_date)) {
+            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá đã hết hạn.']);
+        }
+        
+        if ($coupon->usage_count >= $coupon->usage_limit) {
+            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá đã hết lượt sử dụng.']);
+        }
+         // Kiểm tra giá trị đơn hàng
+        $orderTotalRaw = $data['order_total'] ?? '0';
+        $orderTotal = (int) str_replace('.', '', $orderTotalRaw);
+
+        if ($coupon->min_order_value > $orderTotal) {
+            return response()->json(['valid_coupons' => [], 'message' => 'Giá trị đơn hàng chưa đủ để sử dụng mã giảm giá.']);
+        }
+        
+    
+        // Trả về coupon hợp lệ
+        return response()->json([
+            'valid_coupons' => [
+                [
+                    'coupon_id' => $coupon->coupon_id,
+                    'code' => $coupon->code,
+                    'discount_type' => $coupon->discount_type,
+                    'discount_value' => $coupon->discount_value,
+                    'max_discount_value' => $coupon->max_discount_value,
+                    'apply_to' => $coupon->apply_to,
+                    'usage_limit' => $coupon->usage_limit,
+                    'usage_count' => $coupon->usage_count,
+                ]
+            ]
+        ]);
     }
+    
+    
+    
+    
     
 // app/Http/Controllers/CouponController.php
 public function validateCoupons(Request $request)
@@ -107,12 +170,17 @@ public function validateCoupons(Request $request)
     foreach ($codes as $code) {
         $coupon = Coupon::where('code', $code)
                         ->where('usage_limit', '>', 0)
-                        ->where('expiration_date', '>=', now()) // Sử dụng expiration_date thay vì expiry_date
+                        ->where('expiration_date', '>=', now())
                         ->first();
 
         if ($coupon) {
             $validCoupons[] = $coupon;
-            $discountTotal += $coupon->discount_amount; // hoặc discount_percent nếu dùng %
+
+            if ($coupon->discount_type == 'fixed') {
+                $discountTotal += $coupon->discount_value; // Fixed discount
+            } elseif ($coupon->discount_type == 'percentage') {
+                $discountTotal += ($coupon->discount_value / 100); // Phần trăm giảm giá, cần tính trên giá trị tổng
+            }
         }
     }
 
@@ -121,7 +189,6 @@ public function validateCoupons(Request $request)
         'discount_total' => $discountTotal
     ]);
 }
-
 
 
 

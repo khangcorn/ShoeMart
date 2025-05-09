@@ -15,21 +15,25 @@
             <p>Find a Store</p> |
             <div class="flex items-center gap-2 relative">
                 @if (Auth::check())
-                <div class="flex items-center gap-2 relative group">
-                    <a href="{{ route('profile') }}" class="text-black font-medium ">
-                        Hello {{ Auth::user()->username }}
-                    </a>
-                    <div class="dropdown-content absolute hidden bg-white shadow-md rounded-lg mt-2 p-4 w-48 ">
-                        <a href="{{ route('profile') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Thông tin cá nhân</a>
-                        <a href="{{ route('order.index') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Đơn hàng của tôi</a>
-                    </div>
-                </div>
-            @else
-                <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
-                    Login
-                </a>
-            @endif
+                    <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
+                    
             
+                    <div class="flex items-center gap-2 relative group">
+                        <a href="{{ route('profile') }}" class="text-black font-medium ">
+                            Hello {{ Auth::user()->username }}
+                        </a>
+                        <div class="dropdown-content absolute hidden bg-white shadow-md rounded-lg mt-2 p-4 w-48 ">
+                            <a href="{{ route('profile') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Thông tin cá nhân</a>
+                            <a href="{{ route('order.index') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Đơn hàng của tôi</a>
+                        </div>
+                    </div>
+                    
+                @else
+                    <!-- Nếu chưa đăng nhập, link sẽ đưa tới trang đăng nhập -->
+                    <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
+                        Login
+                    </a>
+                @endif
             
                 <svg aria-hidden="true" class="icon-btn" focusable="false" viewBox="0 0 24 24" role="img" width="20px"
                     height="20px" fill="none" aria-label="Profile">
@@ -38,7 +42,10 @@
                     </path>
                 </svg>
             </div>
+<<<<<<< HEAD
+=======
 
+>>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
         </div>
     </div>
 </div>
@@ -85,8 +92,11 @@
 
 
             </div>
+<<<<<<< HEAD
+=======
         
         
+>>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
             
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
@@ -172,12 +182,17 @@
                 </a>
 
 
+<<<<<<< HEAD
+        </div>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+=======
 
         </div>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
             </div>
 
+>>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
 
 
 </header>

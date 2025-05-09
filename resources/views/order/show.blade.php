@@ -12,7 +12,7 @@
                 <span>
                     <strong>{{ $order->userAddresses->address_name }}</strong> <br>
                     {{ $order->userAddresses->street_address }}, {{ $order->userAddresses->ward }}, {{ $order->userAddresses->district }}, {{ $order->userAddresses->city }}
-                    </span>
+                </span>
                 </p>
             @else
                 <p>Không có địa chỉ</p>
@@ -24,6 +24,13 @@
         <ul>
             @foreach($order->orderDetails as $detail)
                 <li>
+                    <!-- Hiển thị ảnh sản phẩm nếu có -->
+                    @if ($detail->product->images->isNotEmpty())
+                        <img src="{{ asset('storage/' . $detail->product->images->first()->image_url) }}" alt="{{ $detail->product->name }}" class="w-20 h-20 mr-4">
+                    @else
+                        <span>Không có ảnh sản phẩm</span>
+                    @endif
+                    
                     {{ $detail->product->name }} 
     
                     @if ($detail->variant)
@@ -39,6 +46,7 @@
             @endforeach
         </ul>
     </div>
+    
 
     <div class="mb-4">
         <h3 class="text-xl font-semibold">Trạng thái đơn hàng</h3>

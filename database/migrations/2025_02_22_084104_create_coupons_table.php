@@ -14,7 +14,7 @@ class CreateCouponsTable extends Migration
             $table->enum('discount_type', ['fixed', 'percentage'])->notNull();
             $table->decimal('discount_value', 10, 2)->notNull();
             $table->decimal('max_discount_value', 10, 2)->nullable();
-            $table->date('expiration_date')->nullable();
+            $table->dateTime('expiration_date')->nullable();
             $table->integer('usage_limit')->nullable();
             $table->integer('usage_count')->default(0);
             $table->enum('status', ['active', 'expired', 'disabled'])->default('active');

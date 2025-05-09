@@ -17,7 +17,6 @@ class Order extends Model
         'address_id',
         'status_id',
         'shipping_id',
-        'coupon_id',
         'order_code',
         'total',
         'shipping_fee',
@@ -34,7 +33,7 @@ class Order extends Model
 
     public function status()
     {
-        return $this->belongsTo(OrderStatus::class, 'status_id',);
+        return $this->belongsTo(OrderStatus::class, 'status_id');
     }
 
     public function shipping()
@@ -42,37 +41,30 @@ class Order extends Model
         return $this->belongsTo(ShippingFee::class, 'shipping_id', 'shipping_id');
     }
 
-    public function coupon()
+
+    // public function coupon()
+    // {
+    //     return $this->belongsTo(Coupon::class, 'coupon_id', 'coupon_id');
+    // }
+
+    public function orderCoupons()
     {
-        return $this->belongsTo(Coupon::class, 'coupon_id', 'coupon_id');
+        return $this->hasMany(OrderCoupon::class, 'order_id', 'order_id');
     }
 
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
     }
+
     public function userAddresses()
     {
         return $this->belongsTo(UserAddresses::class, 'address_id', 'address_id');
     }
-    // Order.php
-public function orderCoupons()
-{
-    return $this->hasMany(\App\Models\OrderCoupon::class, 'order_id', 'order_id');
+
+    public function returnRequest()
+    {
+        return $this->hasOne(RefundRequest::class, 'order_id', 'order_id');
+    }
 }
 
-
-public function refund()
-{
-    return $this->hasOne(Refund::class, 'order_id', 'order_id');
-
-// Trong model Order
-public function returnRequest()
-{
-    return $this->hasOne(RefundRequest::class, 'order_id', 'order_id');
-
-}
-
-
-}
-}

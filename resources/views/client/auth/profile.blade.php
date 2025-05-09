@@ -40,7 +40,7 @@
 @endphp
 
 @if ($latestNotification)
-    <div class="notification">
+    <div id="flash-message" class="notification">
         <p>{{ $latestNotification->data['message'] }}</p>
         <p>Thời gian: {{ $latestNotification->created_at->format('d/m/Y H:i') }}</p>
     </div>
@@ -50,21 +50,21 @@
     @endphp
 @endif
 
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div  class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         @if (session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md my-4">
+        <div id="flash-message" class="fixed top-5 right-5 bg-green-100 text-green-800 px-4 py-2 rounded shadow z-50">
             {{ session('success') }}
         </div>
     @endif
     
     @if (session('error'))
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
+        <div id="flash-message" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
             {{ session('error') }}
         </div>
     @endif
     
     @if ($errors->any())
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
+        <div id="flash-message" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md my-4">
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -420,6 +420,13 @@
         }, 10000); // 10 giây
     });
 });
+
+        setTimeout(() => {
+            const flash = document.getElementById('flash-message');
+            if (flash) {
+                flash.remove();
+            }
+        }, 5000); // 5000ms = 5 giây
 
 </script>
 @endsection

@@ -37,14 +37,17 @@
                         <p class="text-sm text-gray-500">Dành cho đơn hàng từ {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ</p>
                     @endif
 
-                    @if($coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit))
+                    @if($coupon->status !== 'active')
+                    <p class="text-xs text-red-500">Mã giảm giá không hoạt động</p>
+                    @elseif($coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit))
                         <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
-                    @elseif($coupon->usage_limit)
+                    @elseif(\Carbon\Carbon::parse($coupon->expiration_date)->isPast())
+                        <p class="text-xs text-red-500">Đã quá hạn</p>
+                    @else
                         <p class="text-xs text-green-500">Số lượng có hạn</p>
                     @endif
-
                     <p class="text-xs text-gray-500">
-                        Hết hạn: {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y') }}
+                        Hết hạn: {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y H:i:s') }}
                     </p>
                 </li>
             @endforeach
@@ -78,15 +81,22 @@
                         <p class="text-sm text-gray-500">Dành cho đơn hàng từ {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ</p>
                     @endif
 
+                    @php
+                    $expirationDate = \Carbon\Carbon::parse($coupon->expiration_date);
+                    @endphp
+                    
                     @if($coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit))
                         <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
-                    @elseif($coupon->usage_limit)
+                    @elseif($expirationDate->isPast())
+                        <p class="text-xs text-red-500">Đã quá hạn</p>
+                    @else
                         <p class="text-xs text-green-500">Số lượng có hạn</p>
                     @endif
-
+                    
                     <p class="text-xs text-gray-500">
-                        Hết hạn: {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y') }}
+                        Hết hạn: {{ $expirationDate->format('d/m/Y H:i:s') }}
                     </p>
+                
                 </li>
             @endforeach
         </ul>
