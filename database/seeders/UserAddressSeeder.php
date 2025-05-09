@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\UserAddress;
+use App\Models\UserAddresses;  // <— dùng đúng tên model
 use Illuminate\Database\Seeder;
 
 class UserAddressSeeder extends Seeder {
     public function run(): void {
-        UserAddress::factory(10)->create();
+        UserAddresses::factory(10)->create();
     }
 }
