@@ -32,11 +32,30 @@ class Coupon extends Model
         'discount_value' => 'decimal:2',
         'max_discount_value' => 'decimal:2',
         'min_order_value' => 'decimal:2',
-        'expiration_date' => 'date',
+        'expiration_date' => 'datetime',  // Dùng 'datetime' để lưu cả ngày và giờ
         'usage_count' => 'integer',
         'usage_limit' => 'integer',
         'status' => 'string',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($coupon) {
+            // Đảm bảo rằng expiration_date được lưu với múi giờ 'Asia/Ho_Chi_Minh'
+            if ($coupon->expiration_date) {
+                $coupon->expiration_date = Carbon::parse($coupon->expiration_date)->setTimezone('Asia/Ho_Chi_Minh');
+            }
+        });
+    }
+    // Phương thức accessor để định dạng expiration_date
+    public function getExpirationDateFormattedAttribute()
+    {
+        return Carbon::parse($this->expiration_date)
+                     ->setTimezone('Asia/Ho_Chi_Minh')
+                     ->format('Y-m-d H:i');
+    }
 
     public function orders(): HasMany
     {

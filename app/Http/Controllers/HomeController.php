@@ -52,14 +52,12 @@ class HomeController extends Controller
     }
     public function indexVoucher()
     {
-        // Lấy tất cả các mã giảm giá đang hoạt động
-        $coupons = Coupon::where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->get();
-    
+        // Lấy tất cả các mã giảm giá (bao gồm cả mã không hoạt động và hết hạn)
+        $coupons = Coupon::orderBy('created_at', 'desc')->get();
         // Trả về view với danh sách mã giảm giá
         return view('client.vouchers.index', compact('coupons'));
     }
+    
     
 
     // ✅ **Thêm phương thức để load tất cả sản phẩm**

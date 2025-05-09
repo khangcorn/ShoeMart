@@ -50,17 +50,23 @@
                 <label for="discount_value" class="block text-sm font-medium text-gray-700">Discount Value</label>
                 <input type="number" name="discount_value" id="discount_value" value="{{ old('discount_value', $coupon->discount_value) }}" step="0.01" class="w-full mt-1 px-3 py-2 border rounded-md" required>
             </div>
-
-            <!-- Max Discount Value -->
-            <div>
-                <label for="max_discount_value" class="block text-sm font-medium text-gray-700">Max Discount Value</label>
-                <input type="number" name="max_discount_value" id="max_discount_value" value="{{ old('max_discount_value', $coupon->max_discount_value) }}" step="0.01" class="w-full mt-1 px-3 py-2 border rounded-md">
+            
+            <div class="mb-4" id="max_discount_value">
+                <label for="max_discount_value" class="block text-gray-700">Max Discount Value:</label>
+                <input type="number" name="max_discount_value" id="max_discount_value" value="{{ old('max_discount_value', $coupon->max_discount_value) }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('max_discount_value') border-red-500 @enderror">
+                @error('max_discount_value')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
-
             <!-- Expiration Date -->
             <div>
                 <label for="expiration_date" class="block text-sm font-medium text-gray-700">Expiration Date</label>
-                <input type="date" name="expiration_date" id="expiration_date" value="{{ old('expiration_date', $coupon->expiration_date) }}" class="w-full mt-1 px-3 py-2 border rounded-md" required>
+                <input type="datetime-local" name="expiration_date" id="expiration_date"
+    value="{{ old('expiration_date', $coupon->expiration_date ? \Carbon\Carbon::parse($coupon->expiration_date)->setTimezone('Asia/Ho_Chi_Minh')->format('Y-m-d\TH:i') : '') }}"
+    class="w-full mt-1 px-3 py-2 border rounded-md" required>
+
+            
+
             </div>
 
             <!-- Usage Limit -->
@@ -95,4 +101,28 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy các phần tử
+        const discountType = document.getElementById('discount_type');
+        const maxDiscountValueDiv = document.getElementById('max_discount_value');
+
+        // Hàm kiểm tra và ẩn/hiện max_discount_value
+        function toggleMaxDiscount() {
+            if (discountType.value === 'percentage') {
+                maxDiscountValueDiv.style.display = 'block'; // Hiển thị
+            } else {
+                maxDiscountValueDiv.style.display = 'none'; // Ẩn
+            }
+        }
+
+        // Gọi hàm khi trang được tải
+        toggleMaxDiscount();
+
+        // Lắng nghe sự kiện thay đổi của discount_type
+        discountType.addEventListener('change', toggleMaxDiscount);
+    });
+</script>
+
 @endsection

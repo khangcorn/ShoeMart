@@ -17,7 +17,7 @@
 </script>
 @endif
 @if(session('error'))
-<div id="topNotification" class="bg-green-500 text-white p-4 text-center font-semibold">
+<div id="topNotification" class="bg-red-500 text-white p-4 text-center font-semibold">
     {{ session('error') }}
 </div>
 <script>
@@ -51,17 +51,17 @@
                     {{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }}, {{ $defaultAddress->district }}, {{ $defaultAddress->city }}
                     <input type="hidden" name="address_id" id="selectedAddressId" value="{{ $defaultAddress->address_id }}">
                 @else
-                    <span class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
+                    <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
                     <input type="hidden" name="address_id" id="selectedAddressId" value="">
                 @endif
             </div>
-
+        
             <div class="flex justify-between">
                 <button type="button" class="bg-blue-500 text-white py-2 px-4 rounded-md" onclick="openAddressPopup()">
                     Thay đổi địa chỉ nhận hàng
                 </button>
             </div>
-        </div>
+        </div>  
 
        <!-- Phương thức thanh toán -->
         <div class="mb-6">
@@ -85,7 +85,7 @@
             </select>
             <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ $shippingFees->first()->fee ?? 10000 }}">
         </div>
-    @endif
+
     
     
     
@@ -100,39 +100,51 @@
         </div>
     
         <a href="{{ route('vouchers.index') }}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
-            🔍 Xem danh sách mã giảm giá
+            🔍 Xem danh sách mã giảm giá 
         </a>
     
         <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
     
-        @if(session('error'))
-            <p class="text-red-500 text-sm mt-1">{{ session('error') }}</p>
-        @endif
+
     </div>
     
-        
+    <input type="hidden" name="order_coupon_id" id="orderCouponIdInput" value="">
+    <input type="hidden" name="shipping_coupon_id" id="shippingCouponIdInput" value="">
+
         
 
         <!-- Thông tin giỏ hàng -->
         <div class="mb-6">
             <h3 class="text-xl font-semibold mb-2">Thông tin giỏ hàng</h3>
-            <ul class="space-y-2">
-                @foreach($cartItems as $item)
-                    @php
-                        $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
-                    @endphp
-                    <li>
-                        <span class="font-semibold">{{ $item->product->name }}</span>
-                        - Số lượng: {{ $item->quantity }} x {{ number_format($price, 0, ',', '.') }} đ =
-                        <span class="font-bold">{{ number_format($price * $item->quantity, 0, ',', '.') }} đ</span>
-                    </li>
-                @endforeach
-            </ul>
+          <ul class="space-y-2">
+    @foreach($cartItems as $item)
+        @php
+            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
+        @endphp
+        <li class="flex items-center gap-4">
+            <a href="{{ route('products.detail', $item->product->product_id) }}">
+
+                <img src="{{ asset('storage/' . $item->product->images->first()->image_url) }}" alt="{{ $item->product->name }}" class="w-20 h-20 mr-4">
+            </a>
+           
+            <div>
+                <span class="font-semibold">{{ $item->product->name }}</span>
+                - Số lượng: {{ $item->quantity }} x {{ number_format($price, 0, ',', '.') }} đ =
+                <span class="font-bold">{{ number_format($price * $item->quantity, 0, ',', '.') }} đ</span>
+            </div>
+        </li>
+    @endforeach
+</ul>
+
+            @foreach($shippingFees as $fee)
             <p class="mt-4 text-lg font-bold">
-                Tổng tiền: <span id="totalPrice">{{ number_format($total + (($shippingFee->fee ?? 0)), 0, ',', '.') }}</span> đ
+                Tổng tiền: <span id="totalPrice">{{ number_format($total + (($fee->fee ?? 0)), 0, ',', '.') }}</span> đ
             </p>
-            
+            @endforeach
         </div>
+        <input type="hidden" name="order_discount" id="orderDiscountInput" value="0">
+        <input type="hidden" name="shipping_discount" id="shippingDiscountInput" value="0">
+
         @foreach($cartDetailIds as $id)
         <input type="hidden" name="cart_detail_ids[]" value="{{ $id }}">
         @endforeach
@@ -191,7 +203,7 @@
                 <button type="button" onclick="saveAddress()" class="bg-blue-500 text-white px-4 py-2 rounded-md">
                     Lưu
                 </button>
-                <button type="button" onclick="closeAddressForm()" class="bg-gray-400 text-white px-4 py-2 rounded-md">
+                <button type="button" onclick="closeAddressForm()" class="bg-gray-400 text-black px-4 py-2 rounded-md">
                     Hủy
                 </button>
             </div>
@@ -219,32 +231,40 @@
                         <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
                         onclick="editAddress({{ $address->address_id }}, '{{ $address->address_name }}', '{{ $address->recipient_name }}',{{  $address->recipient_phone }}, '{{ $address->street_address }}', '{{ $address->ward }}', '{{ $address->district }}', '{{ $address->city }}')">
                         Sửa
-                    </button>                
+                        </button>    
+                               
                 </div>
             @endforeach
         </div>
-    @if(!empty($address))
-        <div class="mt-4 flex justify-end gap-4">
-            <button
-                onclick="confirmAddressSelection()"
-                class="bg-blue-500 text-white px-4 py-2 rounded-md">
-                Chọn địa chỉ làm mặc định
-            </button>
-
-            <button onclick="openAddAddressForm()" class="bg-green-500 text-black px-4 py-2 rounded-md">
-                Thêm địa chỉ mới
-            </button>
-        </div>
-    @else
-        <span class="text-red-500">Bạn chưa có địa chỉ giao hàng.</span>
-        <input type="hidden" name="address_id" id="selectedAddressId" value="">
-
-        <div class="mt-4 flex justify-end gap-4">
-            <button onclick="openAddAddressForm()" class="bg-green-500 text-black px-4 py-2 rounded-md">
-                Thêm địa chỉ mới
-            </button>
-        </div>
+  <!-- Báo lỗi khi chưa có địa chỉ -->
+    @if(empty($address))
+    <span id="addressError" class="text-red-500">Bạn chưa có địa chỉ giao hàng.</span>
+    <input type="hidden" name="address_id" id="selectedAddressId" value="">
     @endif
+
+    <!-- Các nút hành động -->
+    <div class="mt-4 flex justify-end gap-4 flex-wrap" id="addressButtonsWrapper">
+    <button onclick="openAddAddressForm()" class="bg-green-500 text-black px-4 py-2 rounded-md">
+        Thêm địa chỉ mới
+    </button>
+
+    <div id="addressActionButtons" class="{{ empty($address) ? 'hidden' : '' }} flex gap-4">
+        <button
+            onclick="confirmAddressSelection()"
+            class="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Chọn địa chỉ làm mặc định
+        </button>
+
+        <button type="button"
+            onclick="closeAddressPopup()"
+            class="bg-gray-100 text-black px-4 py-2 rounded-md border border-gray-5000">
+            Đóng
+        </button>
+
+    </div>
+    </div>
+
+
 
     
         
@@ -373,7 +393,7 @@ function updateAddressList(newAddress) {
     // Nếu có địa chỉ cũ thì xóa hẳn ra khỏi danh sách
     if (existingAddress) {
         existingAddress.remove();
-    }
+    }   
 
     // Tạo HTML mới cho địa chỉ
     let newAddressHTML = `
@@ -390,21 +410,42 @@ function updateAddressList(newAddress) {
                     <span class="city">${newAddress.city}</span>
                 </span>
             </label>
+
             <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
                 onclick="editAddress(${newAddress.address_id}, '${newAddress.address_name}', '${newAddress.recipient_name}', ${newAddress.recipient_phone}, '${newAddress.street_address}', '${newAddress.ward}', '${newAddress.district}', '${newAddress.city}')">
                 Sửa
             </button>
         </div>
     `;
-
+    let addressError = document.querySelector('#addressError');
+    if (addressError) {
+        addressError.remove();
+    }
     // Chèn địa chỉ mới lên đầu danh sách
     addressList.insertAdjacentHTML('afterbegin', newAddressHTML);
+        // Cập nhật giá trị của selectedAddressId
+    function selectAddress(input) {
+    let selectedAddressId = input.value;
+
+    // Cập nhật lại giá trị hidden input
+    document.getElementById('selectedAddressId').value = selectedAddressId;
+
+    // Ẩn thông báo lỗi nếu có
+    let addressError = document.querySelector('#addressError');
+    if (addressError) {
+        addressError.remove();
+    }
+}
 
     // Kiểm tra số lượng địa chỉ và ẩn nút "Thêm địa chỉ mới" nếu đủ 3
     let addressCount = document.querySelectorAll("#addressList .address-item").length;
     if (addressCount >= 3) {
         document.querySelector("button[onclick='openAddAddressForm()']").style.display = "none";
     }
+    // Hiện nút chọn làm mặc định + hủy
+document.getElementById("addressActionButtons")?.classList.remove("hidden");
+
+
 }
 
 
@@ -419,7 +460,6 @@ function updateAddressList(newAddress) {
             <div>${selectedText}</div>
             <input type="hidden" name="address_id" id="selectedAddressId" value="${radio.value}">
         `;
-    }
 
     if (!selectedAddressId) {
         selectedAddressId = document.createElement('input');
@@ -429,7 +469,6 @@ function updateAddressList(newAddress) {
         selectedAddressDiv.appendChild(selectedAddressId);
     }
 
-    let selectedText = radio.closest('div').querySelector('span').innerHTML;
     selectedAddressDiv.innerHTML = `<div>${selectedText}</div>`;
     selectedAddressId.value = radio.value;
 }
@@ -521,20 +560,25 @@ function confirmAddressSelection() {
     applyBtn.className = 'mt-2 bg-green-500 text-white py-1 px-3 rounded-md ml-2';
     document.querySelector('#couponInput').after(applyBtn);
 
-    applyBtn.addEventListener('click', function () {
+        applyBtn.addEventListener('click', function () {
         const codes = document.getElementById('couponInput').value.trim();
+        console.log('Mã giảm giá gửi đến backend:', codes);
         if (!codes) {
             document.getElementById('couponResult').innerText = "Vui lòng nhập mã.";
             return;
         }
 
-        fetch('{{ route("coupon.check") }}', {
+        fetch('/check-coupon', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ codes })
+            body: JSON.stringify({ 
+        codes: codes, 
+        order_total: document.getElementById('totalPrice').innerText.replace(/,/g, '')  // lấy giá trị tổng đơn hàng
+    })
+
         })
         .then(res => res.json())
         .then(data => {
@@ -557,6 +601,12 @@ function confirmAddressSelection() {
                     let discountValue = parseFloat(item.discount_value); // Giá trị giảm giá
                     let maxDiscount = parseFloat(item.max_discount_value); // Giới hạn giảm giá tối đa
                     let discount;
+
+                    // Kiểm tra nếu usage_count bằng usage_limit
+                    if (item.usage_count >= item.usage_limit) {
+                        message += `<span class="text-red-500">❌ Mã giảm giá ${item.code} đã hết lượt sử dụng.</span><br>`;
+                        return; // Dừng lại nếu mã đã hết lượt sử dụng
+                    }
 
                     // Kiểm tra loại giảm giá và tính toán
                     if (item.discount_type === "percentage") {
@@ -596,6 +646,7 @@ function confirmAddressSelection() {
                             }
                             orderDiscount += discount;  // Giảm cho đơn hàng
                             orderCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho đơn hàng
+                            document.getElementById('orderCouponIdInput').value = item.coupon_id;
                         } else if (item.apply_to === 'shipping') {
                             if (shippingCouponApplied) {
                                 message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho phí vận chuyển.</span><br>`;
@@ -603,6 +654,7 @@ function confirmAddressSelection() {
                             }
                             shippingDiscount += discount;  // Giảm cho phí vận chuyển
                             shippingCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho phí vận chuyển
+                            document.getElementById('shippingCouponIdInput').value = item.coupon_id;
                         }
                     }
 
@@ -610,13 +662,17 @@ function confirmAddressSelection() {
                     totalDiscount += discount;
                 });
 
+                // Cập nhật giá trị giảm giá vào input ẩn
+                document.getElementById('orderDiscountInput').value = orderDiscount;
+                document.getElementById('shippingDiscountInput').value = shippingDiscount;
+
                 // Cập nhật lại tổng tiền sau khi áp dụng các giảm giá
-                let total = parseFloat('{{ $total }}') + parseFloat('{{ $shippingFee->fee ?? 0 }}');
+                let total = parseFloat('{{ $total }}') + parseFloat('{{ $fee->fee ?? 0 }}');
                 total -= orderDiscount; // Trừ giảm giá đơn hàng
                 total -= shippingDiscount; // Trừ giảm giá phí vận chuyển
 
                 // Hiển thị tổng tiền sau khi giảm
-                document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
+                document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') ;
 
                 // Hiển thị kết quả giảm giá
                 couponResult.innerHTML = `
@@ -626,16 +682,47 @@ function confirmAddressSelection() {
                     <strong>Giảm cho phí vận chuyển: ${shippingDiscount.toLocaleString('vi-VN')} đ</strong><br>
                     <strong>Tổng giảm: ${totalDiscount.toLocaleString('vi-VN')} đ</strong>
                 `;
-             } else {
-                couponResult.innerHTML = `<span class="text-red-500">❌ ${data.message || 'Lỗi không xác định'}</span>`;
-            }
+                setTimeout(() => {
+                    couponResult.innerHTML = '';
+                }, 5000);
+
+                // Xóa các input cũ (nếu người dùng áp lại mã mới)
+                document.querySelectorAll('.applied-coupon').forEach(el => el.remove());
+
+                // Chèn các mã hợp lệ vào form
+                data.valid_coupons.forEach(item => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'coupons[]';
+                    input.value = item.code;
+                    input.classList.add('applied-coupon'); // để tiện xóa sau
+                    document.querySelector('form').appendChild(input);
+                });
+            } else {
+    const couponResult = document.getElementById('couponResult');
+
+    let errorMessage = "Lỗi không xác định"; // Mặc định
+
+    // Ưu tiên lấy message cụ thể từ backend (nếu có)
+    if (data.message) {
+        errorMessage = data.message;
+    }
+
+    // Nếu backend có mảng errors, nối lại để hiển thị tất cả
+    if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+        errorMessage = data.errors.join('<br>');
+    }
+
+    // Hiển thị lỗi
+    couponResult.innerHTML = `<span class="text-red-500">❌ ${errorMessage}</span>`;
+}
+
         })
         .catch(error => {
             console.error("Lỗi:", error);
             document.getElementById('couponResult').innerHTML = `<span class="text-red-500">Đã xảy ra lỗi khi kiểm tra mã.</span>`;
         });
     });
-});
 
-
+    });
 </script>

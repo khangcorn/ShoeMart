@@ -3,6 +3,19 @@
 @section('title', 'Coupons')
 
 @section('content')
+<style>
+    /* CSS nếu cần thêm */
+#button {
+    position: absolute;
+    top: 10px; /* Điều chỉnh khoảng cách từ trên */
+    right: 10px; /* Điều chỉnh khoảng cách từ bên phải */
+    background: transparent; /* Đảm bảo nút không có nền */
+    border: none; /* Bỏ đường viền */
+    font-size: 20px; /* Điều chỉnh kích thước icon */
+    cursor: pointer; /* Thêm con trỏ chuột khi hover */
+}
+
+</style>
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
         <h4 class="text-lg font-semibold">Coupons</h4>
@@ -15,9 +28,10 @@
         @if(session('success'))
             <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded relative" role="alert">
                 {{ session('success') }}
-                <button type="button" class="absolute top-2 right-2 text-green-700 hover:text-green-900" onclick="this.parentElement.remove()">
+                <button id="button" type="button" class="absolute top-2 right-2 text-green-700 hover:text-green-900" onclick="this.parentElement.remove()">
                     &times;
                 </button>
+                
             </div>
         @endif
 
@@ -43,7 +57,7 @@
                     @forelse($coupons as $coupon)
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 text-gray-600">{{ $coupon->coupon_id }}</td>
-                            <td class="px-4 py-3 font-medium text-gray-700">{{ $coupon->code }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-700 text-lg">{{ $coupon->code }}</td>
                             <td class="px-4 py-3 font-medium text-gray-700">{{ $coupon->apply_to }}</td>
                             <td class="px-4 py-3 text-gray-700 capitalize">{{ $coupon->discount_type }}</td>
                             <td class="px-4 py-3 text-gray-700">
@@ -57,8 +71,12 @@
                             <td class="px-4 py-3 text-gray-700 capitalize">{{ $coupon->usage_limit }}</td>
                             <td class="px-4 py-3 text-gray-700 capitalize">{{ $coupon->usage_count }}</td>
                             <td class="px-4 py-3 text-gray-700 capitalize">{{ (int) $coupon->min_order_value }}đ</td>
-
-                            <td class="px-4 py-3 text-gray-700">{{ $coupon->expiration_date }}</td>
+                            <td class="px-4 py-3 text-gray-700">
+                                {{ $coupon->expiration_date_formatted }}
+                            </td>
+                            
+                                                       
+                            
                             <td class="px-4 py-3">
                                 <span class="inline-block px-2 py-1 text-xs rounded {{ 
                                     $coupon->status === 'active' ? 'bg-green-100 text-green-700' : 

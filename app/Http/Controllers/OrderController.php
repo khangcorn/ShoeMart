@@ -93,7 +93,8 @@ class OrderController extends Controller
         });
     
         $addresses = $user->userAddresses;
-    
+        $shippingFees = \App\Models\ShippingFee::all();
+
         return view('order.create', compact('cartItems', 'total', 'addresses', 'shippingFees', 'cartDetailIds'));
 
     }
@@ -110,26 +111,22 @@ class OrderController extends Controller
     {
         $request->validate([
             'address_id'     => 'required|exists:user_addresses,address_id',
-            'payment_method' => 'required|in:cod,bank_transfer,credit_card,paypal,wallet', 
+            'payment_method' => 'required|in:cod,bank_transfer,credit_card,paypal,wallet',
             'shipping_id'    => 'required|exists:shipping_fees,shipping_id',
         ]);
     
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->user_id)->first();
-        
+    
         if (!$cart) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
         }
     
-        // Lấy các sản phẩm đã được chọn để mua
         $selectedIds = $request->input('cart_detail_ids', []);
-        
-        // Kiểm tra xem có sản phẩm nào được chọn không
         if (empty($selectedIds)) {
             return redirect()->route('cart.index')->with('error', 'Không có sản phẩm nào được chọn để đặt hàng.');
         }
     
-        // Lấy các chi tiết sản phẩm của giỏ hàng theo cart_detail_ids
         $cartItems = $cart->details()
             ->whereIn('cart_detail_id', $selectedIds)
             ->with(['product', 'variant'])
@@ -139,33 +136,26 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống hoặc không hợp lệ.');
         }
     
-        // Tính tổng tiền giỏ hàng
         $orderTotal = 0;
         foreach ($cartItems as $item) {
-            if ($item->variant) {
-                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-            } else {
-                $price = $item->product->price_sale ?? $item->product->price;
-            }
+            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
             $orderTotal += $price * $item->quantity;
         }
     
-        // Lấy phí vận chuyển
         $shippingFee = ShippingFee::find($request->shipping_id);
-        $finalTotal = $orderTotal + $shippingFee->fee;
+        $orderDiscount = $request->input('order_discount', 0);
+        $shippingDiscount = $request->input('shipping_discount', 0);
     
-        // Nếu chọn thanh toán qua ví
+        $shippingFeeValue = max(0, $shippingFee->fee - $shippingDiscount);
+        $finalTotal = max(0, $orderTotal - $orderDiscount + $shippingFeeValue);
+    
         if ($request->payment_method === 'wallet') {
             $wallet = $user->wallet;
-    
             if (!$wallet || $wallet->balance < $finalTotal) {
                 return back()->with('error', 'Số dư ví không đủ để thanh toán đơn hàng.');
             }
     
-            // Trừ tiền ví
             $wallet->decrement('balance', $finalTotal);
-    
-            // Ghi lịch sử giao dịch ví
             $wallet->transactions()->create([
                 'type' => 'payment',
                 'amount' => $finalTotal,
@@ -174,54 +164,63 @@ class OrderController extends Controller
             ]);
         }
     
-        // Tạo mã đơn hàng
         $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-    
-        // Tạo đơn hàng
         $order = Order::create([
-            'order_code'     => $orderCode,
-            'user_id'        => $user->user_id,
-            'address_id'     => $request->address_id,
-            'total'          => $finalTotal,
-            'status_id'      => 1, // 1: Mới
-            'shipping_fee'   => $shippingFee->fee,
-            'payment_method' => $request->payment_method,
-            'shipping_id'    => $request->shipping_id,
+            'order_code'      => $orderCode,
+            'user_id'         => $user->user_id,
+            'address_id'      => $request->address_id,
+            'total'           => $finalTotal,
+            'status_id'       => 1,
+            'shipping_fee'    => $shippingFee->fee,
+            'payment_method'  => $request->payment_method,
+            'shipping_id'     => $request->shipping_id,
+            'discount_amount' => $orderDiscount + $shippingDiscount,
         ]);
     
-           // Tạo chi tiết đơn hàng
-            foreach ($cartItems as $item) {
-                if ($item->variant) {
-                    $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-                } else {
-                    $price = $item->product->price_sale ?? $item->product->price;
-                }
-                $subtotal = $price * $item->quantity;
-
-                // Tạo chi tiết đơn hàng
-                $order->orderDetails()->create([
-                    'product_id'      => $item->product->product_id,
-                    'variant_id'      => $item->variant ? $item->variant->variant_id : null,
-                    'quantity'        => $item->quantity,
-                    'price'           => $price,
-                    'discount_amount' => 0,
-                    'subtotal'        => $subtotal,
-                    'total_price'     => $subtotal,
-                ]);
-
-                // Trừ số lượng tồn kho nếu có variant
-                if ($item->variant) {
-                    $item->variant->decrement('stock', $item->quantity);
-                }
-            }
-
-
+        // Lưu mã giảm giá vào bảng trung gian nếu có
+        if ($request->order_coupon_id) {
+            OrderCoupon::create([
+                'order_id' => $order->order_id,
+                'coupon_id' => $request->order_coupon_id,
+                'applied_amount' => $orderDiscount,
+            ]);
+            Coupon::where('coupon_id', $request->order_coupon_id)->increment('usage_count');
+        }
     
-        // Xóa giỏ hàng sau khi đặt hàng thành công
+        if ($request->shipping_coupon_id) {
+            OrderCoupon::create([
+                'order_id' => $order->order_id,
+                'coupon_id' => $request->shipping_coupon_id,
+                'applied_amount' => $shippingDiscount,
+            ]);
+            Coupon::where('coupon_id', $request->shipping_coupon_id)->increment('usage_count');
+        }
+    
+        foreach ($cartItems as $item) {
+            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
+            $subtotal = $price * $item->quantity;
+    
+            $order->orderDetails()->create([
+                'product_id'      => $item->product->product_id,
+                'variant_id'      => $item->variant ? $item->variant->variant_id : null,
+                'quantity'        => $item->quantity,
+                'price'           => $price,
+                'discount_amount' => $orderDiscount + $shippingDiscount,
+                'subtotal'        => $subtotal,
+                'total_price'     => $subtotal,
+            ]);
+    
+            if ($item->variant) {
+                $item->variant->decrement('stock', $item->quantity);
+            }
+        }
+    
         $cart->details()->delete();
     
         return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
     }
+    
+    
     
     
 
@@ -301,8 +300,10 @@ class OrderController extends Controller
                 return redirect()->route('order.index')->with('error', 'Đơn hàng này đã bị hủy.');
             }
     
-            $user = auth()->user();
-            $wallet = \App\Models\Wallet::where('user_id', $user->user_id)->first();
+            // Kiểm tra nếu đơn đang ở trạng thái mới (status_id == 1)
+            if ($order->status_id != 1) {
+                return redirect()->route('order.index')->with('error', 'Chỉ có thể hủy đơn hàng mới.');
+            }
     
             // Cộng lại số lượng tồn kho cho từng sản phẩm trong đơn
             foreach ($order->orderDetails as $detail) {
@@ -314,8 +315,21 @@ class OrderController extends Controller
                 }
             }
     
+             // Kiểm tra nếu đơn có mã giảm giá, tăng usage_count của mã giảm giá
+             $orderCoupons = OrderCoupon::where('order_id', $order_id)->get(); // Lấy tất cả các mã giảm giá của đơn hàng
+             foreach ($orderCoupons as $orderCoupon) {
+                 // Lấy coupon từ coupon_id trong bảng order_coupons
+                 $coupon = Coupon::find($orderCoupon->coupon_id);
+                 if ($coupon) {
+                     // Tăng usage_count của mã giảm giá
+                     $coupon->decrement('usage_count');
+                 }
+             }
+    
             // Nếu không phải COD thì hoàn tiền vào ví
             if ($order->payment_method != 'cod') {
+                $user = auth()->user();
+                $wallet = \App\Models\Wallet::where('user_id', $user->user_id)->first();
                 if (!$wallet) {
                     return redirect()->route('order.index')->with('error', 'Không tìm thấy ví để hoàn tiền.');
                 }
@@ -332,7 +346,7 @@ class OrderController extends Controller
             }
     
             // Cập nhật trạng thái đơn hàng thành "Đã hủy"
-            $order->status_id = 3;
+            $order->status_id = 3;  
             $order->save();
     
             return redirect()->route('order.index')->with('success', 'Đã hủy đơn và cập nhật kho thành công.');
@@ -341,6 +355,8 @@ class OrderController extends Controller
             return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi hủy đơn.');
         }
     }
+    
+    
     public function confirmReceived($order_id)
     {
         try {

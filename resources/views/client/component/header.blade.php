@@ -34,7 +34,6 @@
             <p>Find a Store</p> |
             <div class="flex items-center gap-2 relative">
                 @if (Auth::check())
-<<<<<<< HEAD
                     <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
                     
             
@@ -53,13 +52,6 @@
                     <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
                         Login
                     </a>
-=======
-                <p class="text-black font-medium">Hello {{ Auth::user()->username }}</p>
-                @else
-                <a href="{{ route('login') }}" class="text-black no-underline hover:cursor-pointer font-medium">
-                    Login
-                </a>
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
                 @endif
             
                 <svg aria-hidden="true" class="icon-btn" focusable="false" viewBox="0 0 24 24" role="img" width="20px"
@@ -69,11 +61,6 @@
                     </path>
                 </svg>
             </div>
-<<<<<<< HEAD
-=======
-
-
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
         </div>
     </div>
 </div>
@@ -125,16 +112,7 @@
 
 
             </div>
-<<<<<<< HEAD
             
-=======
-            <li>
-                <a href="{{ route('order.index') }}" class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]">
-                    Đơn hàng của tôi
-                </a>
-            </li>
-
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
                     <li>
@@ -212,12 +190,8 @@
                 </a>
 
 
-<<<<<<< HEAD
         </div>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-=======
-            </div>
->>>>>>> c0006acaa23294daa98efd537d3a44d71d65cdc9
 
 
 </header>
