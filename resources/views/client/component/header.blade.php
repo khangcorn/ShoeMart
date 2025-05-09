@@ -42,10 +42,6 @@
                     </path>
                 </svg>
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
         </div>
     </div>
 </div>
@@ -92,11 +88,8 @@
 
 
             </div>
-<<<<<<< HEAD
-=======
         
         
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
             
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
@@ -182,17 +175,12 @@
                 </a>
 
 
-<<<<<<< HEAD
-        </div>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-=======
 
         </div>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
             </div>
 
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
 
 
 </header>

@@ -6,8 +6,6 @@
         {{ session('success') }}
     </div>
 @endif
-<<<<<<< HEAD
-=======
 
 @if(session('info'))
     <div class="bg-yellow-100 text-yellow-800 p-2 rounded mb-4">
@@ -22,12 +20,10 @@
 @endif
 
 
-    <h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
+   
 
 <h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
 
-<table class="table-auto w-full border border-gray-300 mb-4">
     <thead>
         <tr>
             <th class="border px-4 py-2">Mã đơn hàng</th>
@@ -36,46 +32,7 @@
             <th class="border px-4 py-2">Thao tác</th>
         </tr>
     </thead>
-    <tbody>
-        @foreach($orders as $order)
-            <tr>
-
-                <td class="border px-4 py-2">{{ $order->order_code }}</td>
-                <td class="border px-4 py-2">{{ number_format($order->total, 0, ',', '.') }} đ</td>
-                <td class="border px-4 py-2">{{ $order->status->name }}</td>
-                <td class="border px-4 py-2">
-                    <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
-                    
-                    @if ($order->status->status_id == 2)
-                        <!-- Cho phép hủy -->
-                        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');" class="inline">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
-                        </form>
-                    @elseif ($order->status->status_id == 6)
-                        <span class="text-gray-500 ml-2">Đã hủy</span>
-                    @else
-                        <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
-                    @endif
-                    
-                    @if ($order->status->status_id == 5 && !$order->refund)
-                        <!-- Đã giao và chưa có yêu cầu hoàn tiền -->
-                        <button id="refund-button-{{ $order->order_id }}" class="text-yellow-500 ml-2" onclick="openRefundModal({{ $order->order_id }})">Yêu cầu hoàn tiền</button>
-                    @elseif ($order->refund && $order->refund->status == 'pending')
-                        <!-- Đã gửi yêu cầu hoàn tiền và đang chờ xử lý -->
-                        <span id="refund-status-{{ $order->order_id }}" class="text-green-500 ml-2 italic">Đã gửi yêu cầu hoàn tiền</span>
-                    @elseif ($order->refund && $order->refund->status == 'rejected')
-                        <!-- Yêu cầu hoàn tiền bị từ chối -->
-                        <span id="refund-status-{{ $order->order_id }}" class="text-red-500 ml-2 italic">Yêu cầu hoàn tiền bị từ chối</span>
-                    @elseif ($order->refund && $order->refund->status == 'approved')
-                        <!-- Yêu cầu hoàn tiền đã được duyệt -->
-                        <span id="refund-status-{{ $order->order_id }}" class="text-green-500 ml-2 italic">Yêu cầu hoàn tiền đã được duyệt</span>
-                    @endif
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
+  
 </table>
 
                 <th class="border px-4 py-2">Mã đơn hàng</th>
