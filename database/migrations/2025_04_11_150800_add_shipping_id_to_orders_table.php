@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('shipping_id')->after('status_id');
+            if (!Schema::hasColumn('orders', 'shipping_id')) {
+                $table->unsignedBigInteger('shipping_id')->after('status_id');
+            }
         });
     }
+    
     
     public function down(): void
     {

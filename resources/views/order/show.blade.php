@@ -17,7 +17,6 @@
             @else
                 <p>Không có địa chỉ</p>
             @endif
-
     </div>
     
     <div class="mb-4">
@@ -40,7 +39,6 @@
             @endforeach
         </ul>
     </div>
-    
 
     <div class="mb-4">
         <h3 class="text-xl font-semibold">Trạng thái đơn hàng</h3>
@@ -91,7 +89,20 @@
     <div class="mb-4">
         <h3 class="text-xl font-semibold">Thời gian đặt hàng</h3>
         <p>{{ $order->created_at->format('H:i d/m/Y') }}</p>
+    </div>
 
+    <!-- Phương thức thanh toán -->
+    <div class="mb-4">
+        <h3 class="text-xl font-semibold">Phương thức thanh toán</h3>
+        <p>
+            @if($order->payment_method === 'cod')
+                Thanh toán khi nhận hàng (COD)
+            @elseif($order->payment_method === 'wallet')
+                Thanh toán qua ví
+            @else
+                Chưa có phương thức thanh toán
+            @endif
+        </p>
     </div>
 
     <!-- Nút Quay lại -->

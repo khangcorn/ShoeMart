@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"
+        integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    @yield('css')
 
 
 </head>
@@ -27,6 +31,88 @@
         @yield('content')
 
         @include('client.component.footer')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+        integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    @yield('js')
+    <script>
+        @if ($errors->all())
+            @foreach ($errors->all() as $error)
+                notifyMe('danger', '{{ $error }}')
+            @endforeach
+        @endif
+        @if (session('message'))
+            notifyMe('{{ session('alert-type') }}', '{{ session('message') }}')
+        @endif
+
+        @if (session()->has('flash_notification'))
+            @foreach (session('flash_notification', collect())->toArray() as $message)
+                notifyMe("{{ $message['level'] }}", "{{ $message['message'] }}");
+            @endforeach
+            {{ session()->forget('flash_notification') }}
+        @endif
+
+        @if (session('success_message'))
+            notifyMe("success", @json(session('success_message')));
+        @endif
+
+        @if (session('error_message'))
+            @php
+                $errors = session('error_message');
+            @endphp
+
+            @if ($errors instanceof \Illuminate\Support\MessageBag)
+                @foreach ($errors->all() as $error)
+                    notifyMe("error", @json($error));
+                @endforeach
+            @elseif (is_string($errors))
+                notifyMe("error", @json($errors));
+            @else
+                notifyMe("error", @json(var_export($errors, true)));
+            @endif
+        @endif
+        "use strict"
+
+        function notifyMe(level, message) {
+            if (level == 'danger') {
+                level = 'error';
+            }
+            if (typeof toastr[level] == 'function') {
+                toastr.options = {
+                    "timeOut": "5000",
+                    "closeButton": true,
+                    "positionClass": "toast-top-right",
+                };
+                toastr[level](message);
+            } else {
+                console.error('Invalid toastr level:', level);
+            }
+        }
+
+
+
+        function addToWishlist(productId) {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                type: "POST",
+                url: '{{ route('wishlist.store') }}',
+                data: {
+                    product_id: productId
+                },
+                success: function(data) {
+
+                    notifyMe(data.success, data.message);
+                }
+            });
+        }
+    </script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></> --}}
     
     {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 </body>

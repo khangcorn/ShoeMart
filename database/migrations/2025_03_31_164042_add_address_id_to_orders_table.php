@@ -12,21 +12,30 @@ return new class extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('address_id')->nullable()->after('coupon_id');
-            $table->foreign('address_id')->references('address_id')->on('user_addresses')->onDelete('set null');
+            // Kiểm tra nếu chưa có cột address_id mới thêm
+            if (! Schema::hasColumn('orders', 'address_id')) {
+                $table->unsignedBigInteger('address_id')
+                      ->nullable()
+                      ->after('coupon_id');
+                $table->foreign('address_id')
+                      ->references('address_id')
+                      ->on('user_addresses')
+                      ->onDelete('set null');
+            }
         });
     }
-    
+
+    /**
+     * Reverse the migrations.
+     */
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
             if (Schema::hasColumn('orders', 'address_id')) {
-                // Dùng array để Laravel tự sinh đúng tên foreign key
+                // Hạ foreign key trước, sau đó drop cột
                 $table->dropForeign(['address_id']);
                 $table->dropColumn('address_id');
             }
         });
     }
-    
-    
 };

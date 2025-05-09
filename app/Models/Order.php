@@ -61,9 +61,18 @@ public function orderCoupons()
     return $this->hasMany(\App\Models\OrderCoupon::class, 'order_id', 'order_id');
 }
 
+
 public function refund()
 {
     return $this->hasOne(Refund::class, 'order_id', 'order_id');
+
+// Trong model Order
+public function returnRequest()
+{
+    return $this->hasOne(RefundRequest::class, 'order_id', 'order_id');
+
 }
 
+
+}
 }

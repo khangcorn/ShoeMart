@@ -15,6 +15,7 @@
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">#</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Email</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Contact</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Số dư ví</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Avatar</th>
                 <th class="px-2 py-5 border border-gray-300 dark:border-gray-700 items-center text-center font-semibold">Action</th>
                 
@@ -26,6 +27,7 @@
                 <td>{{ $user['id'] }}</td>
                 <td>{{ $user['email'] }}</td>
                 <td>{{ $user['contact'] }}</td>
+                <td class="text-center">{{ number_format($user['balance']) }} đ</td>
                 <td><img src="{{asset('storage/avatars/' . $user['avatar'])}}" width="100" alt="" srcset=""></td>
 
 

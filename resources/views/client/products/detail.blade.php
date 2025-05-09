@@ -13,43 +13,55 @@
                                 <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
                                     <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
                                         @foreach ($product->variants as $variant)
-                                            @foreach ($variant->images as $image)
-                                                <img 
-                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
-                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
-                                                    alt="{{ $variant->color ?? 'No Color' }}"
-                                                    data-color="{{ $variant->color }}"
-                                                    data-price="{{ $variant->price }}"
-                                                    data-size="{{ $variant->size }}"
-                                                    data-images="{{ json_encode($variant->images) }}"
-                                                    onclick="updateProductDetails(this)">
-                                            @endforeach
+                                        @php $count = 0; @endphp
+                                        @foreach ($variant->images as $image)
+                                            @if ($count >= 7)
+                                                @break
+                                            @endif
+                                    
+                                            <img 
+                                                class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
+                                                src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
+                                                alt="{{ $variant->color ?? 'No Color' }}"
+                                                data-color="{{ $variant->color }}"
+                                                data-price="{{ $variant->price }}"
+                                                data-size="{{ $variant->size }}"
+                                                data-images="{{ json_encode($variant->images) }}"
+                                                onclick="updateProductDetails(this)">
+                                            @php $count++; @endphp
                                         @endforeach
+                                    @endforeach
+                                    
+                                        
+                                        
+                                    
+                                    
                                     </div>
                                 </div>
                                 
 
-                                <!-- Ảnh chính -->
-                                <div class="relative ">
-                                    @php
-                                        $mainImage = optional($product->images->first())->image_url;
-                                    @endphp
-                                    <img id="main-product-image" class="object-cover w-auto h-[550px] rounded-lg"
-                                        alt="{{ $product->name }}"
-                                        src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
+                               <!-- Ảnh chính -->
+<div class="relative">
+    @php
+        $mainImage = optional($product->images->first())->image_url;
+    @endphp
+    <img id="main-product-image" class="object-cover w-auto h-[550px] rounded-lg"
+        alt="{{ $product->name }}"
+        src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
-                                    <p
-                                        class="absolute top-4 left-4 cursor-pointer border-[1px] bg-white border-gray-200 rounded-full px-4 py-2 flex gap-2 items-center">
-                                        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img"
-                                            width="20px" height="20px" fill="none">
-                                            <path fill="currentColor" fill-rule="evenodd" stroke="currentColor"
-                                                stroke-width="1.5"
-                                                d="M2.56 10.346l5.12 3.694-1.955 5.978c-.225.688.568 1.261 1.157.836L12 17.159l5.12 3.695c.587.425 1.381-.148 1.155-.836l-1.954-5.978 5.118-3.694c.589-.425.286-1.352-.442-1.352H14.67l-.166-.507-1.789-5.47c-.225-.69-1.205-.69-1.43 0L9.33 8.993H3.003c-.728 0-1.03.927-.442 1.352z"
-                                                clip-rule="evenodd"></path>
-                                        </svg> Highly Rated
-                                    </p>
+    <p
+        class="absolute top-4 left-4 cursor-pointer border-[1px] bg-white border-gray-200 rounded-full px-4 py-2 flex gap-2 items-center">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img"
+            width="20px" height="20px" fill="none">
+            <path fill="currentColor" fill-rule="evenodd" stroke="currentColor"
+                stroke-width="1.5"
+                d="M2.56 10.346l5.12 3.694-1.955 5.978c-.225.688.568 1.261 1.157.836L12 17.159l5.12 3.695c.587.425 1.381-.148 1.155-.836l-1.954-5.978 5.118-3.694c.589-.425.286-1.352-.442-1.352H14.67l-.166-.507-1.789-5.47c-.225-.69-1.205-.69-1.43 0L9.33 8.993H3.003c-.728 0-1.03.927-.442 1.352z"
+                clip-rule="evenodd"></path>
+        </svg> Highly Rated
+    </p>
+</div>
 
-                                </div>
+
                             </div>
 
                         </div>
@@ -64,77 +76,64 @@
                 <p class="text-lg font-semibold text-gray-900">{{ $product->name }}</p>
                 <p class="text-gray-400 font-semibold">{{ $product->category->name }}</p>
                 <p class="font-semibold py-2" id="product-price">
-                    {{ number_format($product->price, 0, ',', '.') }} <span class="font-normal text-sm underline">đ</span>
+                    {{ number_format(floor($product->price), 0, ',', '.') }} VND
                 </p>
-
-
-
-
-                <!-- Ảnh biến thể dưới -->
-                <div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
-                    @php
-                        $groupedVariants = $product->variants->groupBy(function ($variant) {
-                            return optional(
-                                $variant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Color',
-                                ),
-                            )->variantAttribute->attribute_value ?? 'No Color';
-                        });
-                    @endphp
-
-
-                    @foreach ($product->variants as $variant)
-                    <div class="w-1/5 variant-item" data-variant="{{ $variant->variant_id }}"
-                    @foreach ($groupedVariants as $color => $variants)
-                        @php
-                            $firstVariant = $variants->first();
-                            $colorAttribute = optional(
-                                $firstVariant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Color',
-                                ),
-                            )->variantAttribute;
-                            $sizeAttribute = optional(
-                                $firstVariant->variantAttributeValues->firstWhere(
-                                    'variantAttribute.attribute_name',
-                                    'Size',
-                                ),
-                            )->variantAttribute;
-                            $variantImage = optional($firstVariant->images->first())->image_url;
-                        @endphp
-
-                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $variant->price }}"
-                        data-stock="{{ $variant->stock }}"
-                        data-images="{{ json_encode($variant->images) }}">
+{{--                 
+                <p class="font-semibold py-2" id="product-price-sale">
+                    {{ number_format(floor($product->price_sale), 0, ',', '.') }} VND
+                </p> --}}
                 
-                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                            alt="{{ $variant->color ?? 'No Color' }}"
-                            onclick="updateProductDetails(this)">
-                    </div>
-                @endforeach
+                
+                
 
 
-                        <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
-                            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                            data-price="{{ $firstVariant->price }}"
-                            data-images="{{ json_encode($firstVariant->images) }}">
 
-                            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                                alt="{{ $color }}"
-                                data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                                data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                                data-price="{{ $firstVariant->price }}"
-                                
-                                >
-                        </div>
-                    @endforeach
-                </div>
+
+           
+<div class="border-1 flex py-4 overflow-x-auto" id="variant-images-container">
+    @php
+        $groupedVariants = $product->variants->groupBy(function ($variant) {
+            return optional(
+                $variant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Color',
+                ),
+            )->variantAttribute->attribute_value ?? 'No Color';
+        });
+    @endphp
+
+    @foreach ($groupedVariants as $color => $variants)
+        @php
+            $firstVariant = $variants->first();
+            $colorAttribute = optional(
+                $firstVariant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Color',
+                ),
+            )->variantAttribute;
+            $sizeAttribute = optional(
+                $firstVariant->variantAttributeValues->firstWhere(
+                    'variantAttribute.attribute_name',
+                    'Size',
+                ),
+            )->variantAttribute;
+            $variantImage = optional($firstVariant->images->first())->image_url;
+        @endphp
+
+        <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
+            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+            data-price="{{ $firstVariant->price }}"
+            data-stock="{{ $firstVariant->stock }}"
+            data-images="{{ json_encode($firstVariant->images) }}">
+            
+            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                alt="{{ $color }}">
+        </div>
+    @endforeach
+</div>
+
 
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
@@ -172,7 +171,7 @@
                         <p class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md size-option
                         {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'opacity-50 line-through bg-white hover:cursor-pointer' }}"
                             data-size   ="{{ $size }}" onclick="selectSize(this)">
-                            EU {{ $size }}
+                             {{ $size }}
                         </p>
                     @endfor
                     {{-- @php
@@ -421,7 +420,9 @@ function updateProductDetails(element) {
     }
 
     document.getElementById('main-product-image').src = images.length > 0 ? `/storage/${images[0].image_url}` : '/storage/default-image.jpg';
-    document.getElementById('product-price').innerHTML = `${price} <span class="font-normal underline">đ</span>`;
+    const formattedPrice = new Intl.NumberFormat('vi-VN').format(price);
+document.getElementById('product-price').innerHTML = `${formattedPrice} <span class="font-normal underline">đ</span>`;
+
     document.getElementById('selected-color').innerText = color;
     document.getElementById('selected-size').innerText = `EU ${size}`;
 
@@ -465,15 +466,20 @@ function updateVariantImages(images, color) {
         const imageElement = document.createElement('img');
         imageElement.src = `/storage/${image.image_url}`;
         imageElement.alt = color;
-        imageElement.classList.add('object-cover', 'w-[65px]', 'h-[65px]', 'rounded-md', 'border', 'border-gray-200', 'cursor-pointer');
+        imageElement.classList.add(
+            'object-cover', 'w-[65px]', 'h-[65px]', 
+            'rounded-md', 'border', 'border-gray-200', 'cursor-pointer'
+        );
 
-        imageElement.onclick = function() {
+        // Khi hover vào ảnh phụ => thay đổi ảnh chính
+        imageElement.onmouseenter = function() {
             document.getElementById('main-product-image').src = imageElement.src;
         };
 
         imagesContainer.appendChild(imageElement);
     });
 }
+
 
 function selectSize(element) {
     document.querySelectorAll('.size-option').forEach(el => {
