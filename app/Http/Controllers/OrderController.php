@@ -41,8 +41,9 @@ class OrderController extends Controller
              'userAddresses',
              'orderDetails.product',
              'orderDetails.variant.attributes.variantAttribute',
-             'orderCoupons', // THÊM DÒNG NÀY
-             'status'
+             'orderCoupons',
+             'status',
+             'refund' // 👈 Thêm dòng này để load ghi chú hoàn tiền (nếu có)
          ])->find($order_id);
      
          if (!$order) {
@@ -51,6 +52,7 @@ class OrderController extends Controller
      
          return view('order.show', compact('order'));
      }
+     
      
      
 
@@ -430,6 +432,15 @@ class OrderController extends Controller
             return back()->with('error', 'Đơn hàng không đủ điều kiện hoàn tiền.');
         }
     
+        // Kiểm tra xem đã có yêu cầu hoàn tiền chưa
+        $existingRefund = Refund::where('order_id', $order->order_id)
+                                ->where('user_id', Auth::id())
+                                ->first();
+    
+        if ($existingRefund) {
+            return back()->with('error', 'Bạn đã gửi yêu cầu hoàn tiền cho đơn hàng này rồi.');
+        }
+    
         // Xử lý tải lên hình ảnh và video (nếu có)
         $attachments = [];
         if ($request->hasFile('attachments')) {
@@ -439,8 +450,8 @@ class OrderController extends Controller
             }
         }
     
-        // Tạo yêu cầu hoàn tiền
-        Refund::create([
+        // Tạo yêu cầu hoàn tiền với trạng thái 'pending' (chờ xử lý)
+        $refund = Refund::create([
             'order_id' => $order->order_id,
             'user_id' => Auth::id(),
             'amount' => $order->total,
@@ -452,8 +463,50 @@ class OrderController extends Controller
         // Cập nhật trạng thái đơn hàng (đánh dấu đã yêu cầu hoàn tiền)
         $order->update(['refund' => true]);
     
-        return back()->with('success', 'Yêu cầu hoàn tiền đã được gửi. Đơn hàng của bạn sẽ được xử lý.');
+        // Trả về thông báo thành công
+        return response()->json([
+            'success' => true,
+            'order_id' => $order->order_id,
+        ]);
     }
+    
+    public function rejectRefund(Request $request)
+    {
+        // Kiểm tra quyền sở hữu đơn hàng
+        $order = Order::findOrFail($request->order_id);
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+    
+        // Tìm yêu cầu hoàn tiền
+        $refund = Refund::where('order_id', $order->order_id)
+                        ->where('user_id', Auth::id())
+                        ->first();
+    
+        // Nếu không có yêu cầu hoàn tiền, trả về lỗi
+        if (!$refund) {
+            return back()->with('error', 'Không có yêu cầu hoàn tiền để từ chối.');
+        }
+    
+        // Cập nhật trạng thái hoàn tiền thành bị từ chối
+        $refund->update([
+            'status' => 'rejected',
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+        ]);
+    
+        // Trả về thông báo từ chối yêu cầu hoàn tiền
+        return response()->json([
+            'success' => true,
+            'order_id' => $order->order_id,
+            'status' => 'rejected', // Trả về trạng thái từ chối
+        ]);
+    }
+    
+    
+    
+    
+    
     
     
 

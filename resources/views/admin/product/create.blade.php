@@ -73,15 +73,26 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
-        
         <div>
-            <label for="product_images" class="block text-sm font-medium text-gray-700">Hình Ảnh Sản Phẩm Chính</label>
-            <input type="file" id="product_images" name="product_images[]" multiple
-                class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('product_images') border-red-500 @enderror">
+            <label for="product_images" class="block text-sm font-medium text-gray-700 mb-2">Hình Ảnh Sản Phẩm Chính</label>
+        
+            <label for="product_images"
+                class="w-24 h-28 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-500
+                       @error('product_images') border-red-500 @enderror">
+                <span class="text-2xl font-bold text-gray-500">+</span>
+                <span class="text-sm text-gray-600 mt-1">Tải tệp</span>
+                <input type="file" id="product_images" name="product_images[]" multiple class="hidden" onchange="handleFiles(event)">
+            </label>
+        
             @error('product_images')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+        
+            <div id="preview" class="mt-4 flex gap-2 flex-wrap"></div>
         </div>
+        
+        
+        
 
         <!-- Variant Fields -->
         <div id="variant_fields" class="space-y-4"></div>
@@ -306,6 +317,57 @@
             if (errorEl) errorEl.remove();
         }
     });
+    let selectedFiles = [];
+
+    function handleFiles(event) {
+        const newFiles = Array.from(event.target.files);
+
+        // Gộp ảnh cũ với ảnh mới
+        selectedFiles = selectedFiles.concat(newFiles);
+        updateFileInput();
+        renderPreview();
+    }
+
+    function removeImage(index) {
+        selectedFiles.splice(index, 1);
+        updateFileInput();
+        renderPreview();
+    }
+
+    function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        document.getElementById('product_images').files = dataTransfer.files;
+    }
+
+    function renderPreview() {
+        const previewContainer = document.getElementById('preview');
+        previewContainer.innerHTML = '';
+
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative w-24 h-24';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-full object-cover rounded border';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '&times;';
+                removeBtn.className = 'absolute top-0 right-0 bg-white text-red-600 rounded-full w-6 h-6 text-center font-bold shadow-sm hover:bg-red-100';
+                removeBtn.onclick = () => removeImage(index);
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                previewContainer.appendChild(wrapper);
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
 </script>
 
     

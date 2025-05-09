@@ -45,7 +45,20 @@
     <div class="mb-4">
         <h3 class="text-xl font-semibold">Trạng thái đơn hàng</h3>
         <p>{{ $order->status ? $order->status->name : 'Chưa có trạng thái' }}</p>
+    
+        {{-- Hiển thị lý do từ chối hoàn tiền nếu có --}}
+        @if ($order->refund && $order->refund->status === 'rejected')
+            <div class="mt-2 bg-red-100 text-red-700 p-3 rounded-md">
+                <strong>Hoàn tiền đã bị từ chối.</strong><br>
+                <span>Lý do: {{ $order->refund->note }}</span>
+            </div>
+        @endif
     </div>
+    <div class="mb-4">
+        <h3 class="text-xl font-semibold">Phương thức thanh toán</h3>
+        <p>{{ $order->payment_method ?? 'Chưa có thông tin' }}</p>
+    </div>
+    
 
     @php
     $subtotal = $order->orderDetails->sum('total_price');
