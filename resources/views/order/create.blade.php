@@ -74,17 +74,19 @@
 
 
         <!-- Phí vận chuyển -->
-        <div class="mb-6">
-            <h3 class="text-xl font-semibold mb-2">Phí vận chuyển</h3>
-            <select name="shipping_id" class="w-full p-2 border border-gray-300 rounded-md" onchange="updateShippingFee(this)">
-                @foreach($shippingFees as $fee)
-                    <option value="{{ $fee->shipping_id }}" data-fee="{{ $fee->fee }}">
-                        {{ number_format($fee->fee, 0, ',', '.') }} đ
-                    </option>
-                @endforeach
-            </select>
-            <input type="hidden" name="shipping_fee" id="shipping_fee" value="{{ $shippingFees->first()->fee ?? 10000 }}">
-        </div>
+<div class="mb-6">
+    <h3 class="text-xl font-semibold mb-2">Phí vận chuyển</h3>
+    <p>
+        @if($shippingFeeValue > 0)
+            {{ number_format($shippingFeeValue, 0, ',', '.') }} đ
+        @else
+            Phí vận chuyển không xác định.
+        @endif
+    </p>
+    <input type="hidden" name="shipping_fee" value="{{ $shippingFeeValue }}">
+</div>
+
+
 
     
     
@@ -136,11 +138,19 @@
     @endforeach
 </ul>
 
-            @foreach($shippingFees as $fee)
-            <p class="mt-4 text-lg font-bold">
-                Tổng tiền: <span id="totalPrice">{{ number_format($total + (($fee->fee ?? 0)), 0, ',', '.') }}</span> đ
-            </p>
-            @endforeach
+    <p class="mt-4 text-lg font-bold">
+    Tổng tiền:
+    <span id="totalPrice">
+        {{ number_format(
+            max(0, ($total - ($orderDiscount ?? 0)) + ($shippingFeeValue ?? 0) - ($shippingDiscount ?? 0)),
+            0,
+            ',',
+            '.'
+        ) }} đ
+    </span>
+</p>
+
+
         </div>
         <input type="hidden" name="order_discount" id="orderDiscountInput" value="0">
         <input type="hidden" name="shipping_discount" id="shippingDiscountInput" value="0">
@@ -377,13 +387,6 @@
     });
 }
 
-
-
-
-
-
-
-
 function updateAddressList(newAddress) {
     let addressList = document.getElementById("addressList");
 
@@ -533,17 +536,6 @@ function confirmAddressSelection() {
         note.style.display = "block";
         setTimeout(() => note.style.display = "none", 3000);
     }
-
-    // Cập nhật phí vận chuyển (nếu có dropdown chọn)
-    function updateShippingFee(select) {
-        const fee = parseInt(select.options[select.selectedIndex].dataset.fee || 0);
-        document.querySelector('input[name="shipping_fee"]').value = fee;
-
-        const baseTotal = {{ $total }};
-        const total = baseTotal + fee;
-        document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
-    }
-
     function validateOrder() {
         if (!document.getElementById('selectedAddressId').value) {
             alert("Vui lòng chọn địa chỉ giao hàng!");

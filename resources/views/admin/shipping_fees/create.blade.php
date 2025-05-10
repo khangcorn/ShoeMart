@@ -61,16 +61,17 @@
             const districtSelect = document.getElementById("district");
             const wardSelect = document.getElementById("ward");
 
-            // Hàm loại bỏ tiền tố "Tỉnh", "Huyện", "Phường"
-            function removePrefix(name) {
-                return name.replace(/(Tỉnh|Thành phố|Huyện|Quận|Phường|Xã)/, "").trim();
-            }
+            // Không cần loại bỏ tiền tố nữa, giữ nguyên tên đầy đủ
+            // Hàm loại bỏ tiền tố không sử dụng nữa
+            // function removePrefix(name) {
+            //     return name.replace(/(Tỉnh|Thành phố|Huyện|Quận|Phường|Xã)/, "").trim();
+            // }
 
             // Load tất cả Tỉnh / Thành phố
             data.forEach(province => {
                 const option = document.createElement("option");
                 option.value = province.Name;
-                option.textContent = removePrefix(province.Name);  // Loại bỏ tiền tố "Tỉnh"
+                option.textContent = province.Name;  // Giữ nguyên tên đầy đủ với tiền tố
                 provinceSelect.appendChild(option);
             });
 
@@ -84,7 +85,7 @@
                     selectedProvince.Districts.forEach(district => {
                         const option = document.createElement("option");
                         option.value = district.Name;
-                        option.textContent = removePrefix(district.Name);  // Loại bỏ tiền tố "Huyện"
+                        option.textContent = district.Name;  // Giữ nguyên tên đầy đủ của Quận/Huyện
                         districtSelect.appendChild(option);
                     });
                 }
@@ -103,7 +104,7 @@
                     selectedDistrict.Wards.forEach(ward => {
                         const option = document.createElement("option");
                         option.value = ward.Name;
-                        option.textContent = removePrefix(ward.Name);  // Loại bỏ tiền tố "Xã"
+                        option.textContent = ward.Name;  // Giữ nguyên tên đầy đủ của Phường/Xã
                         wardSelect.appendChild(option);
                     });
                 }
@@ -113,7 +114,7 @@
             console.error("Lỗi khi tải dữ liệu địa chỉ:", error);
         });
 });
-
 </script>
+
 
 @endsection

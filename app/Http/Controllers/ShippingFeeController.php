@@ -21,18 +21,18 @@ class ShippingFeeController extends Controller
     }
     
 
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Loại bỏ tiền tố (Tỉnh, Thành phố, Huyện, Quận, Phường, Xã)
-    $province = $this->removePrefix($request->input('province'));
-    $district = $this->removePrefix($request->input('district'));
-    $ward = $this->removePrefix($request->input('ward'));
+    // Không loại bỏ tiền tố, giữ nguyên giá trị nhập từ form
+    $province = $request->input('province');
+    $district = $request->input('district');
+    $ward = $request->input('ward');
 
-    // Cập nhật lại dữ liệu trong request sau khi đã loại bỏ tiền tố
+    // Cập nhật lại dữ liệu trong request với các giá trị gốc
     $request->merge([
         'province' => $province,
         'district' => $district,
-        'ward' => $ward,
+        'ward'     => $ward,
     ]);
 
     // Validate request
@@ -49,6 +49,7 @@ class ShippingFeeController extends Controller
     return redirect()->route('shipping-fees.index')
                      ->with('success', 'Shipping fee created successfully.');
 }
+
 
 
     public function edit($id)
