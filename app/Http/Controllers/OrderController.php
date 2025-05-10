@@ -22,6 +22,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\RefundRequest;
 use App\Models\ShippingFee;
+use App\Models\UserAddresses;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Log;
 
@@ -110,14 +111,21 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'address_id'     => 'required|exists:user_addresses,address_id',
+            // 'address_id'     => 'required|exists:user_addresses,address_id',
             'payment_method' => 'required|in:cod,bank_transfer,credit_card,paypal,wallet',
             'shipping_id'    => 'required|exists:shipping_fees,shipping_id',
         ]);
     
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->user_id)->first();
-    
+        $address = UserAddresses::where('user_id', $user->user_id)
+                            ->where('address_id', $request->address_id)
+                            ->first();
+
+        if (!$address) {
+            return redirect()->back()->withErrors(['address' => 'Bạn cần thêm địa chỉ hợp lệ trước khi đặt hàng.']);
+        }
+
         if (!$cart) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
         }
@@ -210,14 +218,21 @@ class OrderController extends Controller
                 'total_price'     => $subtotal,
             ]);
     
-            if ($item->variant) {
-                $item->variant->decrement('stock', $item->quantity);
-            }
+           // Trừ kho
+          if ($item->variant && $item->variant->exists) {
+    $item->variant->decrement('stock', $item->quantity);
+} else {
+    $item->product->decrement('stock', $item->quantity);
+}
+
+
         }
     
-        $cart->details()->delete();
+        $cart->details()->whereIn('cart_detail_id', $selectedIds)->delete();
+
     
-        return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
+        return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)->with('order', $order);
+
     }
     
     
@@ -265,7 +280,8 @@ class OrderController extends Controller
      */
     public function paymentSuccess()
     {
-        return view('order.success');
+        $order = session('order');  // Lấy thông tin đơn hàng từ session
+        return view('order.success', compact('order'));  // Truyền đơn hàng vào view
     }
     public function ensureCancelledStatus()
     {
@@ -305,15 +321,21 @@ class OrderController extends Controller
                 return redirect()->route('order.index')->with('error', 'Chỉ có thể hủy đơn hàng mới.');
             }
     
-            // Cộng lại số lượng tồn kho cho từng sản phẩm trong đơn
+           // Cộng lại số lượng tồn kho cho từng sản phẩm trong đơn
             foreach ($order->orderDetails as $detail) {
                 if ($detail->variant_id) {
                     $variant = \App\Models\ProductVariant::find($detail->variant_id);
                     if ($variant) {
                         $variant->increment('stock', $detail->quantity);
                     }
+                } else {
+                    $product = \App\Models\Product::find($detail->product_id);
+                    if ($product) {
+                        $product->increment('stock', $detail->quantity);
+                    }
                 }
             }
+
     
              // Kiểm tra nếu đơn có mã giảm giá, tăng usage_count của mã giảm giá
              $orderCoupons = OrderCoupon::where('order_id', $order_id)->get(); // Lấy tất cả các mã giảm giá của đơn hàng

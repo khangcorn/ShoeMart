@@ -19,41 +19,46 @@
         </li>
 
         <li>
-            <a class=" p-2.5  rounded flex items-center" href="{{ route('categories.index') }}"
-                aria-label="Go to Categories">
-                <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <g id="SVGRepo_iconCarrier">
-                        <path fill-rule="evenodd" class="dark:stroke-white" clip-rule="evenodd"
-                            d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z"
-                            stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                        <path
-                            d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z"
-                            fill="#000000"></path>
-                    </g>
-                </svg>
-                <span class="ml-2">Categories</span>
-            </a>
+            @if (auth()->user()->hasPermission('view_categories'))
+                <a class=" p-2.5  rounded flex items-center" href="{{ route('categories.index') }}"
+                    aria-label="Go to Categories">
+                    <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_iconCarrier">
+                            <path fill-rule="evenodd" class="dark:stroke-white" clip-rule="evenodd"
+                                d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z"
+                                stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path
+                                d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z"
+                                fill="#000000"></path>
+                        </g>
+                    </svg>
+                    <span class="ml-2">Categories</span>
+                </a>
+            @endif
         </li>
 
         <li>
-            <a class=" p-2.5  rounded flex items-center" href="{{ route('sizes.index') }}"
-                aria-label="Go to Categories">
-                <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <g id="SVGRepo_iconCarrier">
-                        <path fill-rule="evenodd" class="dark:stroke-white" clip-rule="evenodd"
-                            d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z"
-                            stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                        <path
-                            d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z"
-                            fill="#000000"></path>
-                    </g>
-                </svg>
-                <span class="ml-2">Size</span>
-            </a>
+            @if (auth()->user()->hasPermission('view_sizes'))
+                <a class=" p-2.5  rounded flex items-center" href="{{ route('sizes.index') }}"
+                    aria-label="Go to Categories">
+                    <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_iconCarrier">
+                            <path fill-rule="evenodd" class="dark:stroke-white" clip-rule="evenodd"
+                                d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z"
+                                stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path
+                                d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z"
+                                fill="#000000"></path>
+                        </g>
+                    </svg>
+                    <span class="ml-2">Size</span>
+                </a>
+            @endif
         </li>
         <li>
+              @if (auth()->user()->hasPermission('view_colors'))
             <a class=" p-2.5  rounded flex items-center" href="{{ route('colors.index') }}"
                 aria-label="Go to Categories">
                 <svg class="w-6 h-6 text-black dark:stroke-white  " viewBox="0 -0.5 25 25" fill="none"
@@ -69,9 +74,11 @@
                 </svg>
                 <span class="ml-2">Color</span>
             </a>
+             @endif
         </li>
 
         <li>
+              @if (auth()->user()->hasPermission('view_products'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
                 <svg class="  w-6 h-6 !dark:text-black  " width="24" height="24" viewBox="0 0 24 24"
                     fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -81,23 +88,28 @@
                 </svg>
                 <span class="ml-2">Products</span>
             </a>
+             @endif
+        </li>
+
+       <li>
+            @if (auth()->user()->hasPermission('view_users')) <!-- Kiểm tra quyền xem người dùng -->
+                <a class="flex items-center p-2.5 rounded" href="{{ route('users.index') }}">
+                    <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="menu-item-icon-inactive !dark:text-black dark:stroke-white">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 14.1526 4.3002 16.1184 5.61936 17.616C6.17279 15.3096 8.24852 13.5955 10.7246 13.5955H13.2746C15.7509 13.5955 17.8268 15.31 18.38 17.6167C19.6996 16.119 20.5 14.153 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5ZM17.0246 18.8566V18.8455C17.0246 16.7744 15.3457 15.0955 13.2746 15.0955H10.7246C8.65354 15.0955 6.97461 16.7744 6.97461 18.8455V18.856C8.38223 19.8895 10.1198 20.5 12 20.5C13.8798 20.5 15.6171 19.8898 17.0246 18.8566ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.9991 7.25C10.8847 7.25 9.98126 8.15342 9.98126 9.26784C9.98126 10.3823 10.8847 11.2857 11.9991 11.2857C13.1135 11.2857 14.0169 10.3823 14.0169 9.26784C14.0169 8.15342 13.1135 7.25 11.9991 7.25ZM8.48126 9.26784C8.48126 7.32499 10.0563 5.75 11.9991 5.75C13.9419 5.75 15.5169 7.32499 15.5169 9.26784C15.5169 11.2107 13.9419 12.7857 11.9991 12.7857C10.0563 12.7857 8.48126 11.2107 8.48126 9.26784Z"
+                            fill="currentColor">
+                        </path>
+                    </svg>
+
+                    <span class="ml-2">Accounts</span>
+                </a>
+            @endif
         </li>
 
         <li>
-            <a class="flex  items-center p-2.5 rounded" href="{{ route('users.index') }}">
-                <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="menu-item-icon-inactive !dark:text-black dark:stroke-white">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 14.1526 4.3002 16.1184 5.61936 17.616C6.17279 15.3096 8.24852 13.5955 10.7246 13.5955H13.2746C15.7509 13.5955 17.8268 15.31 18.38 17.6167C19.6996 16.119 20.5 14.153 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5ZM17.0246 18.8566V18.8455C17.0246 16.7744 15.3457 15.0955 13.2746 15.0955H10.7246C8.65354 15.0955 6.97461 16.7744 6.97461 18.8455V18.856C8.38223 19.8895 10.1198 20.5 12 20.5C13.8798 20.5 15.6171 19.8898 17.0246 18.8566ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.9991 7.25C10.8847 7.25 9.98126 8.15342 9.98126 9.26784C9.98126 10.3823 10.8847 11.2857 11.9991 11.2857C13.1135 11.2857 14.0169 10.3823 14.0169 9.26784C14.0169 8.15342 13.1135 7.25 11.9991 7.25ZM8.48126 9.26784C8.48126 7.32499 10.0563 5.75 11.9991 5.75C13.9419 5.75 15.5169 7.32499 15.5169 9.26784C15.5169 11.2107 13.9419 12.7857 11.9991 12.7857C10.0563 12.7857 8.48126 11.2107 8.48126 9.26784Z"
-                        fill="currentColor">
-                    </path>
-                </svg>
-
-                <span class="ml-2">Accounts</span>
-            </a>
-        </li>
-        <li>
+              @if (auth()->user()->hasPermission('view_withdraw_requests'))
             <a class="flex items-center p-2.5 rounded" href="{{ route('admin.withdraw.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -109,9 +121,11 @@
                 </svg>
                 <span class="ml-2">Yêu cầu rút tiền</span>
             </a>
+             @endif
         </li>
         
         <li>
+              @if (auth()->user()->hasPermission('view_shipping_fees'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('shipping-fees.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -124,8 +138,10 @@
 
                 <span class="ml-2">Shipping-fees</span>
             </a>
+             @endif
         </li>
         <li>
+              @if (auth()->user()->hasPermission('view_coupons'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('coupons.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -138,8 +154,10 @@
 
                 <span class="ml-2">Coupons</span>
             </a>
+             @endif
         </li>
         <li>
+              @if (auth()->user()->hasPermission('view_order_statuses'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('order-statuses.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -152,9 +170,11 @@
 
                 <span class="ml-2">Order-statuses</span>
             </a>
+             @endif
         </li>
       
         <li>
+              @if (auth()->user()->hasPermission('view_sliders'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('sliders.index') }}">
                 <svg width="24" height="24" stroke-width="0.1" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -167,8 +187,10 @@
 
                 <span class="ml-2">Slider</span>
             </a>
+             @endif
         </li>
         <li>
+              @if (auth()->user()->hasPermission('view_orders'))
             <a class="flex  items-center p-2.5 rounded !dark:text-black dark:text-white"
                 href="{{ route('admin.orders.index') }}">
                 <svg width="24" height="24" class="stroke-black dark:stroke-white" viewBox="0 0 24 24"
@@ -188,9 +210,11 @@
                 </svg>
                 <span class="ml-2">Orders</span>
             </a>
+             @endif
         </li>
 
         <li>
+              @if (auth()->user()->hasPermission('view_refunds'))
             <a class="flex  items-center p-2.5 rounded" href="{{ route('admin.refunds.index') }}">
                 <svg viewBox="0 0 24 24" class="stroke-black dark:stroke-white" stroke-width="1" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -204,8 +228,10 @@
                 </svg>
                 <span class="ml-2">Refunds</span>
             </a>
+             @endif
         </li>
         <li>
+            
             <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
                 <svg viewBox="0 0 24 24" class="stroke-black dark:stroke-white" stroke-width="1" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

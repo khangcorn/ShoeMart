@@ -1,6 +1,9 @@
 @extends('admin.layout')
 
 @section('content')
+<style>
+    
+</style>
 <h1 class="text-2xl font-semibold mb-4">Danh sách yêu cầu hoàn tiền</h1>
 
 @if(session('success'))
@@ -101,13 +104,13 @@
                         <span class="text-gray-500">Không có tệp</span>
                     @endif
                 </td>
-                <td class="border px-4 py-2">
+                <td class="border px-4 py-2 flex items-center justify-start">
                     @if ($refund->status === 'pending')
                         <form action="{{ route('admin.refunds.approve', $refund->refund_id) }}" method="POST" class="inline-block">
                             @csrf
-                            <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded-md">Duyệt</button>
+                            <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded-md mr-2">Duyệt</button>
                         </form>
-                        <form action="{{ route('admin.refunds.reject', $refund->refund_id) }}" method="POST" class="inline-block ml-2">
+                        <form action="{{ route('admin.refunds.reject', $refund->refund_id) }}" method="POST" class="inline-block">
                             @csrf
                             <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-md">Từ chối</button>
                         </form>
@@ -115,6 +118,7 @@
                         <span class="text-gray-500">Đã xử lý</span>
                     @endif
                 </td>
+
             </tr>
         @endforeach
     </tbody>

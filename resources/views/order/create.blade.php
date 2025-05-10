@@ -47,9 +47,7 @@
         
             <div id="selectedAddress" class="border p-4 rounded-md mb-2">
                 @if($defaultAddress)
-                    <strong>{{ $defaultAddress->address_name }}</strong> - {{ $defaultAddress->recipient_name }} <br>
-                    {{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }}, {{ $defaultAddress->district }}, {{ $defaultAddress->city }}
-                    <input type="hidden" name="address_id" id="selectedAddressId" value="{{ $defaultAddress->address_id }}">
+                <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
                 @else
                     <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
                     <input type="hidden" name="address_id" id="selectedAddressId" value="">
@@ -254,14 +252,12 @@
             class="bg-blue-500 text-white px-4 py-2 rounded-md">
             Chọn địa chỉ làm mặc định
         </button>
-
-        <button type="button"
+    </div>
+<button type="button"
             onclick="closeAddressPopup()"
             class="bg-gray-100 text-black px-4 py-2 rounded-md border border-gray-5000">
             Đóng
         </button>
-
-    </div>
     </div>
 
 
@@ -544,13 +540,13 @@ function confirmAddressSelection() {
         document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
     }
 
-    function validateOrder() {
-        if (!document.getElementById('selectedAddressId').value) {
-            alert("Vui lòng chọn địa chỉ giao hàng!");
-            return false;
-        }
-        return true;
-    }
+    // function validateOrder() {
+    //     if (!document.getElementById('selectedAddressId').value) {
+    //         alert("Vui lòng chọn địa chỉ giao hàng!");
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     // Xử lý nút áp dụng mã giảm giá
     document.addEventListener('DOMContentLoaded', function () {

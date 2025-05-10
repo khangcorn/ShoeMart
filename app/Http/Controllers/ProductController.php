@@ -334,7 +334,9 @@ if ($request->hasFile('product_images')) {
     
             // ✅ Cập nhật thông tin biến thể
             $variant->price = floatval($variantData['price']);
-            $variant->price_sale = floatval($variantData['price_sale'] ?? 0);
+            $variant->price_sale = filled($variantData['price_sale'])
+            ? floatval($variantData['price_sale'])
+            : null;
             $variant->stock = intval($variantData['stock']);
             $variant->save();
             $variantId = $variant->variant_id;

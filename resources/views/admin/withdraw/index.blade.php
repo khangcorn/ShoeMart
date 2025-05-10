@@ -66,27 +66,26 @@
                         @endif
                     </td>
                     <td class="py-2 px-4 border">{{ $withdraw->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="py-2 px-4 border">
-                        @if ($withdraw->status === 'pending')
-                            <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="action" value="approve"> <!-- Sử dụng action thay vì status -->
-                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Duyệt</button>
-                            </form>
-                    
-                            <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block ml-2">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="action" value="reject"> <!-- Sử dụng action thay vì status -->
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Từ chối</button>
-                            </form>
-                        @else
-                            <em>Đã xử lý</em>
-                        @endif
-                    </td>
-                    
-                    
+
+                            <td class="py-2 px-4 border">
+                                @if ($withdraw->status === 'pending')
+                                    <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="action" value="approve">
+                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Duyệt</button>
+                                    </form>
+
+                                    <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block ml-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Từ chối</button>
+                                    </form>
+                                @else
+                                    <em>Đã xử lý</em>
+                                @endif
+                            </td>
                 </tr>
             @endforeach
         </tbody>

@@ -42,10 +42,6 @@
                     </path>
                 </svg>
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
         </div>
     </div>
 </div>
@@ -92,11 +88,8 @@
 
 
             </div>
-<<<<<<< HEAD
-=======
         
         
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
             
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
@@ -121,13 +114,6 @@
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href=""> Sale</a>
                     </li>
-                    @if(auth()->check())
-                    <li>
-                        <a href="{{ route('order.index') }}" class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]">
-                            Đơn hàng của tôi
-                        </a>
-                    </li>
-                @endif
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href="{{ route('products.all') }}"> Products</a>
@@ -182,17 +168,12 @@
                 </a>
 
 
-<<<<<<< HEAD
-        </div>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-=======
 
         </div>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
             </div>
 
->>>>>>> b38541433afbe978efe29bfc42907719dbad74f9
 
 
 </header>

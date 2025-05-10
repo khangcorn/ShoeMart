@@ -127,37 +127,51 @@ function updateOrderStatus(selectElement, orderId) {
     })
     .then(async (response) => {
         const data = await response.json();
+
+        // Kiểm tra nếu response không hợp lệ (mã lỗi khác 200)
         if (!response.ok) {
+            // Kiểm tra nếu là lỗi 403 (không có quyền)
+            if (response.status === 403) {
+                throw { error: 'Bạn không có quyền thay đổi trạng đơn hàng.' };
+            }
+            // Các lỗi khác (500, 404, v.v...)
             throw data;
         }
+
+        // Nếu thành công, hiển thị thông báo thành công
         showToast(data.message, 'green');
-          // Nếu trạng thái mới không còn là "Đơn hàng mới", ẩn nút Hủy
-          if (parseInt(statusId) !== 1) {
+
+        // Nếu trạng thái không còn là "Đơn hàng mới", ẩn nút Hủy
+        if (parseInt(statusId) !== 1) {
             const cancelForm = document.getElementById(`cancel-form-${orderId}`);
             if (cancelForm) {
                 cancelForm.remove();
             }
         }
-        
+
         // Nếu trạng thái mới là "Đã giao hàng" (id = 7), thay thế select bằng text
         if (parseInt(statusId) === 7) {
             const parent = selectElement.parentElement;
-            parent.innerHTML = 'Đã giao hàng'; // hoặc data.new_status_name nếu bạn trả về từ server
+            parent.innerHTML = 'Đã giao hàng'; // Hoặc data.new_status_name nếu bạn trả về từ server
         }
     })
     .catch(error => {
         // Nếu Laravel trả về lỗi xác thực hoặc lỗi server
         let errorMessage = 'Có lỗi xảy ra!';
+        
         if (error?.error) {
-            errorMessage = error.error;
+            errorMessage = error.error; // Lỗi không có quyền
         } else if (error?.message) {
-            errorMessage = error.message;
+            errorMessage = error.message; // Các lỗi khác từ server
         } else if (typeof error === 'string') {
-            errorMessage = error;
+            errorMessage = error; // Lỗi thông thường
         }
+        
+        // Hiển thị thông báo lỗi
         showToast(errorMessage, 'red');
     });
 }
+
 
 </script>
 
