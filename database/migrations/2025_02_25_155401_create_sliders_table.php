@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('variant_attributes', function (Blueprint $table) {
-            $table->id('attribute_id');
-            $table->foreignId('variant_id')->constrained('product_variants', 'variant_id')->cascadeOnDelete();
-            $table->string('attribute_name', 50);
-            $table->string('attribute_value', 100);
+        Schema::create('sliders', function (Blueprint $table) {
+            $table->id('slider_id');
+            $table->string('image_url', 255);
+            $table->text('caption')->nullable();
+            $table->string('link', 255)->nullable();
+            $table->integer('position')->default(0);
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('variant_attributes');
+        Schema::dropIfExists('sliders');
     }
 };

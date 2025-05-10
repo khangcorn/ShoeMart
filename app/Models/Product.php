@@ -9,45 +9,29 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Chỉ định tên bảng (không bắt buộc nếu Laravel có thể tự động xác định)
-    protected $table = 'products';
+    protected $primaryKey = 'product_id';
 
-    // Chỉ định khóa chính nếu không phải 'id'
-    protected $primaryKey = 'id';
-
-    // Cho phép các cột có thể gán dữ liệu hàng loạt (Mass Assignment)
     protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'price_sale',
-        'stock',
-        'category_id'
+        'name', 'description', 'price', 'price_sale', 'stock', 'category_id'
     ];
 
-    /**
-     * Một sản phẩm thuộc về một danh mục.
-     */
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
-    /**
-     * Một sản phẩm có nhiều biến thể.
-     */
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class, 'product_id', 'id'); // product_id in product_variants table, id in products table
+        return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
-    /**
-     * Một sản phẩm có nhiều hình ảnh.
-     */
-    public function images()
+    public function cartDetails()
     {
-        return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
+        return $this->hasMany(CartDetail::class, 'product_id');
     }
 
-
+    public function images()
+{
+    return $this->hasMany(ProductImage::class, 'product_id');
+}
 }
