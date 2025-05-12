@@ -64,5 +64,8 @@ public function mainImage()
 {
     return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('type', 'main');
 }
-
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id');
+    }
 }

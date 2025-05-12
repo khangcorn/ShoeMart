@@ -152,13 +152,7 @@ public function store(Request $request)
     // Lấy thông tin địa chỉ và tính phí ship
 $address = UserAddresses::findOrFail($request->address_id);
 $province = strtolower(trim($address->city));  // Lấy tỉnh từ city
-
-
-
-
 $shippingFeeValue = (int) $request->input('shipping_fee', 0);
-
-
 
     // Tìm shipping fee dựa trên tỉnh
     $shippingFee = ShippingFee::whereRaw('LOWER(province) = ?', [$province])->first();
@@ -169,7 +163,7 @@ $shippingFeeValue = (int) $request->input('shipping_fee', 0);
     // Giảm giá đơn hàng và phí ship
   $orderDiscount = $request->input('order_discount', 0);
 $shippingDiscount = $request->input('shipping_discount', 0);
-$finalTotal = max(0, $orderTotal - $orderDiscount + $shippingFeeValue - $shippingDiscount);
+$finalTotal = max(0, $orderTotal + $shippingFeeValue - $orderDiscount - $shippingDiscount);
 
 
 
@@ -195,7 +189,7 @@ $finalTotal = max(0, $orderTotal - $orderDiscount + $shippingFeeValue - $shippin
         'order_code'      => $orderCode,
         'user_id'         => $user->user_id,
         'address_id'      => $request->address_id,
-        'total'           => $finalTotal,
+        'total_price'           => $finalTotal,
         'status_id'       => 1,
         'shipping_fee'    => $shippingFeeValue,
         'payment_method'  => $request->payment_method,
@@ -222,25 +216,35 @@ $finalTotal = max(0, $orderTotal - $orderDiscount + $shippingFeeValue - $shippin
         Coupon::where('coupon_id', $request->shipping_coupon_id)->increment('usage_count');
     }
 
-    // Lưu chi tiết đơn hàng
-    foreach ($cartItems as $item) {
-        $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-        $subtotal = $price * $item->quantity;
+  $totalDiscount = $orderDiscount + $shippingDiscount;
+$totalQuantity = $cartItems->sum('quantity');
+$discountPerItem = $totalQuantity > 0 ? $totalDiscount / $totalQuantity : 0;
 
-        $order->orderDetails()->create([
-            'product_id'      => $item->product->product_id,
-            'variant_id'      => $item->variant ? $item->variant->variant_id : null,
-            'quantity'        => $item->quantity,
-            'price'           => $price,
-            'discount_amount' => $orderDiscount + $shippingDiscount,
-            'subtotal'        => $subtotal,
-            'total_price'     => $subtotal,
-        ]);
+foreach ($cartItems as $item) {
+    $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
+    $subtotal = $price * $item->quantity;
 
-        if ($item->variant) {
-            $item->variant->decrement('stock', $item->quantity);
-        }
+    // Phân bổ giảm giá theo số lượng sản phẩm
+    $discountForItem = round($discountPerItem * $item->quantity);
+    $totalPrice = max(0, $subtotal - $discountForItem);
+
+    $order->orderDetails()->create([
+        'product_id'      => $item->product->product_id,
+        'variant_id'      => $item->variant ? $item->variant->variant_id : null,
+        'quantity'        => $item->quantity,
+        'price'           => $price,
+        'discount_amount' => $discountForItem,
+        'subtotal'        => $subtotal,
+        'total_price'     => $totalPrice,
+    ]);
+
+
+    // Trừ tồn kho
+    if ($item->variant) {
+        $item->variant->decrement('stock', $item->quantity);
     }
+}
+
 
     // Xóa giỏ hàng sau khi đặt hàng
     $cart->details()->delete();
