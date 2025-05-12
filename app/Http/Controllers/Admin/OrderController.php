@@ -36,7 +36,10 @@ class OrderController extends Controller
     public function cancel($order_id)
     {
         $order = Order::with(['orderDetails.variant', 'user.wallet'])->findOrFail($order_id);
-    
+        if (!auth()->user()->hasPermission('update_order_status')) {
+            return redirect()->route('admin.orders.index')
+                            ->with('error', 'Bạn không có quyền hủy đơn hàng.');
+        }
         // Kiểm tra trạng thái đơn hàng, chỉ cho phép hủy đơn khi trạng thái là "Đơn hàng mới" (status_id == 1)
         if ($order->status_id != 1) {
             return back()->with('error', 'Chỉ có thể hủy đơn hàng mới.');

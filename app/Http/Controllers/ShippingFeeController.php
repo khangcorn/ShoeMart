@@ -98,5 +98,33 @@ public function store(Request $request)
     
         return $name;
     }
+        public function updateShippingFee(Request $request)
+    {
+        $addressId = $request->input('address_id');
+        $userAddress = auth()->user()->userAddresses()->find($addressId);
+
+        if (!$userAddress) {
+            return response()->json(['shipping_fee' => null, 'shipping_id' => null], 404);
+        }
+
+        // Tìm phí ship dựa trên tỉnh, huyện, xã
+        $shippingFees = ShippingFee::all();
+        $shippingFee = $shippingFees->firstWhere(function ($fee) use ($userAddress) {
+            return strtolower($fee->province) === strtolower($userAddress->city) &&
+                   strtolower($fee->district) === strtolower($userAddress->district) &&
+                   strtolower($fee->ward) === strtolower($userAddress->ward);
+        });
+
+        // Nếu không tìm thấy phí ship cụ thể, dùng phí mặc định
+        $shippingFee = $shippingFee ?: $shippingFees->firstWhere('shipping_id', 3);
+
+        $shippingFeeValue = $shippingFee ? $shippingFee->fee : 120000; // fallback
+        $shippingId = $shippingFee ? $shippingFee->shipping_id : null;
+
+        return response()->json([
+            'shipping_fee' => $shippingFeeValue,
+            'shipping_id' => $shippingId,
+        ]);
+    }
     
 }

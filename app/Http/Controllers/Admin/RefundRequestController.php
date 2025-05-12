@@ -13,15 +13,21 @@ use Illuminate\Support\Facades\DB;
 class RefundRequestController extends Controller
 {
     public function index()
-    {
-        $refundRequests = RefundRequest::with(['user', 'order'])->latest()->get();
-        return view('admin.refunds.index', compact('refundRequests'));
-    }
+{
+    $refundRequests = RefundRequest::with(['user', 'order'])
+        ->latest()
+        ->paginate(10); // Hiển thị 10 dòng mỗi trang
+
+    return view('admin.refunds.index', compact('refundRequests'));
+}
+
 
     public function approve($id)
     {
         $refund = RefundRequest::with('user', 'order.orderDetails')->findOrFail($id); // load orderDetails qua order
-    
+     if (!auth()->user()->hasPermission('process_refund')) {
+        return redirect()->route('admin.refunds.index')->with('error', 'Bạn không có quyền duyệt yêu cầu hoàn hàng.');
+    }
         if ($refund->status !== 'pending') {
             return back()->with('error', 'Yêu cầu đã được xử lý.');
         }
@@ -66,7 +72,9 @@ class RefundRequestController extends Controller
     public function reject($id)
     {
         $refund = RefundRequest::findOrFail($id);
-
+        if (!auth()->user()->hasPermission('process_refund')) {
+                return redirect()->route('admin.refunds.index')->with('error', 'Bạn không có quyền duyệt yêu cầu hoàn hàng.');
+            }
         if ($refund->status !== 'pending') {
             return back()->with('error', 'Yêu cầu đã được xử lý.');
         }

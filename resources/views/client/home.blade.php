@@ -19,6 +19,53 @@
         .mySwiper3 .swiper-slide {
             height: auto !important;
         }
+        /* Pagination container */
+.d-flex.justify-content-center {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Pagination links */
+.pagination {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pagination .page-link {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #f3f4f6;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #ddd;
+    color: #333;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #3b82f6;  /* Blue color for active page */
+    color: white;
+    border-color: #3b82f6;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #e5e7eb; /* Light gray for disabled items */
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.pagination .page-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Blue outline when focused */
+}
+
     </style>
     <div class="bg-white">
         <div class="">
@@ -123,10 +170,7 @@
 
         <div class=" mx-auto max-w-screen-xl  px-4 sm:px-6 lg:px-8">
             <div class="  ">
-                <!-- Phân trang -->
-                <div class="d-flex justify-content-center ">
-                    {{ $products->links() }}
-                </div>
+
                 <div class="">
                     <div class="flex items-center justify-between">
                         <p class="text-2xl font-medium text-center  mb-0">Trending Now</p>
@@ -181,7 +225,10 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Phân trang -->
+                <div class="d-flex justify-content-center ">
+                    {{ $products->links() }}
+                </div>
 
 
 

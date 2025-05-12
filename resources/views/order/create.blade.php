@@ -33,35 +33,34 @@
     <form id="orderForm" action="{{ route('order.store') }}" method="POST">
         @csrf
         <!-- Chọn địa chỉ giao hàng -->
-        <div class="mb-6">
-            <h3 class="text-xl font-semibold mb-2">Địa chỉ giao hàng</h3>
-            @php
-                $user = Auth::user();
-                if ($user) {
-                    $user->load('userAddresses');
-                    $defaultAddress = $user->userAddresses->where('is_default', true)->first();
-                } else {
-                    $defaultAddress = null;
-                }
-            @endphp
-        
-            <div id="selectedAddress" class="border p-4 rounded-md mb-2">
-                @if($defaultAddress)
-                    <strong>{{ $defaultAddress->address_name }}</strong> - {{ $defaultAddress->recipient_name }} <br>
-                    {{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }}, {{ $defaultAddress->district }}, {{ $defaultAddress->city }}
-                    <input type="hidden" name="address_id" id="selectedAddressId" value="{{ $defaultAddress->address_id }}">
-                @else
-                    <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
-                    <input type="hidden" name="address_id" id="selectedAddressId" value="">
-                @endif
-            </div>
-        
-            <div class="flex justify-between">
-                <button type="button" class="bg-blue-500 text-white py-2 px-4 rounded-md" onclick="openAddressPopup()">
-                    Thay đổi địa chỉ nhận hàng
-                </button>
-            </div>
-        </div>  
+      <div class="mb-6">
+    <h3 class="text-xl font-semibold mb-2">Địa chỉ giao hàng</h3>
+    @php
+        $user = Auth::user();
+        if ($user) {
+            $user->load('userAddresses');
+            $defaultAddress = $user->userAddresses->where('is_default', true)->first();
+        } else {
+            $defaultAddress = null;
+        }
+    @endphp
+
+    <div id="selectedAddress" class="border p-4 rounded-md mb-2">
+        @if($defaultAddress)
+            <span>{{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }}, {{ $defaultAddress->district }}, {{ $defaultAddress->city }}</span>
+            <input type="hidden" name="address_id" id="selectedAddressId" value="{{ $defaultAddress->address_id }}">
+        @else
+            <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
+            <input type="hidden" name="address_id" id="selectedAddressId" value="">
+        @endif
+    </div>
+
+    <div class="flex justify-between">
+        <button type="button" class="bg-blue-500 text-white py-2 px-4 rounded-md" onclick="openAddressPopup()">
+            Thay đổi địa chỉ nhận hàng
+        </button>
+    </div>
+</div>
 
        <!-- Phương thức thanh toán -->
         <div class="mb-6">
@@ -71,20 +70,6 @@
                 <option value="wallet">Thanh toán qua ví</option>
             </select>
         </div>
-
-
-        <!-- Phí vận chuyển -->
-<div class="mb-6">
-    <h3 class="text-xl font-semibold mb-2">Phí vận chuyển</h3>
-    <p>
-        @if($shippingFeeValue > 0)
-            {{ number_format($shippingFeeValue, 0, ',', '.') }} đ
-        @else
-            Phí vận chuyển không xác định.
-        @endif
-    </p>
-    <input type="hidden" name="shipping_fee" value="{{ $shippingFeeValue }}">
-</div>
 
 
 
@@ -101,7 +86,7 @@
       
         </div>
     
-        <a href="{{ route('vouchers.index') }}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
+        <a href="{{ route('vouchers.index') }}?cart_detail_ids={{ request()->query('cart_detail_ids') }}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
             🔍 Xem danh sách mã giảm giá 
         </a>
     
@@ -138,16 +123,59 @@
     @endforeach
 </ul>
 
-    <p class="mt-4 text-lg font-bold">
-    Tổng tiền:
-    <span id="totalPrice">
-        {{ number_format(
-            max(0, ($total - ($orderDiscount ?? 0)) + ($shippingFeeValue ?? 0) - ($shippingDiscount ?? 0)),
-            0,
-            ',',
-            '.'
-        ) }} đ
-    </span>
+  <div class="order-summary mt-4">
+    <!-- Tổng tiền giỏ hàng -->
+    <p class="summary-item text-lg font-bold">
+        Tổng tiền giỏ hàng:
+        <span id="cartTotal" class="amount">
+            {{ number_format($total, 0, ',', '.') }} đ
+        </span>
+    </p>
+
+    <!-- Phí vận chuyển -->
+    <div class="shipping-info">
+        <p id="shippingFeeText" class="summary-item text-lg font-bold">Phí vận chuyển:
+              @if($shippingFeeValue > 0)
+                {{ number_format($shippingFeeValue, 0, ',', '.') }} đ
+            @else
+                Phí vận chuyển không xác định.
+            @endif
+        </p>
+       
+        <input type="hidden" id="shippingFeeValue" name="shipping_fee" value="{{ $shippingFeeValue }}">
+        <input type="hidden" id="shippingId" name="shipping_id" value="{{ $shippingId }}">
+    </div>
+
+    <!-- Giảm giá đơn hàng -->
+    <p class="summary-item text-lg font-bold">
+        Giảm giá đơn hàng:
+        <span id="orderDiscount" class="discount">
+            {{ number_format($orderDiscount ?? 0, 0, ',', '.') }} đ
+        </span>
+    </p>
+
+    <!-- Giảm giá phí vận chuyển -->
+    <p class="summary-item text-lg font-bold">
+        Giảm giá phí vận chuyển:
+        <span id="shippingDiscount" class="discount">
+            {{ number_format($shippingDiscount ?? 0, 0, ',', '.') }} đ
+        </span>
+    </p>
+
+    <!-- Tổng tiền thanh toán -->
+    <p class="summary-item mt-4 text-lg font-bold">
+        <strong>Tổng tiền thanh toán:</strong>
+        <span id="totalPrice" class="total-price">
+            {{ number_format(
+                max(0, $total + ($shippingFeeValue ?? 0) - ($orderDiscount ?? 0) - ($shippingDiscount ?? 0)),
+                0,
+                ',',
+                '.'
+            ) }} đ
+        </span>
+    </p>
+</div>
+
 </p>
 
 
@@ -172,7 +200,7 @@
 </div>
 @endsection
 
-<div id="addressFormPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center" >
+<div id="addressFormPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
     <div class="bg-white p-6 rounded-md w-96">
         <h2 id="addressFormTitle" class="text-xl font-semibold mb-4">Thêm địa chỉ mới</h2>
         
@@ -196,17 +224,29 @@
                 <label class="block font-semibold">Số điện thoại:</label>
                 <input type="tel" id="recipientPhone" name="recipient_phone" class="w-full p-2 border rounded-md" required>
             </div>
+
+            <!-- Chọn Tỉnh -->
             <div class="mb-2">
-                <label class="block font-semibold">Xã:</label>
-                <input type="text" id="ward" name="ward" class="w-full p-2 border rounded-md" required>
+                <label class="block font-semibold">Tỉnh/Thành phố:</label>
+                <select id="city" name="city" class="w-full p-2 border rounded-md" required>
+                    <option value="">Chọn tỉnh/thành phố</option>
+                </select>
             </div>
+
+            <!-- Chọn Huyện -->
             <div class="mb-2">
                 <label class="block font-semibold">Quận/Huyện:</label>
-                <input type="text" id="district" name="district" class="w-full p-2 border rounded-md" required>
+                <select id="district" name="district" class="w-full p-2 border rounded-md" required>
+                    <option value="">Chọn quận/huyện</option>
+                </select>
             </div>
+
+            <!-- Chọn Xã -->
             <div class="mb-2">
-                <label class="block font-semibold">Thành phố:</label>
-                <input type="text" id="city" name="city" class="w-full p-2 border rounded-md" required>
+                <label class="block font-semibold">Xã:</label>
+                <select id="ward" name="ward" class="w-full p-2 border rounded-md" required>
+                    <option value="">Chọn xã</option>
+                </select>
             </div>
 
             <div class="mt-4 flex justify-between">
@@ -220,6 +260,7 @@
         </form>
     </div>
 </div>
+
 <!-- Khu vực hiển thị thông báo lỗi -->
 <div id="error-message" class="alert alert-danger" style="display: none;"></div>
 
@@ -264,14 +305,12 @@
             class="bg-blue-500 text-white px-4 py-2 rounded-md">
             Chọn địa chỉ làm mặc định
         </button>
-
-        <button type="button"
+    </div>
+<button type="button"
             onclick="closeAddressPopup()"
             class="bg-gray-100 text-black px-4 py-2 rounded-md border border-gray-5000">
             Đóng
         </button>
-
-    </div>
     </div>
 
 
@@ -292,7 +331,143 @@
         document.getElementById('addressPopup').classList.add('hidden');
     }
 
-    // Mở form thêm địa chỉ mới
+   
+
+    // Đóng form thêm/sửa địa chỉ và quay lại danh sách
+    function closeAddressForm() {
+        document.getElementById("addressFormPopup").classList.add("hidden");
+        document.getElementById("addressPopup").classList.remove("hidden");
+    }
+
+    // Ẩn popup danh sách khi sửa địa chỉ
+  
+async function loadCities(selectedCity = null) {
+    const citySelect = document.getElementById("city");
+
+    // Gọi API lấy danh sách tỉnh thành
+    const response = await fetch('https://provinces.open-api.vn/api/?depth=1');
+    const cities = await response.json();
+
+    // Xóa hết các option cũ
+    citySelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+
+    // Thêm các tỉnh thành vào select
+    cities.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.name;
+        option.textContent = c.name;
+        if (selectedCity && c.name === selectedCity) {
+            option.selected = true;
+        }
+        citySelect.appendChild(option);
+    });
+}
+
+// Hàm load danh sách quận huyện khi chọn tỉnh thành
+async function loadDistricts(cityName, selectedDistrict = null) {
+    const districtSelect = document.getElementById("district");
+
+    // Gọi API lấy thông tin tỉnh thành với thông tin sâu hơn (bao gồm cả quận/huyện)
+    const response = await fetch('https://provinces.open-api.vn/api/?depth=2');
+    const cities = await response.json();
+
+    // Tìm tỉnh thành tương ứng
+    const city = cities.find(c => c.name === cityName);
+    if (!city) return;
+
+    // Lọc các quận huyện của tỉnh thành đó
+    const districts = city.districts;
+
+    // Xóa hết các option cũ
+    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+
+    // Thêm các quận huyện vào select
+    districts.forEach(d => {
+        const option = document.createElement("option");
+        option.value = d.name;
+        option.textContent = d.name;
+        if (selectedDistrict && d.name === selectedDistrict) {
+            option.selected = true;
+        }
+        districtSelect.appendChild(option);
+    });
+}
+
+// Hàm load danh sách xã/phường khi chọn quận/huyện
+async function loadWards(cityName, districtName, selectedWard = null) {
+    const wardSelect = document.getElementById("ward");
+
+    // Gọi API lấy thông tin tỉnh thành với thông tin sâu hơn (bao gồm cả xã/phường)
+    const response = await fetch('https://provinces.open-api.vn/api/?depth=3');
+    const cities = await response.json();
+
+    // Tìm tỉnh thành và quận huyện tương ứng
+    const city = cities.find(c => c.name === cityName);
+    if (!city) return;
+
+    const district = city.districts.find(d => d.name === districtName);
+    if (!district) return;
+
+    // Lọc các xã/phường của quận huyện đó
+    const wards = district.wards;
+
+    // Xóa hết các option cũ
+    wardSelect.innerHTML = '<option value="">Chọn xã</option>';
+
+    // Thêm các xã/phường vào select
+    wards.forEach(w => {
+        const option = document.createElement("option");
+        option.value = w.name;
+        option.textContent = w.name;
+        if (selectedWard && w.name === selectedWard) {
+            option.selected = true;
+        }
+        wardSelect.appendChild(option);
+    });
+}
+
+// Khi chọn tỉnh thành, load các quận huyện
+document.getElementById("city").addEventListener("change", function() {
+    const selectedCity = this.value;
+    loadDistricts(selectedCity);
+    loadWards(selectedCity, null);  // Reset xã/phường khi đổi tỉnh thành
+});
+
+// Khi chọn quận huyện, load các xã/phường
+document.getElementById("district").addEventListener("change", function() {
+    const selectedCity = document.getElementById("city").value;
+    const selectedDistrict = this.value;
+    loadWards(selectedCity, selectedDistrict);
+});
+
+
+// Gọi hàm để tải tỉnh/thành phố khi mở form
+document.getElementById("addressFormPopup").addEventListener("show", function() {
+    loadCities();
+});
+ function editAddress(id, name, recipient, phone, street, ward, district, city) {
+    // Ẩn form hiện tại và hiển thị form chỉnh sửa
+    document.getElementById("addressPopup").classList.add("hidden");
+    document.getElementById("addressFormPopup").classList.remove("hidden");
+
+    // Cập nhật tiêu đề form và các giá trị các input
+    document.getElementById("addressFormTitle").innerText = "Chỉnh sửa địa chỉ";
+    document.getElementById("addressId").value = id;
+    document.getElementById("addressName").value = name;
+    document.getElementById("recipientName").value = recipient;
+    document.getElementById("recipientPhone").value = phone;
+    document.getElementById("streetAddress").value = street;
+
+    // Load lại danh sách tỉnh/thành phố rồi chọn giá trị
+     loadCities(city); // Hàm load danh sách tỉnh và chọn tỉnh
+
+    // Load các quận huyện cho tỉnh đã chọn
+     loadDistricts(city, district);
+
+    // Load các xã/phường cho quận đã chọn
+    loadWards(city, district, ward);
+}
+ // Mở form thêm địa chỉ mới
     function openAddAddressForm() {
         const addressCount = document.querySelectorAll("#addressList > div").length;
         if (addressCount >= 3) {
@@ -307,28 +482,7 @@
         ['addressId', 'addressName', 'recipientName', 'streetAddress', 'ward', 'district', 'city'].forEach(id => {
             document.getElementById(id).value = "";
         });
-    }
-
-    // Đóng form thêm/sửa địa chỉ và quay lại danh sách
-    function closeAddressForm() {
-        document.getElementById("addressFormPopup").classList.add("hidden");
-        document.getElementById("addressPopup").classList.remove("hidden");
-    }
-
-    // Ẩn popup danh sách khi sửa địa chỉ
-    function editAddress(id, name, recipient, phone, street, ward, district, city) {
-        document.getElementById("addressPopup").classList.add("hidden");
-        document.getElementById("addressFormPopup").classList.remove("hidden");
-
-        document.getElementById("addressFormTitle").innerText = "Chỉnh sửa địa chỉ";
-        document.getElementById("addressId").value = id;
-        document.getElementById("addressName").value = name;
-        document.getElementById("recipientName").value = recipient;
-        document.getElementById("recipientPhone").value = phone;
-        document.getElementById("streetAddress").value = street;
-        document.getElementById("ward").value = ward;
-        document.getElementById("district").value = district;
-        document.getElementById("city").value = city;
+        loadCities();
     }
 
     // Gửi form lưu địa chỉ qua fetch
@@ -427,18 +581,6 @@ function updateAddressList(newAddress) {
     // Chèn địa chỉ mới lên đầu danh sách
     addressList.insertAdjacentHTML('afterbegin', newAddressHTML);
         // Cập nhật giá trị của selectedAddressId
-    function selectAddress(input) {
-    let selectedAddressId = input.value;
-
-    // Cập nhật lại giá trị hidden input
-    document.getElementById('selectedAddressId').value = selectedAddressId;
-
-    // Ẩn thông báo lỗi nếu có
-    let addressError = document.querySelector('#addressError');
-    if (addressError) {
-        addressError.remove();
-    }
-}
 
     // Kiểm tra số lượng địa chỉ và ẩn nút "Thêm địa chỉ mới" nếu đủ 3
     let addressCount = document.querySelectorAll("#addressList .address-item").length;
@@ -453,28 +595,36 @@ document.getElementById("addressActionButtons")?.classList.remove("hidden");
 
 
 
+function selectAddress(radio) {
+    const selectedAddressId = document.getElementById('selectedAddressId');
+    const selectedText = radio.closest('div').querySelector('span').innerHTML;
+    const selectedDiv = document.getElementById('selectedAddress');
 
-    function selectAddress(radio) {
-        const selectedAddressId = document.getElementById('selectedAddressId');
-        const selectedText = radio.closest('div').querySelector('span').innerHTML;
-        const selectedDiv = document.getElementById('selectedAddress');
+    console.log("Địa chỉ được chọn: ", selectedText);
 
-        selectedDiv.innerHTML = `
-            <div>${selectedText}</div>
-            <input type="hidden" name="address_id" id="selectedAddressId" value="${radio.value}">
-        `;
+    selectedDiv.innerHTML = `
+        <div>${selectedText}</div>
+        <input type="hidden" name="address_id" id="selectedAddressId" value="${radio.value}">
+    `;
 
+    // Gọi hàm updateShippingFee và kiểm tra log
+    console.log("Gọi hàm cập nhật phí vận chuyển với address_id:", radio.value);
+    updateShippingFee(radio.value);
+
+    // Kiểm tra nếu không có selectedAddressId
     if (!selectedAddressId) {
-        selectedAddressId = document.createElement('input');
+        const selectedAddressDiv = document.getElementById('selectedAddress');
+        const selectedAddressId = document.createElement('input');
         selectedAddressId.type = "hidden";
         selectedAddressId.id = "selectedAddressId";
         selectedAddressId.name = "address_id";
         selectedAddressDiv.appendChild(selectedAddressId);
     }
 
-    selectedAddressDiv.innerHTML = `<div>${selectedText}</div>`;
+    // Cập nhật lại giá trị của selectedAddressId
     selectedAddressId.value = radio.value;
 }
+
 
 function confirmAddressSelection() {
     let selectedRadio = document.querySelector('input[name="address_id"]:checked');
@@ -536,16 +686,39 @@ function confirmAddressSelection() {
         note.style.display = "block";
         setTimeout(() => note.style.display = "none", 3000);
     }
-    function validateOrder() {
-        if (!document.getElementById('selectedAddressId').value) {
-            alert("Vui lòng chọn địa chỉ giao hàng!");
-            return false;
-        }
-        return true;
+
+    // Cập nhật phí vận chuyển (nếu có dropdown chọn)
+    function updateShippingFee(select) {
+        const fee = parseInt(select.options[select.selectedIndex].dataset.fee || 0);
+        document.querySelector('input[name="shipping_fee"]').value = fee;
+
+        const baseTotal = {{ $total }};
+        const total = baseTotal + fee;
+        document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + " đ";
     }
+
+    // function validateOrder() {
+    //     if (!document.getElementById('selectedAddressId').value) {
+    //         alert("Vui lòng chọn địa chỉ giao hàng!");
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     // Xử lý nút áp dụng mã giảm giá
     document.addEventListener('DOMContentLoaded', function () {
+         function updateTotalPrice() {
+    const toNumber = (str) => parseInt((str || '0').replace(/\D/g, ''));
+
+    const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
+    const shippingFee = parseInt(document.getElementById('shippingFeeValue')?.value || 0);
+    const orderDiscount = parseInt(document.getElementById('orderDiscountInput')?.value || 0);
+    const shippingDiscount = parseInt(document.getElementById('shippingDiscountInput')?.value || 0);
+
+    const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+
+    document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
+}
     const applyBtn = document.createElement('button');
     applyBtn.type = 'button';
     applyBtn.textContent = 'Áp dụng';
@@ -658,13 +831,12 @@ function confirmAddressSelection() {
                 document.getElementById('orderDiscountInput').value = orderDiscount;
                 document.getElementById('shippingDiscountInput').value = shippingDiscount;
 
-                // Cập nhật lại tổng tiền sau khi áp dụng các giảm giá
-                let total = parseFloat('{{ $total }}') + parseFloat('{{ $fee->fee ?? 0 }}');
-                total -= orderDiscount; // Trừ giảm giá đơn hàng
-                total -= shippingDiscount; // Trừ giảm giá phí vận chuyển
+                // Cập nhật giá trị của các phần tử HTML ngay lập tức
+                document.getElementById('orderDiscount').innerText = `${orderDiscount.toLocaleString('vi-VN')} đ`;
+                document.getElementById('shippingDiscount').innerText = `${shippingDiscount.toLocaleString('vi-VN')} đ`;
 
-                // Hiển thị tổng tiền sau khi giảm
-                document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') ;
+                // Cập nhật lại tổng tiền sau khi áp dụng các giảm giá
+                updateTotalPrice();
 
                 // Hiển thị kết quả giảm giá
                 couponResult.innerHTML = `
@@ -690,6 +862,7 @@ function confirmAddressSelection() {
                     input.classList.add('applied-coupon'); // để tiện xóa sau
                     document.querySelector('form').appendChild(input);
                 });
+                 
             } else {
     const couponResult = document.getElementById('couponResult');
 
@@ -715,6 +888,144 @@ function confirmAddressSelection() {
             document.getElementById('couponResult').innerHTML = `<span class="text-red-500">Đã xảy ra lỗi khi kiểm tra mã.</span>`;
         });
     });
+    document.addEventListener('DOMContentLoaded', function () {
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+    const wardSelect = document.getElementById('ward');
+    
+    if (!citySelect || !districtSelect || !wardSelect) {
+        console.warn('Các select chưa xuất hiện trong DOM.');
+        return;
+    }
+
+    // Load Tỉnh/Thành phố
+    fetch('https://provinces.open-api.vn/api/?depth=1')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(function (province) {
+                let option = document.createElement("option");
+                option.value = province.code; // dùng "code" chứ không phải "id"
+                option.textContent = province.name;
+                citySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching provinces:', error));
+
+    // Khi chọn Tỉnh => load Quận/Huyện
+    citySelect.addEventListener('change', function () {
+        const selectedCityCode = this.value;
+        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+        wardSelect.innerHTML = '<option value="">Chọn xã</option>';
+
+        if (selectedCityCode) {
+            fetch(`https://provinces.open-api.vn/api/p/${selectedCityCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.districts.forEach(function (district) {
+                        let option = document.createElement("option");
+                        option.value = district.code;
+                        option.textContent = district.name;
+                        districtSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching districts:', error));
+        }
+    });
+
+    // Khi chọn Quận/Huyện => load Xã/Phường
+    districtSelect.addEventListener('change', function () {
+        const selectedDistrictCode = this.value;
+        wardSelect.innerHTML = '<option value="">Chọn xã</option>';
+
+        if (selectedDistrictCode) {
+            fetch(`https://provinces.open-api.vn/api/d/${selectedDistrictCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.wards.forEach(function (ward) {
+                        let option = document.createElement("option");
+                        option.value = ward.code;
+                        option.textContent = ward.name;
+                        wardSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching wards:', error));
+        }
+    });
+});
+
 
     });
+  function updateShippingFee(addressId) {
+    console.log("Đang gọi API cập nhật phí vận chuyển với address_id:", addressId);
+
+    fetch(`/update-shipping-fee`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Đảm bảo CSRF token nếu cần
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            address_id: addressId
+        })
+    })
+    .then(response => {
+        console.log("API response status:", response.status);
+        
+        // Kiểm tra nếu response không phải 200 (OK)
+        if (!response.ok) {
+            throw new Error('Không thể lấy phí vận chuyển');
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dữ liệu trả về từ API:', data);
+
+        // Kiểm tra xem dữ liệu có chứa phí vận chuyển và shipping_id
+        if (data.shipping_fee && data.shipping_id) {
+            // Cập nhật phí vận chuyển vào UI (giả sử bạn có phần tử #shippingFeeText để hiển thị)
+            const shippingFeeText = document.getElementById('shippingFeeText');
+            if (shippingFeeText) {
+                 shippingFeeText.innerText = `Phí vận chuyển: ${parseFloat(data.shipping_fee).toLocaleString()} đ`;
+            } else {
+                console.error("Không tìm thấy phần tử #shippingFeeText.");
+            }
+
+            // Cập nhật các giá trị hidden input nếu có
+            const shippingFeeValue = document.getElementById('shippingFeeValue');
+            if (shippingFeeValue) {
+                shippingFeeValue.value = data.shipping_fee;
+            }
+
+            const shippingId = document.getElementById('shippingId');
+            if (shippingId) {
+                shippingId.value = data.shipping_id;
+            }
+               // 🟢 Gọi hàm cập nhật tổng tiền ngay sau khi cập nhật phí ship
+        updateTotalPrice();
+
+        } else {
+            console.error("Dữ liệu trả về không đúng. Không có phí vận chuyển hoặc ID giao hàng.");
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi khi gọi API:', error);
+    });
+  function updateTotalPrice() {
+    const toNumber = (str) => parseInt((str || '0').replace(/\D/g, ''));
+
+    const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
+    const shippingFee = parseInt(document.getElementById('shippingFeeValue')?.value || 0);
+    const orderDiscount = parseInt(document.getElementById('orderDiscountInput')?.value || 0);
+    const shippingDiscount = parseInt(document.getElementById('shippingDiscountInput')?.value || 0);
+
+    const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+
+    document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
+}
+
+
+
+}
 </script>

@@ -154,19 +154,35 @@
                 <div class="hidden">
                     <p id="selected-size" class="mt-2 text-sm text-gray-700">Chưa chọn kích thước</p>
                 </div>
-                <div class="flex items-center space-x-4 mt-4">
-                    <label for="quantity" class="font-semibold">Quantity:</label>
-                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(-1)">-</button>
-                    @php
-                        $cartQuantity = $cartQuantity ?? 0;
-                        $stock = $product->variants->first()->stock ?? 1;
-                        $maxQuantity = max(1, $stock - $cartQuantity);
-                    @endphp
-                    <input id="quantity" type="number" class="w-16 text-center border border-gray-300 rounded-md"
-                        value="1" min="1" max="{{ $maxQuantity }}">
-                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
-                    <span class="text-gray-600">Còn lại: <span id="stock-remaining">{{ $product->variants->first()->stock ?? 1 }}</span></span>
-                </div>
+               @php
+    $cartQuantity = $cartQuantity ?? 0;
+    $hasVariant = $product->variants->isNotEmpty();
+    $stock = $hasVariant ? $product->variants->first()->stock : $product->stock;
+    $maxQuantity = max(1, $stock - $cartQuantity);
+@endphp
+
+<div class="flex items-center space-x-4 mt-4">
+    <label for="quantity" class="font-semibold">Quantity:</label>
+
+    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(-1)">-</button>
+
+    <input 
+        id="quantity" 
+        type="number" 
+        class="w-16 text-center border border-gray-300 rounded-md"
+        value="1" 
+        min="1" 
+        max="{{ $maxQuantity }}"
+    >
+
+    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
+
+    <span class="text-gray-600">
+        Còn lại: 
+        <span id="stock-remaining">{{ $stock }}</span>
+    </span>
+</div>
+
                 
 
                 <!-- Thêm vào giỏ hàng -->

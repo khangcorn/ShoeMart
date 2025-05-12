@@ -60,9 +60,11 @@
                     <a href="/forgot-password" class="text-blue-600 hover:underline">Forgot Password?</a>
                 </div>
             </div>
-</div>
+
+        </div>
     </div>
 </form>
+
 
 <script>
     function loginUser() {

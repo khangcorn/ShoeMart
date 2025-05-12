@@ -24,7 +24,9 @@ class WithdrawRequestController extends Controller
     public function update(Request $request, $id)
     {
         $withdraw = WithdrawRequest::findOrFail($id);
-    
+         if (!auth()->user()->hasPermission('approve_withdraw')) {
+        return redirect()->route('admin.withdraw.index')->with('error', 'Bạn không có quyền duyệt yêu cầu rút tiền.');
+    }
         // Kiểm tra trạng thái của yêu cầu
         if ($withdraw->status !== 'pending') {
             return back()->with('error', 'Yêu cầu đã được xử lý.');

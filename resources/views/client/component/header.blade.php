@@ -114,13 +114,6 @@
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href=""> Sale</a>
                     </li>
-                    @if(auth()->check())
-                    <li>
-                        <a href="{{ route('order.index') }}" class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]">
-                            Đơn hàng của tôi
-                        </a>
-                    </li>
-                @endif
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href="{{ route('products.all') }}"> Products</a>

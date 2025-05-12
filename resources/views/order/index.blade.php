@@ -1,266 +1,334 @@
 @extends('client.layout')
 
 @section('content')
+<style>
+    /* Flash message */
+#flash-message, #flash-error {
+    transition: opacity 0.5s ease-in-out;
+}
+
+#flash-message {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+}
+
+#flash-error {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red */
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f3f4f6;
+    font-weight: bold;
+    color: #333;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Button Styling */
+button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.text-blue-500 {
+    color: #3b82f6;
+}
+
+.text-yellow-500 {
+    color: #f59e0b;
+}
+
+.text-red-500 {
+    color: #ef4444;
+}
+
+.text-green-500 {
+    color: #10b981;
+}
+
+.bg-blue-500 {
+    background-color: #3b82f6;
+}
+
+.bg-yellow-500 {
+    background-color: #f59e0b;
+}
+
+.bg-red-500 {
+    background-color: #ef4444;
+}
+
+.bg-gray-500 {
+    background-color: #6b7280;
+}
+
+#returnModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;  /* Sử dụng flex để căn giữa modal */
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);  /* Màu nền đen mờ */
+    z-index: 1000;
+    opacity: 0;  /* Ẩn modal bằng cách giảm độ mờ */
+    pointer-events: none; /* Không cho phép tương tác với modal khi nó bị ẩn */
+    transition: opacity 0.3s ease; /* Thêm hiệu ứng mờ dần */
+}
+
+#returnModal.show {
+    opacity: 1; /* Hiển thị modal */
+    pointer-events: auto; /* Cho phép tương tác với modal khi nó hiển thị */
+}
+
+#returnModal .bg-white {
+    width: 40%;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+}
+
+input[type="file"] {
+    border-radius: 4px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+button[type="submit"] {
+    background-color: #f59e0b;
+    color: white;
+}
+
+button[type="button"] {
+    background-color: #6b7280;
+    color: white;
+}
+
+button[type="button"]:hover {
+    background-color: #4b5563;
+}
+
+button[type="submit"]:hover {
+    background-color: #d97706;
+}
+
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination .page-link {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #f3f4f6;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.pagination .page-link:hover {
+    background-color: #ddd;
+    color: #333;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #3b82f6;
+    color: white;
+}
+
+</style>
 @if(session('success'))
-    <div class="bg-green-100 text-green-800 p-2 rounded mb-4">
+
+     <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
         {{ session('success') }}
     </div>
-@endif
 
-@if(session('info'))
-    <div class="bg-yellow-100 text-yellow-800 p-2 rounded mb-4">
-        {{ session('info') }}
-    </div>
+    <script>
+        setTimeout(() => {
+            const flashError = document.getElementById('flash-error');
+            if (flashError) {
+                flashError.remove();
+            }
+        }, 5000); // 5 giây
+    </script>
 @endif
 
 @if(session('error'))
-    <div class="bg-red-100 text-red-800 p-2 rounded mb-4">
+       <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
         {{ session('error') }}
     </div>
+
+    <script>
+        setTimeout(() => {
+            const flashError = document.getElementById('flash-error');
+            if (flashError) {
+                flashError.remove();
+            }
+        }, 5000); // 5 giây
+    </script>
 @endif
 
+@if(session('info'))
+    <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
+        {{ session('info') }}
+    </div>
 
-   
+    <script>
+        setTimeout(() => {
+            const flashError = document.getElementById('flash-error');
+            if (flashError) {
+                flashError.remove();
+            }
+        }, 5000); // 5 giây
+    </script>
+@endif
 
 <h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
 
+<table>
     <thead>
         <tr>
-            <th class="border px-4 py-2">Mã đơn hàng</th>
-            <th class="border px-4 py-2">Tổng tiền</th>
-            <th class="border px-4 py-2">Trạng thái</th>
-            <th class="border px-4 py-2">Thao tác</th>
+            <th>Mã đơn hàng</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
-  
+    <tbody>
+        @foreach($orders as $order)
+            <tr>
+                <td>{{ $order->order_code }}</td>
+                <td>{{ number_format($order->total, 0, ',', '.') }} đ</td>
+                <td>{{ $order->status->name }}</td>
+               <td>
+    <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
+
+    @if($order->status->status_id == 7) 
+        <form action="{{ route('orders.confirmReceived', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn đã nhận hàng?');">
+            @csrf
+            <button type="submit" class="text-green-500">Đã nhận hàng</button>
+        </form>
+    @elseif($order->status->status_id == 4) 
+        @if (!$order->returnRequest)
+            <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">Trả hàng và hoàn tiền</button>
+        @elseif($order->returnRequest && $order->returnRequest->status == 'rejected')
+            <span class="text-red-500">Yêu cầu hoàn hàng bị từ chối, vui lòng liên hệ Admin</span>
+        @else
+            <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
+        @endif
+    @elseif($order->status->status_id == 8) 
+        <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
+    @elseif($order->status->status_id == 1)
+        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
+            @csrf
+            @method('PATCH')
+            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
+        </form>
+    @else
+        <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
+    @endif
+</td>
+
+            </tr>
+        @endforeach
+    </tbody>
 </table>
 
-                <th class="border px-4 py-2">Mã đơn hàng</th>
-                <th class="border px-4 py-2">Tổng tiền</th>
-                <th class="border px-4 py-2">Trạng thái</th>
-                <th class="border px-4 py-2">Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($orders as $order)
-                <tr>
-                    <td class="border px-4 py-2">{{ $order->order_code }}</td>
-                    <td class="border px-4 py-2">{{ number_format($order->total, 0, ',', '.') }} đ</td>
-                    <td class="border px-4 py-2">{{ $order->status->name }}</td>
-                    <td class="border px-4 py-2">
-                        <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
-
-                        @if($order->status->status_id == 7) 
-                            <!-- Nút "Đã nhận hàng" chỉ hiển thị khi đơn ở trạng thái "Đã giao hàng" -->
-                            <form action="{{ route('orders.confirmReceived', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn đã nhận hàng?');">
-                                @csrf
-                                <button type="submit" class="text-green-500">Đã nhận hàng</button>
-                            </form>
-                        @elseif($order->status->status_id == 4) 
-                            <!-- Nút "Hoàn hàng" chỉ hiển thị khi đơn ở trạng thái "Đã nhận hàng" -->
-                            @if (!$order->returnRequest)
-                                <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">Trả hàng và hoàn tiền</button>
-                            @else
-                                @if (strtolower($order->returnRequest->status) === 'rejected')
-                                    <span class="text-gray-500">Yêu cầu hoàn hàng bị từ chối, vui lòng liên hệ admin</span>
-                                @else
-                                    <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
-                            @endif
-                        @endif
-                        @elseif($order->status->status_id == 8) 
-                        <!-- Nút "Hoàn tiền" khi đơn ở trạng thái "Đơn trả hàng, hoàn tiền" -->
-                        @if($order->returnRequest && strtolower($order->returnRequest->status) === 'approved')
-                            <span class="text-gray-500">Trả hàng thành công, tiền đã cộng vào ví</span>
-                        @else
-                            <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
-                        @endif
-                    
-                    
-
-                        
-                        @elseif($order->status->status_id == 1)
-                            <!-- Chỉ hiển thị nút "Hủy đơn" khi trạng thái là 'Đơn hàng mới' -->
-                            <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
-                            </form>
-                        
-                        @elseif ($order->status->status_id == 3)
-                            <span class="text-gray-500 ml-2">Đã hủy bởi bạn</span>
-                        @elseif ($order->status->status_id == 5)
-                            <span class="text-gray-500 ml-2">Đã hủy bởi shop, vui lòng liên hệ admin để biết thêm</span>
-                        @else
-                            <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
-                        @endif
-                        
-                        
-                    </td>
-                    
-                </tr>
-            @endforeach
-        </tbody>
-   <!-- Modal Trả hàng và hoàn tiền -->
-   <div id="returnModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white p-6 rounded-md shadow-lg w-1/3">
+<!-- Modal Trả hàng và hoàn tiền -->
+<div id="returnModal" class="hidden">
+    <div class="bg-white p-6 rounded-md shadow-lg">
         <h2 class="text-xl font-semibold mb-4">Yêu cầu trả hàng và hoàn tiền</h2>
         <form action="{{ route('order.returnRequest') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            @method('PATCH') <!-- Sử dụng phương thức PATCH -->
-            <input type="hidden" name="order_id" id="return_order_id"> <!-- Cập nhật order_id -->
-            <input type="hidden" name="amount" id="return_amount"> <!-- Cập nhật amount -->
+            @method('PATCH')
+            <input type="hidden" name="order_id" id="return_order_id">
+            <input type="hidden" name="amount" id="return_amount">
 
             <div class="mb-4">
-                <label for="return_reason" class="block text-sm font-medium text-gray-700">Lý do trả hàng</label>
-                <textarea id="return_reason" name="reason" rows="4" class="w-full p-2 border border-gray-300 rounded-md" required></textarea>
+                <label for="return_reason" class="block text-sm font-medium">Lý do trả hàng</label>
+                <textarea id="return_reason" name="reason" rows="4" required></textarea>
             </div>
 
             <div class="mb-4">
-                <label for="return_attachments" class="block text-sm font-medium text-gray-700">Tệp hình ảnh/video liên quan</label>
-                <input type="file" id="return_attachments" name="attachments[]" accept="image/*,video/*" class="w-full p-2 border border-gray-300 rounded-md" multiple>
+                <label for="return_attachments" class="block text-sm font-medium">Tệp hình ảnh/video liên quan</label>
+                <input type="file" id="return_attachments" name="attachments[]" accept="image/*,video/*" multiple>
             </div>
 
             <div class="flex justify-end">
-                <button type="submit" class="bg-yellow-500 text-black px-4 py-2 rounded-md">Gửi yêu cầu</button>
-                <button type="button" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeReturnModal()">Hủy</button>
+                <button type="submit" class="bg-yellow-500 text-black">Gửi yêu cầu</button>
+                <button type="button" class="ml-2 bg-gray-500 text-white" onclick="closeReturnModal()">Hủy</button>
             </div>
         </form>
     </div>
 </div>
 
-
-
-    </table>
-
-
-<!-- Hiển thị phân trang -->
-<div class="mt-4">
+<!-- Pagination -->
+<div class="pagination mt-4">
     {{ $orders->links() }}
 </div>
 
-<!-- Modal Yêu cầu hoàn tiền -->
-<div id="refundModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-    <div class="bg-white p-6 rounded-md shadow-lg w-1/3">
-        <h2 class="text-xl font-semibold mb-4">Yêu cầu hoàn tiền</h2>
-        <form id="refundForm" action="{{ route('order.requestRefund', ':order_id') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PATCH')
-            <input type="hidden" name="order_id" id="order_id">
-            
-            <div class="mb-4">
-                <label for="reason" class="block text-sm font-medium text-gray-700">Lý do hoàn tiền</label>
-                <textarea id="reason" name="reason" rows="4" class="w-full p-2 border border-gray-300 rounded-md" required></textarea>
-            </div>
-    
-            <div class="mb-4">
-                <label for="attachments" class="block text-sm font-medium text-gray-700">Tải lên hình ảnh/video (nếu có)</label>
-                <input type="file" id="attachments" name="attachments[]" accept="image/*,video/*" class="w-full p-2 border border-gray-300 rounded-md" multiple>
-            </div>
-    
-            <div class="flex justify-end">
-                <button type="submit" class="bg-green-500 text-black px-4 py-2 rounded-md">Gửi yêu cầu</button>
-                <button type="button" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded-md" onclick="closeRefundModal()">Hủy</button>
-            </div>
-        </form>
-    </div>
-
-</div>
-
 <script>
-    function openRefundModal(orderId) {
-        // Kiểm tra nếu yêu cầu hoàn tiền đã bị từ chối
-        const refundStatus = document.getElementById('refund-status-' + orderId);
-        if (refundStatus && refundStatus.innerText === 'Yêu cầu hoàn tiền bị từ chối') {
-            alert('Yêu cầu hoàn tiền đã bị từ chối.');
-            return;
-        }
-        
-        document.getElementById('order_id').value = orderId;
-        const modal = document.getElementById('refundModal');
-        const form = document.getElementById('refundForm');
-        
-        // Thay đổi action của form
-        form.action = form.action.replace(':order_id', orderId);
-        
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-    
-    function closeRefundModal() {
-        const modal = document.getElementById('refundModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('#refundForm');
-        if (form) {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-    
-                const orderId = document.getElementById('order_id').value;
-                const refundButton = document.getElementById('refund-button-' + orderId);
-    
-                const formData = new FormData(this);
-    
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                }).then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Ẩn modal
-                        closeRefundModal();
-    
-                        // Cập nhật UI: ẩn nút yêu cầu hoàn tiền, hiện dòng trạng thái
-                        if (refundButton) refundButton.remove();
-    
-                        const refundStatus = document.createElement('span');
-                        refundStatus.id = 'refund-status-' + orderId;
-                        refundStatus.classList.add('text-green-500', 'ml-2', 'italic');
-                        refundStatus.innerText = 'Đã gửi yêu cầu hoàn tiền';
-    
-                        const cell = refundButton?.parentElement;
-                        if (cell) cell.appendChild(refundStatus);
-    
-                        alert("Yêu cầu hoàn tiền của bạn đã được gửi thành công!");
-                    } else {
-                        alert("Có lỗi xảy ra, vui lòng thử lại.");
-                    }
-                }).catch(error => {
-                    console.error("Lỗi khi gửi yêu cầu:", error);
-                    alert("Bạn đã gửi yêu cầu hoàn tiền cho đơn này rồi.");
-                });
-            });
-        }
-    });
-</script>
-
-    
-
-    <script>
 function openReturnModal(orderId, amount) {
     document.getElementById('return_order_id').value = orderId;
-    document.getElementById('return_amount').value = amount; // Cập nhật amount
-    const modal = document.getElementById('returnModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    const returnButton = document.getElementById('return-button-' + orderId);
-    if (returnButton) {
-        returnButton.style.display = 'none';
-    }
+    document.getElementById('return_amount').value = amount;
+    
+    // Thêm lớp 'show' để modal hiển thị
+    document.getElementById('returnModal').classList.add('show');
 }
 
 function closeReturnModal() {
-    const modal = document.getElementById('returnModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    // Xóa lớp 'show' để ẩn modal
+    document.getElementById('returnModal').classList.remove('show');
 }
 
+// Đảm bảo modal có thể đóng khi bấm ngoài vùng modal
+document.getElementById('returnModal').addEventListener('click', function(event) {
+    // Chỉ đóng modal khi bấm vào vùng ngoài modal
+    if (event.target === this) {
+        closeReturnModal();
+    }
+});
 
-    </script>
+</script>
+
 @endsection

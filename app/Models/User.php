@@ -64,6 +64,15 @@ class User extends Authenticatable
     {
         return $this->roles()->where('name', $role)->exists();
     }
+    public function hasPermission($permission)
+    {
+        foreach ($this->roles as $role) {
+            if ($role->permissions->contains('name', $permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public function wallet()
     {
         return $this->hasOne(Wallet::class, 'user_id', 'user_id');
