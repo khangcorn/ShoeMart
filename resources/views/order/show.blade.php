@@ -55,6 +55,7 @@
         <h3 class="text-2xl font-semibold text-gray-700 mb-2">Trạng thái đơn hàng</h3>
         <p class="text-gray-600">{{ $order->status ? $order->status->name : 'Chưa có trạng thái' }}</p>
     </div>
+    
 
     @php
         $subtotal = $order->orderDetails->sum('total_price');

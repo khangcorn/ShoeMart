@@ -98,63 +98,78 @@ class CouponController extends Controller
         return redirect()->route('coupons.index')->with('success', 'Coupon deleted successfully');
     }
     // app/Http/Controllers/CouponController.php
-    public function check(Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
-    
-        // Log dữ liệu nhận được
-        Log::info('Dữ liệu nhận được từ frontend: ', $data);
-    
-        $code = $data['codes'] ?? null;
-    
-        if (!$code) {
-            return response()->json(['valid_coupons' => [], 'message' => 'Không tìm thấy mã.']);
-        }
-    
+public function check(Request $request)
+{
+    $data = json_decode($request->getContent(), true);
+
+    // Log dữ liệu nhận được
+    Log::info('Dữ liệu nhận được từ frontend: ', $data);
+
+    // Lấy các mã giảm giá từ request (chuỗi mã giảm giá, ví dụ: MGG-06,MGG-02)
+    $codes = $data['codes'] ?? null;
+
+    if (!$codes) {
+        return response()->json(['valid_coupons' => [], 'message' => 'Không tìm thấy mã.']);
+    }
+
+    // Tách mã giảm giá cách nhau bởi dấu phẩy
+    $couponCodes = explode(',', $codes);
+
+    // Khởi tạo mảng để lưu thông tin các mã giảm giá hợp lệ
+    $validCoupons = [];
+
+    // Kiểm tra từng mã giảm giá
+    foreach ($couponCodes as $code) {
+        // Loại bỏ khoảng trắng trước và sau mã giảm giá
+        $code = trim($code);
+
+        // Tìm mã giảm giá trong cơ sở dữ liệu
         $coupon = Coupon::where('code', $code)->first();
 
         if (!$coupon) {
-            return response()->json(['valid_coupons' => [], 'message' => 'Mã không tồn tại.']);
+            return response()->json(['valid_coupons' => [], 'message' => "Mã giảm giá '{$code}' không tồn tại."]);
         }
-        
+
         if ($coupon->status !== 'active') {
-            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá không hoạt động.']);
+            return response()->json(['valid_coupons' => [], 'message' => "Mã giảm giá '{$code}' không hoạt động."]);
         }
-        
+
         if (now()->gt($coupon->expiration_date)) {
-            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá đã hết hạn.']);
+            return response()->json(['valid_coupons' => [], 'message' => "Mã giảm giá '{$code}' đã hết hạn."]);
         }
-        
+
         if ($coupon->usage_count >= $coupon->usage_limit) {
-            return response()->json(['valid_coupons' => [], 'message' => 'Mã giảm giá đã hết lượt sử dụng.']);
+            return response()->json(['valid_coupons' => [], 'message' => "Mã giảm giá '{$code}' đã hết lượt sử dụng."]);
         }
-         // Kiểm tra giá trị đơn hàng
+
+        // Kiểm tra giá trị đơn hàng
         $orderTotalRaw = $data['order_total'] ?? '0';
         $orderTotal = (int) str_replace('.', '', $orderTotalRaw);
 
         if ($coupon->min_order_value > $orderTotal) {
-            return response()->json(['valid_coupons' => [], 'message' => 'Giá trị đơn hàng chưa đủ để sử dụng mã giảm giá.']);
+            return response()->json(['valid_coupons' => [], 'message' => "Giá trị đơn hàng chưa đủ để sử dụng mã giảm giá '{$code}'."]);
         }
-        
-    
-        // Trả về coupon hợp lệ
-        return response()->json([
-            'valid_coupons' => [
-                [
-                    'coupon_id' => $coupon->coupon_id,
-                    'code' => $coupon->code,
-                    'discount_type' => $coupon->discount_type,
-                    'discount_value' => $coupon->discount_value,
-                    'max_discount_value' => $coupon->max_discount_value,
-                    'apply_to' => $coupon->apply_to,
-                    'usage_limit' => $coupon->usage_limit,
-                    'usage_count' => $coupon->usage_count,
-                ]
-            ]
-        ]);
+
+        // Nếu mã giảm giá hợp lệ, thêm vào mảng validCoupons
+        $validCoupons[] = [
+            'coupon_id' => $coupon->coupon_id,
+            'code' => $coupon->code,
+            'discount_type' => $coupon->discount_type,
+            'discount_value' => $coupon->discount_value,
+            'max_discount_value' => $coupon->max_discount_value,
+            'apply_to' => $coupon->apply_to,
+            'usage_limit' => $coupon->usage_limit,
+            'usage_count' => $coupon->usage_count,
+        ];
     }
-    
-    
+
+    // Trả về các mã giảm giá hợp lệ
+    return response()->json([
+        'valid_coupons' => $validCoupons,
+        'message' => 'Các mã giảm giá hợp lệ.'
+    ]);
+}
+
     
     
     

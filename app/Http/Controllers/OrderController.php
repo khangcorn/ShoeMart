@@ -59,50 +59,78 @@ class OrderController extends Controller
     /**
      * Hiển thị giao diện đặt hàng (chi tiết đơn hàng)
      */
-    public function create(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Bạn cần đăng nhập để đặt hàng.');
-        }
-    
-        $user = Auth::user();
-        $cartDetailIds = $request->query('cart_detail_ids', []);
-    
-        // Đảm bảo $cartDetailIds là một mảng
-        if (!is_array($cartDetailIds)) {
-            $cartDetailIds = explode(',', $cartDetailIds);
-        }
-    
-        if (!empty($cartDetailIds)) {
-            $cartItems = CartDetail::whereIn('cart_detail_id', $cartDetailIds)
-                ->with(['product', 'variant'])
-                ->get();
-        } else {
-            $cart = Cart::where('user_id', $user->user_id)->first();
-            if (!$cart) {
-                return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
-            }
-            $cartItems = $cart->details()->with(['product', 'variant'])->get();
-        }
-    
-        if ($cartItems->isEmpty()) {
+public function create(Request $request)
+{
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Bạn cần đăng nhập để đặt hàng.');
+    }
+
+    $user = Auth::user();
+    $cartDetailIds = $request->query('cart_detail_ids', []);
+
+    // Đảm bảo $cartDetailIds là một mảng
+    if (!is_array($cartDetailIds)) {
+        $cartDetailIds = explode(',', $cartDetailIds);
+    }
+
+    if (!empty($cartDetailIds)) {
+        $cartItems = CartDetail::whereIn('cart_detail_id', $cartDetailIds)
+            ->with(['product', 'variant'])
+            ->get();
+    } else {
+        $cart = Cart::where('user_id', $user->user_id)->first();
+        if (!$cart) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
         }
-    
-        $total = $cartItems->sum(function ($item) {
-            return ($item->variant ? ($item->variant->price_sale ?? $item->variant->price) : ($item->product->price_sale ?? $item->product->price)) * $item->quantity;
-        });
-    
-        $addresses = $user->userAddresses;
-        $shippingFees = \App\Models\ShippingFee::all();
-
-        return view('order.create', compact('cartItems', 'total', 'addresses', 'shippingFees', 'cartDetailIds'));
-
+        $cartItems = $cart->details()->with(['product', 'variant'])->get();
     }
-    
-    
+
+    if ($cartItems->isEmpty()) {
+        return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
+    }
+
+    $total = $cartItems->sum(function ($item) {
+        return ($item->variant ? ($item->variant->price_sale ?? $item->variant->price) : ($item->product->price_sale ?? $item->product->price)) * $item->quantity;
+    });
+
+    $addresses = $user->userAddresses;
+    $shippingFees = \App\Models\ShippingFee::all();
+    $userAddress = $user->userAddresses->firstWhere('is_default', true);
+
+    // Mặc định lấy phí ship ID = 3 (địa chỉ không rõ ràng)
+    $defaultShippingFee = $shippingFees->firstWhere('shipping_id', 3);
+
+    // Tìm phí vận chuyển khớp hoàn toàn với địa chỉ người dùng
+    $shippingFee = null;
+   if ($userAddress) {
+    // Kiểm tra giá trị thực tế của city, district, ward
+    // dd($userAddress->city, $userAddress->district, $userAddress->ward); // Debug
+    $shippingFee = $shippingFees->firstWhere(function ($fee) use ($userAddress) {
+        return strtolower($fee->province) === strtolower($userAddress->city) &&
+               strtolower($fee->district) === strtolower($userAddress->district) &&
+               strtolower($fee->ward) === strtolower($userAddress->ward);
+    });
+}
+
+    // Nếu không khớp, dùng phí mặc định (ID = 3)
+    $shippingFee = $shippingFee ?: $defaultShippingFee;
+
+    $shippingFeeValue = $shippingFee ? $shippingFee->fee : 120000; // fallback cuối cùng
+    $shippingId = $shippingFee ? $shippingFee->shipping_id : null;
 
 
+    
+   return view('order.create', compact(
+    'cartItems',
+    'total',
+    'addresses',
+    'shippingFees',
+    'shippingFeeValue',
+    'shippingId', 
+    'cartDetailIds'
+));
+
+}
 
 
     /**
@@ -118,13 +146,22 @@ class OrderController extends Controller
     
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->user_id)->first();
+        $addressId = $request->address_id; // Nhận địa chỉ từ request
+
+        // Kiểm tra nếu không có address_id và không có địa chỉ mặc định
+        if (!$addressId && !$user->userAddresses->where('is_default', true)->first()) {
+            return redirect()->back()->withErrors(['address' => 'Bạn cần chọn một địa chỉ hợp lệ trước khi đặt hàng.']);
+        }
+
+        // Kiểm tra địa chỉ đã chọn
         $address = UserAddresses::where('user_id', $user->user_id)
-                            ->where('address_id', $request->address_id)
-                            ->first();
+                                ->where('address_id', $addressId)
+                                ->first();
 
         if (!$address) {
-            return redirect()->back()->withErrors(['address' => 'Bạn cần thêm địa chỉ hợp lệ trước khi đặt hàng.']);
+            return redirect()->back()->withErrors(['address' => 'Địa chỉ không hợp lệ.']);
         }
+
 
         if (!$cart) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
@@ -149,14 +186,22 @@ class OrderController extends Controller
             $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
             $orderTotal += $price * $item->quantity;
         }
-    
-        $shippingFee = ShippingFee::find($request->shipping_id);
+        $address = UserAddresses::findOrFail($request->address_id);
+        $province = strtolower(trim($address->city));  // Lấy tỉnh từ city
+
+        // Tìm shipping fee dựa trên tỉnh
+        $shippingFee = ShippingFee::whereRaw('LOWER(province) = ?', [$province])->first();
+        // if (!$shippingFee) {
+        //     return back()->with('error', 'Không tìm thấy phí vận chuyển phù hợp.');
+        // }
+             // Giảm giá đơn hàng và phí ship
         $orderDiscount = $request->input('order_discount', 0);
         $shippingDiscount = $request->input('shipping_discount', 0);
-    
-        $shippingFeeValue = max(0, $shippingFee->fee - $shippingDiscount);
-        $finalTotal = max(0, $orderTotal - $orderDiscount + $shippingFeeValue);
-    
+
+        $shippingFeeIp = (int) $request->input('shipping_fee', 0);
+        $shippingFeeValue = max(0, $shippingFeeIp);
+        $finalTotal = max(0, $orderTotal - $orderDiscount - $shippingDiscount + $shippingFeeValue);
+        
         if ($request->payment_method === 'wallet') {
             $wallet = $user->wallet;
             if (!$wallet || $wallet->balance < $finalTotal) {
@@ -179,7 +224,7 @@ class OrderController extends Controller
             'address_id'      => $request->address_id,
             'total'           => $finalTotal,
             'status_id'       => 1,
-            'shipping_fee'    => $shippingFee->fee,
+            'shipping_fee'    => $shippingFeeValue,
             'payment_method'  => $request->payment_method,
             'shipping_id'     => $request->shipping_id,
             'discount_amount' => $orderDiscount + $shippingDiscount,
@@ -218,12 +263,12 @@ class OrderController extends Controller
                 'total_price'     => $subtotal,
             ]);
     
-           // Trừ kho
-          if ($item->variant && $item->variant->exists) {
-    $item->variant->decrement('stock', $item->quantity);
-} else {
-    $item->product->decrement('stock', $item->quantity);
-}
+            // Trừ kho
+            if ($item->variant && $item->variant->exists) {
+                $item->variant->decrement('stock', $item->quantity);
+            } else {
+                $item->product->decrement('stock', $item->quantity);
+            }
 
 
         }
@@ -234,9 +279,7 @@ class OrderController extends Controller
         return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)->with('order', $order);
 
     }
-    
-    
-    
+
     
 
     /**

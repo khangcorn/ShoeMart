@@ -32,6 +32,48 @@
     </script>
 @endif
 
+    <style>
+    /* Tạo kiểu cho phân trang */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination li {
+    list-style: none;
+    margin: 0 5px;
+}
+
+.pagination a, .pagination span {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover, .pagination .active span {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.pagination .disabled span {
+    color: #ccc;
+    border-color: #ccc;
+}
+
+.pagination .active a {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+
+</style>
 <div class="p-6">
     <h1 class="text-2xl font-semibold mb-4">Danh sách yêu cầu rút tiền</h1>
 
@@ -91,10 +133,9 @@
         </tbody>
     </table>
 
-    <div class="mt-4">
+     <div class="mt-6">
         {{ $withdrawRequests->links() }}
     </div>
-    
 </div>
 
 @endsection

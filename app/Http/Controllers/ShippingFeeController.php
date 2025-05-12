@@ -21,18 +21,18 @@ class ShippingFeeController extends Controller
     }
     
 
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Loại bỏ tiền tố (Tỉnh, Thành phố, Huyện, Quận, Phường, Xã)
-    $province = $this->removePrefix($request->input('province'));
-    $district = $this->removePrefix($request->input('district'));
-    $ward = $this->removePrefix($request->input('ward'));
+    // Không loại bỏ tiền tố, giữ nguyên giá trị nhập từ form
+    $province = $request->input('province');
+    $district = $request->input('district');
+    $ward = $request->input('ward');
 
-    // Cập nhật lại dữ liệu trong request sau khi đã loại bỏ tiền tố
+    // Cập nhật lại dữ liệu trong request với các giá trị gốc
     $request->merge([
         'province' => $province,
         'district' => $district,
-        'ward' => $ward,
+        'ward'     => $ward,
     ]);
 
     // Validate request
@@ -49,6 +49,7 @@ class ShippingFeeController extends Controller
     return redirect()->route('shipping-fees.index')
                      ->with('success', 'Shipping fee created successfully.');
 }
+
 
 
     public function edit($id)
@@ -96,6 +97,34 @@ class ShippingFeeController extends Controller
         }
     
         return $name;
+    }
+        public function updateShippingFee(Request $request)
+    {
+        $addressId = $request->input('address_id');
+        $userAddress = auth()->user()->userAddresses()->find($addressId);
+
+        if (!$userAddress) {
+            return response()->json(['shipping_fee' => null, 'shipping_id' => null], 404);
+        }
+
+        // Tìm phí ship dựa trên tỉnh, huyện, xã
+        $shippingFees = ShippingFee::all();
+        $shippingFee = $shippingFees->firstWhere(function ($fee) use ($userAddress) {
+            return strtolower($fee->province) === strtolower($userAddress->city) &&
+                   strtolower($fee->district) === strtolower($userAddress->district) &&
+                   strtolower($fee->ward) === strtolower($userAddress->ward);
+        });
+
+        // Nếu không tìm thấy phí ship cụ thể, dùng phí mặc định
+        $shippingFee = $shippingFee ?: $shippingFees->firstWhere('shipping_id', 3);
+
+        $shippingFeeValue = $shippingFee ? $shippingFee->fee : 120000; // fallback
+        $shippingId = $shippingFee ? $shippingFee->shipping_id : null;
+
+        return response()->json([
+            'shipping_fee' => $shippingFeeValue,
+            'shipping_id' => $shippingId,
+        ]);
     }
     
 }

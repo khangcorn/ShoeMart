@@ -74,6 +74,7 @@
     @endif
     
 
+
         <!-- Thông tin cá nhân -->
         <div class="flex justify-between gap-6 p-6 bg-white rounded-lg shadow-md">
             <!-- Thông tin cá nhân -->
@@ -310,6 +311,7 @@
                 </tr>
             </thead>
             <tbody>
+                <p>Class: {{ get_class($transactions) }}</p>
                 @foreach ($transactions as $transaction)
                     <tr class="text-center border-t">
                         <td class="px-4 py-2">{{ $transaction->transaction_id }}</td>
@@ -343,17 +345,19 @@
                         </td>
                         <td class="px-4 py-2">{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
                     </tr>
+                    
                 @endforeach
+                
             </tbody>
         </table>
-        {{-- <div class="mt-4">
-            {{ $transactions->links() }}
-        </div>
-         --}}
+{{-- <div class="mt-4">
+    {{ $transactions->links() }}
+</div> --}}
+
+        
     </div>
 
 
-<!-- Phân trang -->
 
         <!-- Logout -->
         <div class="bg-white p-6 rounded-lg shadow-md mt-6 text-center">

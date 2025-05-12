@@ -18,7 +18,7 @@ class WalletController extends Controller
     
         // Gọi phương thức quan hệ transactions() để paginate
         $transactions = $wallet->transactions()->latest()->paginate(10);
-    
+
         return view('wallet.index', compact('wallet', 'transactions'));
     }
     

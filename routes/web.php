@@ -230,5 +230,6 @@ Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->
 Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'])->name('order.requestRefund');
 
 
+Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippingFee']);
 
 // routes/web.php

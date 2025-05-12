@@ -123,4 +123,8 @@
         @endforeach
     </tbody>
 </table>
+<div class="mt-4">
+    {{ $refundRequests->links('pagination::tailwind') }}
+</div>
+
 @endsection

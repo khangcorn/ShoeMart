@@ -13,10 +13,14 @@ use Illuminate\Support\Facades\DB;
 class RefundRequestController extends Controller
 {
     public function index()
-    {
-        $refundRequests = RefundRequest::with(['user', 'order'])->latest()->get();
-        return view('admin.refunds.index', compact('refundRequests'));
-    }
+{
+    $refundRequests = RefundRequest::with(['user', 'order'])
+        ->latest()
+        ->paginate(10); // Hiển thị 10 dòng mỗi trang
+
+    return view('admin.refunds.index', compact('refundRequests'));
+}
+
 
     public function approve($id)
     {

@@ -87,25 +87,35 @@ button:hover {
     background-color: #6b7280;
 }
 
-/* Modal Styling */
 #returnModal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    display: none;
-    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;  /* Sử dụng flex để căn giữa modal */
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);  /* Màu nền đen mờ */
     z-index: 1000;
+    opacity: 0;  /* Ẩn modal bằng cách giảm độ mờ */
+    pointer-events: none; /* Không cho phép tương tác với modal khi nó bị ẩn */
+    transition: opacity 0.3s ease; /* Thêm hiệu ứng mờ dần */
+}
+
+#returnModal.show {
+    opacity: 1; /* Hiển thị modal */
+    pointer-events: auto; /* Cho phép tương tác với modal khi nó hiển thị */
 }
 
 #returnModal .bg-white {
     width: 40%;
-    margin: 10% auto;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+
 
 textarea {
     width: 100%;
@@ -230,32 +240,35 @@ button[type="submit"]:hover {
                 <td>{{ $order->order_code }}</td>
                 <td>{{ number_format($order->total, 0, ',', '.') }} đ</td>
                 <td>{{ $order->status->name }}</td>
-                <td>
-                    <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
+               <td>
+    <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
 
-                    @if($order->status->status_id == 7) 
-                        <form action="{{ route('orders.confirmReceived', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn đã nhận hàng?');">
-                            @csrf
-                            <button type="submit" class="text-green-500">Đã nhận hàng</button>
-                        </form>
-                    @elseif($order->status->status_id == 4) 
-                        @if (!$order->returnRequest)
-                            <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">Trả hàng và hoàn tiền</button>
-                        @else
-                            <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
-                        @endif
-                    @elseif($order->status->status_id == 8) 
-                        <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
-                    @elseif($order->status->status_id == 1)
-                        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
-                        </form>
-                    @else
-                        <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
-                    @endif
-                </td>
+    @if($order->status->status_id == 7) 
+        <form action="{{ route('orders.confirmReceived', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn đã nhận hàng?');">
+            @csrf
+            <button type="submit" class="text-green-500">Đã nhận hàng</button>
+        </form>
+    @elseif($order->status->status_id == 4) 
+        @if (!$order->returnRequest)
+            <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">Trả hàng và hoàn tiền</button>
+        @elseif($order->returnRequest && $order->returnRequest->status == 'rejected')
+            <span class="text-red-500">Yêu cầu hoàn hàng bị từ chối, vui lòng liên hệ Admin</span>
+        @else
+            <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
+        @endif
+    @elseif($order->status->status_id == 8) 
+        <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
+    @elseif($order->status->status_id == 1)
+        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
+            @csrf
+            @method('PATCH')
+            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
+        </form>
+    @else
+        <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
+    @endif
+</td>
+
             </tr>
         @endforeach
     </tbody>
@@ -298,12 +311,24 @@ button[type="submit"]:hover {
 function openReturnModal(orderId, amount) {
     document.getElementById('return_order_id').value = orderId;
     document.getElementById('return_amount').value = amount;
-    document.getElementById('returnModal').classList.remove('hidden');
+    
+    // Thêm lớp 'show' để modal hiển thị
+    document.getElementById('returnModal').classList.add('show');
 }
 
 function closeReturnModal() {
-    document.getElementById('returnModal').classList.add('hidden');
+    // Xóa lớp 'show' để ẩn modal
+    document.getElementById('returnModal').classList.remove('show');
 }
+
+// Đảm bảo modal có thể đóng khi bấm ngoài vùng modal
+document.getElementById('returnModal').addEventListener('click', function(event) {
+    // Chỉ đóng modal khi bấm vào vùng ngoài modal
+    if (event.target === this) {
+        closeReturnModal();
+    }
+});
+
 </script>
 
 @endsection
