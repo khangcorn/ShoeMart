@@ -3,12 +3,13 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\OrderCouponController;
-
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductVariantController;
@@ -16,13 +17,19 @@ use App\Http\Controllers\ShippingFeeController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgetPassWordController;
+use App\Http\Controllers\GHNController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
+use App\Http\Controllers\Admin\RefundController;
+use App\Http\Controllers\Admin\RefundRequestController;
+use App\Http\Controllers\Admin\WithdrawRequestController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WishlistController;
 use App\Models\VariantAttribute;
+
 use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -96,11 +103,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/address', [AddressController::class, 'index'])->name('address.index');
     Route::get('/address/create', [AddressController::class, 'create'])->name('address.create');
     Route::post('/address', [AddressController::class, 'store'])->name('address.store');
-
     Route::get('/address/{address_id}/edit', [AddressController::class, 'edit'])->name('address.edit');
     Route::put('/address/{address_id}', [AddressController::class, 'update'])->name('address.update');
     Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
-
     Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
 
     Route::prefix('wishlist')->name('wishlist.')->group(function () {
@@ -116,38 +121,105 @@ Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
 Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
+Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
 
-Route::prefix('admin')->group(function() {
-    Route::resource('products', ProductController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('users', AdminUserController::class);
-    Route::resource('sizes', SizeController::class);
-    Route::resource('colors', ColorController::class);
-    Route::resource('order-coupons', OrderCouponController::class);
-    Route::resource('order-statuses', OrderStatusController::class);
-    Route::resource('sliders', SliderController::class);
-    Route::resource('shipping-fees', ShippingFeeController::class);
-    Route::resource('coupons', CouponController::class);
-    Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
-    Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
+// Các route cho admin, thêm middleware 'permission' vào
+Route::prefix('admin')->middleware('auth')->group(function() {
+    // Refund Requests
+    Route::get('/refund-requests', [RefundRequestController::class, 'index'])
+        ->middleware('check_permission:view_refunds')
+        ->name('admin.refunds.index');
+
+    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])
+
+        ->name('admin.refunds.approve');
+
+    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])
+
+        ->name('admin.refunds.reject');
+
+    // Withdraw Requests
+    Route::get('withdraw', [WithdrawRequestController::class, 'index'])
+
+        ->name('admin.withdraw.index');
+
+    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])
+
+        ->name('admin.withdraw.update');
+    
+    // Quản lý sản phẩm, categories, sizes, colors, v.v...
+    Route::resource('products', ProductController::class)
+        ->middleware('check_permission:view_products');
+       
+    Route::resource('categories', CategoryController::class)
+        ->middleware('check_permission:view_categories');
+       
+
+    Route::resource('sizes', SizeController::class)
+        ->middleware('check_permission:view_sizes');
+       
+
+    Route::resource('colors', ColorController::class)
+        ->middleware('check_permission:view_colors');
+        
+
+    Route::resource('order-coupons', OrderCouponController::class)
+        ->middleware('check_permission:view_order_statuses');
+
+
+    Route::resource('order-statuses', OrderStatusController::class)
+        ->middleware('check_permission:view_order_statuses');
+        
+
+    Route::resource('sliders', SliderController::class)
+        ->middleware('check_permission:view_sliders');
+
+
+    Route::resource('shipping-fees', ShippingFeeController::class)
+        ->middleware('check_permission:view_shipping_fees');
+
+
+    Route::resource('coupons', CouponController::class)
+        ->middleware('check_permission:view_coupons');
+
+
+    Route::resource('users', AdminUserController::class)
+        ->middleware('check_permission:view_users');
+
+
+    // Orders
+    Route::get('/orders', [AdminOrderController::class, 'index'])
+        ->middleware('check_permission:view_orders')
+        ->name('admin.orders.index');
+
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
+        ->middleware('check_permission:view_order_details')
+        ->name('admin.orders.show');
+
+    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
+
+        ->name('admin.orders.cancel');
+
+    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])
+        ->middleware('check_permission:update_order_status')
+        ->name('admin.orders.ajaxUpdateStatus');
 });
+
 // Định nghĩa route DELETE để xóa biến thể
 Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
     ->name('products.variants.delete');
+ 
+  
+
+// routes/web.php hoặc routes/api.php
+Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->name('coupon.check');
+// Trong routes/web.php
+Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'])->name('order.requestRefund');
 
 
+Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippingFee']);
 
-
-
-
-
-
-
-
-
-
-
-
-
+// routes/web.php

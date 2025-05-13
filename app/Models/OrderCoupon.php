@@ -17,20 +17,13 @@ class OrderCoupon extends Model
         'order_id',
         'coupon_id',
         'applied_amount',
-        'created_at',
     ];
 
-    /**
-     * Get the order that owns the coupon.
-     */
     public function order()
     {
         return $this->belongsTo(Order::class, 'order_id', 'order_id');
     }
 
-    /**
-     * Get the coupon that is applied to the order.
-     */
     public function coupon()
     {
         return $this->belongsTo(Coupon::class, 'coupon_id', 'coupon_id');

@@ -1,0 +1,28 @@
+[
+    {
+        "province": "Hà Nội",
+        "districts": [
+            {
+                "district": "Ba Đình",
+                "wards": ["Phúc Xá", "Cống Vị", "Điện Biên"]
+            },
+            {
+                "district": "Quận Hoàn Kiếm",
+                "wards": ["Hàng Bạc", "Phường Hàng Gai", "Phường Cửa Nam"]
+            }
+        ]
+    },
+    {
+        "province": "Hồ Chí Minh",
+        "districts": [
+            {
+                "district": "Quận 1",
+                "wards": ["Bến Nghé", "Đa Kao", "Tân Định"]
+            },
+            {
+                "district": "Quận 2",
+                "wards": ["Thảo Điền", "An Phú", "Bình Trưng Tây"]
+            }
+        ]
+    }
+]

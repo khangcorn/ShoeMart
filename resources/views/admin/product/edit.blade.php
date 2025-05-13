@@ -1,6 +1,69 @@
 @extends('admin.layout')
 
 @section('content')
+@if ($errors->has('image_format'))
+    <div id="error-messages" class="alert-error-custom">
+        {{ $errors->first('image_format') }}
+    </div>
+@endif
+
+<style>
+    .alert-error-custom {
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-custom {
+        display: inline-block;
+        padding: 10px 18px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 8px;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-success {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #059669;
+    }
+
+    .btn-secondary {
+        background-color: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4b5563;
+    }
+</style>
+
+
+
+
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Chỉnh Sửa Sản Phẩm</h1>
 
@@ -37,6 +100,17 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                @if($product->variants->isEmpty())
+                    <div>
+                        <label for="stock" class="block text-sm font-medium">Số Lượng  </label>
+                        <input type="number" id="stock" name="stock"
+                            class="text-black w-full p-2 border rounded-lg @error('stock') border-red-500 @enderror"
+                            value="{{ old('stock', $product->stock) }}">
+                        @error('stock')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
 
                 <div>
                     <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
@@ -60,12 +134,13 @@
                 <div>
                     <label for="product_images" class="block text-sm font-medium">Hình Ảnh Sản Phẩm Chính</label>
                     <input type="file" id="product_images" name="product_images[]" multiple
-                        class="  text-black w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
-
+                        class="text-black w-full p-2 border rounded-lg @error('product_images') border-red-500 @enderror">
+                
                     @error('product_images')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                
 
                 <!-- Hiển thị ảnh của sản phẩm chính -->
                 @if(isset($product) && $product->images->where('variant_id', null)->count() > 0)
@@ -88,10 +163,19 @@
 
             <div>
                 <label class="block text-sm font-medium">Tổng Số Lượng</label>
-                <p id="total_stock" class="font-bold text-lg">{{ $product->stock }}</p>
-                <input type="hidden" name="stock" id="total_stock_input" value="{{ $product->stock }}">
+                <p id="total_stock" class="font-bold text-lg">
+                    @if($product->variants->isEmpty())
+                        {{ $product->stock }} <!-- Hiển thị số lượng sản phẩm nếu không có biến thể -->
+                    @else
+                        {{ $product->variants->sum('stock') }} <!-- Hiển thị tổng số lượng biến thể nếu có -->
+                    @endif
+                </p>
+                @if(!$product->variants->isEmpty())
+                <input type="hidden" name="stock" id="total_stock_input" value="{{ $product->variants->sum('stock') }}">
+             @endif
+            
             </div>
-
+            
             <!-- Variant Fields -->
             <div id="variant_fields">
                 @foreach($product->variants as $index => $variant)
@@ -115,62 +199,76 @@
                                 value="{{ $variant->price_sale }}">
                         </div>
             
+
                         <div class="form-group">
-                            <label class="text-dark">Số lượng</label>
-                            <input type="number" class="form-control text-black border border-dark w-full" name="variants[{{ $index }}][stock]" 
-                            value="{{ $variant->stock }}">
+                            <label class="text-dark">Số lượng cho biến thể {{ $variant->id }}</label>
+                            <input type="number" class="form-control text-black border border-dark w-full"
+                                   name="variants[{{ $index }}][stock]" value="{{ $variant->stock }}">
                         </div>
+
                     </div>
             
                     <!-- Chọn màu sắc -->
                     @php
                     $allColors = \App\Models\VariantAttribute::where('attribute_name', 'Color')->pluck('attribute_value');
                     $allSizes = \App\Models\VariantAttribute::where('attribute_name', 'Size')->pluck('attribute_value');
-                    @endphp
-            
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div class="form-group">
-                            <label class="text-dark">Màu sắc</label>
-                            <select class="form-control text-black border border-dark w-full variant-color" name="variants[{{ $index }}][color]">
-                                <option value="">Chọn màu</option>
-                                @foreach($allColors as $color)
-                                    <option value="{{ $color }}" 
-                                        {{ old('variants.' . $index . '.color', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'color')->first())->variantAttribute->attribute_value) == $color ? 'selected' : '' }}>
-                                        {{ $color }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-            
-                        <div class="form-group">
-                            <label class="text-dark">Chọn kích cỡ</label>
-                            <select class="form-control text-black border border-dark w-full variant-size" name="variants[{{ $index }}][size]">
-                                <option value="">Chọn kích cỡ</option>
-                                @foreach($allSizes as $size)
-                                    <option value="{{ $size }}" 
-                                        {{ old('variants.' . $index . '.size', optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'size')->first())->variantAttribute->attribute_value) == $size ? 'selected' : '' }}>
-                                        {{ $size }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="text-red size-error-msg" style="display: none;"></p>
-
-                        </div>
-                        
-                    </div>
-            
-                    <!-- Hình ảnh biến thể -->
-                    <div class="form-group mb-4">
-                        <label class="text-dark">Hình Ảnh Biến Thể</label>
-                        <div class="grid grid-cols-3 gap-2 mb-4">
-                            @foreach($variant->images as $image)
-                                <div class="relative">
-                                    <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
-                                </div>
+                @endphp
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div class="form-group">
+                        <label class="text-dark">Màu sắc</label>
+                        <select class="form-control text-black border border-dark w-full variant-color" name="variants[{{ $index }}][color]">
+                            <option value="">Chọn màu</option>
+                            @foreach($allColors as $color)
+                                @php
+                                    // Lấy giá trị color của biến thể hiện tại, nếu có
+                                    $selectedColor = optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->first())->variantAttribute->attribute_value ?? '';
+                                @endphp
+                                <option value="{{ $color }}" 
+                                    {{ old('variants.' . $index . '.color', $selectedColor) == $color ? 'selected' : '' }}>
+                                    {{ $color }}
+                                </option>
                             @endforeach
-                        </div>
-                        <input type="file" class="form-control mt-2 border border-dark w-full" name="variants[{{ $index }}][images][]" multiple>
+                        </select>
                     </div>
+                    <div class="form-group">
+                        <label class="text-dark">Chọn kích cỡ</label>
+                        <select class="form-control text-black border border-dark w-full variant-size" name="variants[{{ $index }}][size]">
+                            <option value="">Chọn kích cỡ</option>
+                            @foreach($allSizes as $size)
+                                @php
+                                    // Lấy giá trị size của biến thể hiện tại, nếu có
+                                    $selectedSize = optional($variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->first())->variantAttribute->attribute_value ?? '';
+                                @endphp
+                                <option value="{{ $size }}" 
+                                    {{ old('variants.' . $index . '.size', $selectedSize) == $size ? 'selected' : '' }}>
+                                    {{ $size }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-red size-error-msg" style="display: none;"></p>
+                    </div>
+                        
+                </div>
+            
+                <!-- Hình ảnh biến thể -->
+                <div class="form-group mb-4">
+                    <label class="text-dark">Hình Ảnh Biến Thể(Tối đa 5 ảnh)</label>
+                    
+                    <!-- Preview ảnh (dùng id riêng theo index biến thể) -->
+                    <div id="preview-container-{{ $index }}" class="grid grid-cols-3 gap-2 mb-4">
+                        @foreach($variant->images as $image)
+                            <div class="relative">
+                                <img src="{{ asset('storage/' . $image->image_url) }}" class="w-20 h-20 object-cover rounded-lg border">
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Input chọn ảnh mới -->
+                    <input type="file" class="form-control mt-2 border border-dark w-full preview-multi-input" name="variants[{{ $index }}][images][]" multiple data-preview-container="preview-container-{{ $index }}">
+                    <p class="text-red-500 text-sm mt-1 image-error-msg" id="image_error_{{ $index }}" style="display: none;"></p> <!-- Phần tử hiển thị lỗi -->
+                </div>
+
             
                     <!-- Xóa biến thể -->
                     <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}"
@@ -181,15 +279,16 @@
             
 
             <!-- Thêm Biến Thể -->
-            <button type="button" class="btn btn-primary" id="add_variant_button">Thêm Biến Thể</button>
+            <button type="button" class="btn-custom btn-primary" id="add_variant_button">Thêm Biến Thể</button>
+            <button type="submit" class="btn-custom btn-success mt-2">Cập Nhật</button>
+            <a href="{{ route('products.index') }}" class="btn-custom btn-secondary mt-2">Quay lại</a>
 
-            <button type="submit" class="btn btn-success mt-2">Cập Nhật</button>
-            <a href="{{ route('products.index') }}" class="btn btn-secondary mt-2">Quay lại</a>
         </form>
     </div>
 
  
     <script>
+         const oldVariants = @json(old('variants'));
         document.addEventListener('DOMContentLoaded', function () {
             const productForm = document.getElementById('product_form');
             const addVariantButton = document.getElementById('add_variant_button');
@@ -197,7 +296,7 @@
             let variantIndex = {{ count($product->variants) }};
             const colors = @json($colors);
             const sizes = @json($sizes);
-        
+
             function getExistingVariants(ignoreElement = null) {
                 let existingVariants = [];
                 document.querySelectorAll('.variant').forEach(variant => {
@@ -260,45 +359,51 @@
                 const newVariant = document.createElement('div');
                 newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
         
-                let colorOptions = colors.map(c => `<option value="${c.attribute_value}">${c.attribute_value}</option>`).join('');
-                let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
-        
-                newVariant.innerHTML = `
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price]">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
-                    </div>
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
-                    </div>
-                    <div class="form-group">
-                        <label>Màu sắc</label>
-                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn màu</option>
-                            ${colorOptions}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kích cỡ</label>
-                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
-                            <option value="">Chọn kích cỡ</option>
-                            ${sizeOptions}
-                        </select>
-                        <p class="text-red size-error-msg" style="display: none;"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
-                        <input type="file" class="form-control" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
-                        <div class="image-preview" id="image_preview_${variantIndex}"></div>
-                    </div>
-                    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
-                `;
-        
+            // ✅ Gán options trước
+let colorOptions = colors.map(c => `<option value="${c.attribute_value}">${c.attribute_value}</option>`).join('');
+let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
+
+// ✅ Sau đó mới tạo variant
+
+newVariant.classList.add('variant-item');
+newVariant.innerHTML = `
+    <div class="form-group">
+        <label>Giá</label>
+        <input type="number" class="form-control" name="variants[${variantIndex}][price]">
+    </div>
+    <div class="form-group">
+        <label>Giá Khuyến Mãi</label>
+        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
+    </div>
+    <div class="form-group">
+        <label>Số lượng</label>
+        <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
+    </div>
+    <div class="form-group">
+        <label>Màu sắc</label>
+        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
+            <option value="">Chọn màu</option>
+            ${colorOptions}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Kích cỡ</label>
+        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
+            <option value="">Chọn kích cỡ</option>
+            ${sizeOptions}
+        </select>
+        <p class="text-red size-error-msg" style="display: none;"></p>
+    </div>
+    <div class="form-group">
+        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+        <input type="file" class="form-control" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
+        <div class="image-preview" id="image_preview_${variantIndex}"></div>
+    </div>
+    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
+`;
+
+        console.log(newVariant.innerHTML);
+
                 variantFieldsContainer.appendChild(newVariant);
                 variantIndex++;
         
@@ -331,7 +436,6 @@
                     });
                 }
             });
-        
             // Xử lý xóa biến thể từ database
             document.querySelectorAll(".delete-variant").forEach(button => {
                 button.addEventListener("click", function () {
@@ -355,58 +459,130 @@
                     .catch(error => console.error("Lỗi khi xóa biến thể:", error));
                 });
             });
-        
-            // Validate toàn bộ biến thể khi submit
-            productForm.addEventListener('submit', function (event) {
-                let allVariants = document.querySelectorAll('.variant');
-                let isValid = true;
-        
-                allVariants.forEach(variant => {
-                    if (!validateVariant(variant)) isValid = false;
-        
-                    const price = variant.querySelector('input[name*="[price]"]');
-                    const salePrice = variant.querySelector('input[name*="[price_sale]"]');
-                    const stock = variant.querySelector('input[name*="[stock]"]');
-                    const color = variant.querySelector('select[name*="[color]"]');
-                    const size = variant.querySelector('select[name*="[size]"]');
-        
-                    clearError(price);
-                    clearError(salePrice);
-                    clearError(stock);
-                    clearError(color);
-                    clearError(size);
-        
-                    if (!price.value || parseFloat(price.value) < 0) {
-                        showError(price, "Giá không hợp lệ");
-                        isValid = false;
-                    }
-        
-                    if (salePrice.value && parseFloat(salePrice.value) < 0) {
-                        showError(salePrice, "Giá khuyến mãi không hợp lệ");
-                        isValid = false;
-                    }
-        
-                    if (!stock.value || parseInt(stock.value) < 0) {
-                        showError(stock, "Số lượng không hợp lệ");
-                        isValid = false;
-                    }
-        
-                    if (!color.value) {
-                        showError(color, "Vui lòng chọn màu sắc");
-                        isValid = false;
-                    }
-        
-                    if (!size.value) {
-                        showError(size, "Vui lòng chọn kích cỡ");
-                        isValid = false;
-                    }
-                });
-        
-                if (!isValid) {
-                    event.preventDefault();
-                    alert("⚠ Vui lòng kiểm tra lại các biến thể. Có lỗi xảy ra!");
-                }
-            });
+            document.querySelectorAll('.preview-multi-input').forEach(input => {
+    input.addEventListener('change', function () {
+        const containerId = this.dataset.previewContainer;
+        const previewContainer = document.getElementById(containerId);
+
+        // Tìm phần tử hiển thị lỗi ảnh gần input (cùng cha)
+        const errorElement = this.parentElement.querySelector('.image-error-msg');
+
+        // Xóa ảnh cũ trong khung preview và ẩn lỗi cũ (nếu có)
+        previewContainer.innerHTML = '';
+        errorElement.style.display = 'none';
+        errorElement.textContent = '';
+
+        let files = Array.from(this.files);
+
+        // Kiểm tra định dạng ảnh trước
+        let invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+        if (invalidFiles.length > 0) {
+            // Hiển thị alert nếu có file không phải là ảnh
+            alert('❌ Chỉ cho phép tải lên các file hình ảnh (jpg, jpeg, png, gif)');
+            errorElement.textContent = '❌ Chỉ cho phép tải lên các file hình ảnh (jpg, jpeg, png, gif)';
+            errorElement.style.display = 'block';
+            return;  // Không tiếp tục xử lý nếu có lỗi
+        }
+
+        // Nếu hợp lệ thì hiển thị preview
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = "w-20 h-20 object-cover rounded-lg border";
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+});
+
+function validateImages() {
+    let isValid = true;
+    document.querySelectorAll('input[type="file"][name*="[images]"]').forEach(input => {
+        const errorElement = input.parentElement.querySelector('.image-error-msg');
+        if (!errorElement) return;
+
+        errorElement.style.display = 'none';
+        errorElement.textContent = '';
+
+        const files = Array.from(input.files);
+
+        const hasInvalidFile = files.some(file => !file.type.startsWith('image/'));
+        if (hasInvalidFile) {
+            errorElement.textContent = '❌ Chỉ cho phép tải lên các file hình ảnh (jpg, jpeg, png, gif)';
+            errorElement.style.display = 'block';
+            isValid = false;
+        }
+
+        if (files.length > 5) {
+            errorElement.textContent = '❌ Tối đa chỉ được chọn 5 ảnh cho mỗi biến thể.';
+            errorElement.style.display = 'block';
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+// Validate toàn bộ biến thể khi submit
+productForm.addEventListener('submit', function (event) {
+    let allVariants = document.querySelectorAll('.variant');
+    let isValid = true;
+
+    allVariants.forEach(variant => {
+        if (!validateVariant(variant)) isValid = false;
+
+        const price = variant.querySelector('input[name*="[price]"]');
+        const salePrice = variant.querySelector('input[name*="[price_sale]"]');
+        const stock = variant.querySelector('input[name*="[stock]"]');
+        const color = variant.querySelector('select[name*="[color]"]');
+        const size = variant.querySelector('select[name*="[size]"]');
+
+        clearError(price);
+        clearError(salePrice);
+        clearError(stock);
+        clearError(color);
+        clearError(size);
+
+        if (!price.value || parseFloat(price.value) < 0) {
+            showError(price, "Giá không hợp lệ");
+            isValid = false;
+        }
+
+        if (salePrice.value && parseFloat(salePrice.value) < 0) {
+            showError(salePrice, "Giá khuyến mãi không hợp lệ");
+            isValid = false;
+        }
+
+        if (!stock.value || parseInt(stock.value) < 0) {
+            showError(stock, "Số lượng không hợp lệ");
+            isValid = false;
+        }
+
+        if (!color.value) {
+            showError(color, "Vui lòng chọn màu sắc");
+            isValid = false;
+        }
+
+        if (!size.value) {
+            showError(size, "Vui lòng chọn kích cỡ");
+            isValid = false;
+        }
+    });
+
+    const imageValid = validateImages();
+    if (!isValid || !imageValid) {
+        event.preventDefault();
+        alert("⚠ Vui lòng kiểm tra lại các biến thể. Có lỗi xảy ra!");
+    }
+});
+if (document.getElementById('error-messages')) {
+        setTimeout(function() {
+            document.getElementById('error-messages').style.display = 'none';
+        }, 5000); // 5000ms = 5 giây
+    }
         });
         </script>
         

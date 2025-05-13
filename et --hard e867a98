@@ -1,0 +1,172 @@
+[33me867a98[m[33m ([m[1;36mHEAD[m[33m)[m Cap nhat order, cart
+[33m33dca89[m[33m ([m[1;31morigin/Minh[m[33m)[m add refunds
+[33m3933e6f[m update product name
+[33m3692eb9[m update vouchers
+[33m4bd0ee2[m update Coupon
+[33m03b2e32[m fix shipping
+[33maaad3cb[m update coupon and stock order
+[33mf23a9b4[m add admin orders and orders coupon
+[33m09d6e6a[m fix
+[33m07f549c[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m96f19c3[m Order
+[33m0d503aa[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m627a34c[m commit test
+[33mc20f061[m Lưu lại trước khi chuẩn hóa line endings
+[33mcafcbbd[m Fix seeder
+[33m009d86e[m Lưu lại trước khi chuẩn hóa line endings
+[33m5784d1e[m add coupons
+[33mc643b75[m add slider and shipping
+[33m8c63390[m add slider and shipping
+[33mc92b284[m size update
+[33m65fb9db[m css
+[33m6c69e84[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mebdb6bd[m css
+[33mcc6b50e[m update vadidate
+[33me90963d[m vadidate color and size
+[33mf0bba81[m update check Size and Color data
+[33m77c3d11[m fix
+[33m035beea[m update check data
+[33me6e0bba[m fix
+[33ma8db13e[m update Crud size and color
+[33m9b17867[m update Crud size and color
+[33mf375f40[m js update
+[33m665bfaf[m ui update
+[33m9f2d447[m image type
+[33me29b567[m commit test
+[33mc029a82[m update show
+[33ma170dfb[m update fix images edit
+[33m5ab5781[m update fix images edit
+[33m4023e0b[m update fix images edit
+[33m9cad91e[m update fix images edit
+[33mb527a00[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m76ee24f[m dd
+[33mf3bf583[m Resolve merge conflicts and complete merge
+[33m202a982[m test
+[33m9255f53[m test
+[33me4966bb[m  commit test
+[33m1d20d2a[m Cập nhật xử lý lưu ảnh biến thể
+[33m7ca3579[m Cập nhật ProductController: Fix lưu ảnh biến thể
+[33md83b325[m update add product
+[33mf1015c4[m image update
+[33m16b3fb8[m header svg
+[33m80233d1[m commit test
+[33mf380880[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m0606b05[m shoes list UI update
+[33m731530c[m update category des
+[33m084e3db[m product list & product controllers update
+[33m172580c[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m1196730[m css
+[33m261b0d0[m add all products
+[33m24de2ad[m add all products
+[33m6736126[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mf45fc76[m product detail update
+[33mbcc7bfd[m sua add product
+[33m821a9f5[m javascript update
+[33ma967b62[m ui update
+[33m110bc5c[m ui update
+[33m733c029[m fix function  chọn size theo biến thể
+[33m29357fd[m product detail UI update (1)
+[33ma3e2cfb[m N/A image hotfix
+[33m069e187[m ui fix
+[33m1efdb7a[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m40d3091[m ui update
+[33m20a5b38[m update check Color and Size
+[33m420f415[m Resolve merge conflicts
+[33mec0ce78[m update detail
+[33ma91426a[m update detail
+[33m37c6e77[m Lưu thay đổi trước khi pull
+[33m6066ed5[m  detail user
+[33ma9eb310[m profile user
+[33mda3726a[m update destroy
+[33mbf880c7[m update color and size
+[33m3e994f4[m update category
+[33m9340be7[m update migration
+[33m356f029[m update migration
+[33mf6f03c1[m Giao diện đăng ký đăng nhập
+[33mf381544[m Reference Login,Register,FG_password
+[33m7c81ac7[m header update
+[33maf919d0[m ui update
+[33mad6f3d3[m homepage ui update
+[33m3205b57[m ui update
+[33m36939e7[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m2db3436[m ui update
+[33m5a7fc14[m fix images
+[33m38f22de[m ui update homepage & header
+[33m0c964d2[m ui update homepage
+[33mbc564f8[m ui update lastest
+[33mac73a83[m merge code
+[33m1825e5d[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mb63851b[m ui update
+[33mb41e8d3[m update images product
+[33m8dbcead[m update images product
+[33m04004dd[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m3eaa8e5[m comment
+[33m244760d[m tets
+[33m8879586[m test
+[33m003c7e2[m dd product
+[33m79d903f[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m6eee0eb[m commit ui
+[33m1f9235b[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mce90ea5[m update
+[33m345e53c[m slider
+[33m17314b4[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33ma2648f0[m commit test
+[33m18e9bc9[m update
+[33mdc6558b[m update clinet
+[33mb8826f8[m homepage ui update
+[33m5a0e626[m Fix seeder
+[33m126f1e8[m Cập nhật timestamp
+[33m8ac6bc3[m Migration
+[33me3288eb[m update
+[33mfc06b72[m fix
+[33m5e966c5[m Homepage
+[33m1a48915[m update edit attribute and delete
+[33mae0b6b1[m css
+[33m2027e3d[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mb6f572c[m header ui
+[33m0b3dfee[m update edit attribute
+[33mb2973fa[m update edit attribute
+[33mb5acf5a[m User functions
+[33m1440a73[m update stock all
+[33mcafd60b[m update attribute
+[33m594d20b[m fix routes
+[33m2c8010f[m fix routes
+[33m28723f5[m comment
+[33mf27d0a4[m //comment
+[33mdef45b1[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mab85209[m UI update
+[33m22f157c[m Resolved merge conflicts
+[33mb42ea1a[m update migrate and client
+[33m3fd4d85[m Cập nhật UI category
+[33m729c75d[m update image and attribute
+[33mf20d7da[m update image and attribute
+[33me4c2828[m css update
+[33m8114f6a[m Update UI product list
+[33m981cbf2[m Cập nhật UI bộ lọc
+[33m42b1b25[m Logic bộ lọc, lọc chéo
+[33m9bc704e[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33mb941f49[m Logic bộ lọc sản phẩm
+[33mcf7c094[m update products
+[33m2c5fe86[m Hoàn thiện logic thanh pagination
+[33mfa39979[m Merge branch 'Minh' of https://github.com/khangcorn/ShoeMart into Minh
+[33m49c29bf[m Thống kê
+[33m6698867[m ui update
+[33m1d99249[m gộp layout
+[33m5f6035c[m ...
+[33mb4d08d7[m commit test
+[33mf06313c[m tailwind restore
+[33mc583f8d[m new
+[33mde942a8[m test
+[33m0f5bc3e[m commit test
+[33ma0dc7b9[m test
+[33mfc1e7f8[m commit test
+[33m3e3bbb5[m Thanh pagination
+[33ma6b99a1[m Cập nhật UI
+[33mc770729[m Function thu nhỏ, mở rộng layout
+[33md8737d5[m Cập nhật UI ProductList, thêm cột discount
+[33mee0a1e0[m Cập nhật giao diện UI
+[33m07712b1[m Cập nhật giao diện trang Admin & Darkmode function
+[33mf9f24b7[m tailwindCSS install & test
+[33m1797257[m commit test 2
+[33m82bd991[m commit test
+[33m125e311[m Initial commit

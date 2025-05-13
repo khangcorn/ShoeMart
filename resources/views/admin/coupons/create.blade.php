@@ -18,6 +18,18 @@
             @enderror
         </div>
 
+        {{-- Apply To --}}
+        <div class="mb-4">
+            <label for="apply_to" class="block text-gray-700">Apply To:</label>
+            <select name="apply_to" id="apply_to" class="w-full px-4 py-2 mt-2 border rounded-lg @error('apply_to') border-red-500 @enderror">
+                <option value="order" {{ old('apply_to') == 'order' ? 'selected' : '' }}>Order (Giảm giá đơn hàng)</option>
+                <option value="shipping" {{ old('apply_to') == 'shipping' ? 'selected' : '' }}>Shipping (Giảm phí vận chuyển)</option>
+            </select>
+            @error('apply_to')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Discount Type --}}
         <div class="mb-4">
             <label for="discount_type" class="block text-gray-700">Discount Type:</label>
@@ -39,29 +51,42 @@
             @enderror
         </div>
 
-        {{-- Max Discount Value --}}
-        <div class="mb-4">
-            <label for="max_discount_value" class="block text-gray-700">Max Discount Value:</label>
-            <input type="number" name="max_discount_value" id="max_discount_value" value="{{ old('max_discount_value') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('max_discount_value') border-red-500 @enderror">
-            @error('max_discount_value')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
+       {{-- Max Discount Value --}}
+            <div class="mb-4" id="max_discount_value">
+                <label for="max_discount_value" class="block text-gray-700">Max Discount Value:</label>
+                <input type="number" name="max_discount_value" id="max_discount_value" value="{{ old('max_discount_value') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('max_discount_value') border-red-500 @enderror">
+                @error('max_discount_value')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
 
         {{-- Expiration Date --}}
         <div class="mb-4">
             <label for="expiration_date" class="block text-gray-700">Expiration Date:</label>
-            <input type="date" name="expiration_date" id="expiration_date" value="{{ old('expiration_date') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('expiration_date') border-red-500 @enderror">
+            <input type="datetime-local" name="expiration_date" id="expiration_date"
+                   value="{{ old('expiration_date', isset($coupon->expiration_date) ? \Carbon\Carbon::parse($coupon->expiration_date)->format('Y-m-d\TH:i') : '') }}"
+                   class="w-full px-4 py-2 mt-2 border rounded-lg @error('expiration_date') border-red-500 @enderror">
             @error('expiration_date')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
+        
 
         {{-- Usage Limit --}}
         <div class="mb-4">
             <label for="usage_limit" class="block text-gray-700">Usage Limit:</label>
             <input type="number" name="usage_limit" id="usage_limit" value="{{ old('usage_limit') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('usage_limit') border-red-500 @enderror">
             @error('usage_limit')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Min Order Value --}}
+        <div class="mb-4">
+            <label for="min_order_value" class="block text-gray-700">Min Order Value:</label>
+            <input type="number" name="min_order_value" id="min_order_value" value="{{ old('min_order_value') }}" class="w-full px-4 py-2 mt-2 border rounded-lg @error('min_order_value') border-red-500 @enderror">
+            @error('min_order_value')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
@@ -83,6 +108,33 @@
         <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
             Create Coupon
         </button>
+        <a href="{{ route('coupons.index') }}" class="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition-all">Back</a>
     </form>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy các phần tử
+        const discountType = document.getElementById('discount_type');
+        const maxDiscountValueDiv = document.getElementById('max_discount_value');
+
+        // Hàm kiểm tra và ẩn/hiện max_discount_value
+        function toggleMaxDiscount() {
+            if (discountType.value === 'percentage') {
+                maxDiscountValueDiv.style.display = 'block'; // Hiển thị
+            } else {
+                maxDiscountValueDiv.style.display = 'none'; // Ẩn
+            }
+        }
+
+        // Gọi hàm khi trang được tải
+        toggleMaxDiscount();
+
+        // Lắng nghe sự kiện thay đổi của discount_type
+        discountType.addEventListener('change', toggleMaxDiscount);
+    });
+</script>
+
+
 @endsection

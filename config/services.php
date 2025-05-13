@@ -34,6 +34,11 @@ return [
     'secret' => env('STRIPE_SECRET'),
     'public' => env('STRIPE_PUBLIC'),
 ],
+'ghn' => [
+    'token' => env('GHN_TOKEN'),
+    'shop_id' => env('GHN_SHOP_ID'),
+],
+
 
 
 ];
