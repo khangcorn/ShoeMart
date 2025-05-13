@@ -20,6 +20,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
+use App\Http\Controllers\WishlistController;
 use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\Route;
 
@@ -75,7 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
     Route::post('/cart/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkoutSelected');
     Route::get('/cart/count',[CartController::class, 'count'] )->name('cart.count');
-    
+
 
 
 
@@ -84,12 +85,12 @@ Route::middleware('auth')->group(function () {
     // Có thể sử dụng POST cho việc tạo đơn hàng
     Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
     Route::post('/order/{order_id}/process-payment', [OrderController::class, 'processPayment'])->name('order.processPayment');
-    Route::get('/order/success', [OrderController::class, 'paymentSuccess'])->name('order.success');    
+    Route::get('/order/success', [OrderController::class, 'paymentSuccess'])->name('order.success');
     Route::get('/order/details', [OrderController::class, 'showOrderDetails'])->name('order.details');
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index'); // Danh sách đơn hàng
     Route::get('/orders/{order_id}', [OrderController::class, 'show'])->name('order.show'); // Chi tiết đơn hàng
     Route::patch('/orders/{order_id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
-    
+
 
 
     Route::get('/address', [AddressController::class, 'index'])->name('address.index');
@@ -101,6 +102,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
 
     Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
+
+    Route::prefix('wishlist')->name('wishlist.')->group(function () {
+        Route::get('/', [WishlistController::class, 'index'])->name('index');
+        Route::post('/add', [WishlistController::class, 'store'])->name('store');
+        Route::get('/delete', [WishlistController::class, 'delete'])->name('delete');
+    });
 });
 
 

@@ -14,7 +14,7 @@
                                     <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
                                         @foreach ($product->variants as $variant)
                                             @foreach ($variant->images as $image)
-                                                <img 
+                                                <img
                                                     class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
                                                     src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
                                                     alt="{{ $variant->color ?? 'No Color' }}"
@@ -27,7 +27,7 @@
                                         @endforeach
                                     </div>
                                 </div>
-                                
+
 
                                 <!-- Ảnh chính -->
                                 <div class="relative ">
@@ -109,7 +109,7 @@
                         data-price="{{ $variant->price }}"
                         data-stock="{{ $variant->stock }}"
                         data-images="{{ json_encode($variant->images) }}">
-                
+
                         <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
                             src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
                             alt="{{ $variant->color ?? 'No Color' }}"
@@ -130,7 +130,7 @@
                                 data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
                                 data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
                                 data-price="{{ $firstVariant->price }}"
-                                
+
                                 >
                         </div>
                     @endforeach
@@ -202,15 +202,15 @@
                     <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
                     <span class="text-gray-600">Còn lại: <span id="stock-remaining">{{ $product->variants->first()->stock ?? 1 }}</span></span>
                 </div>
-                
+
 
                 <!-- Thêm vào giỏ hàng -->
                 <div class="space-y-2 mt-8">
-                   
+
                     <button id="add-to-bag"  class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold " data-product="{{ $product->product_id }} " data-variant="{{ $variant->variant_id  }}">
                         Add to Bag
                     </button>
-                    <button
+                    <button  onclick="addToWishlist({{ $product->product_id }})"
                         class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
@@ -298,7 +298,7 @@
     </div>
 
 
-  
+
     <script>
       document.addEventListener("DOMContentLoaded", function() {
     const firstVariant = document.querySelector(".variant-item");
@@ -307,7 +307,7 @@
     }
 
     document.getElementById("add-to-bag").addEventListener("click", addToCart);
-    
+
     document.querySelectorAll('.variant-item').forEach(variant => {
         variant.addEventListener('click', function() {
             updateProductDetails(this);
@@ -356,10 +356,10 @@ function addToCart() {
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
-        body: JSON.stringify({ 
-            product_id: productId, 
-            variant_id: variantId, 
-            quantity: quantity 
+        body: JSON.stringify({
+            product_id: productId,
+            variant_id: variantId,
+            quantity: quantity
         })
     })
     .then(response => response.json())
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", updateCartCount);
 
 function updateQuantity(change) {
     let quantityInput = document.getElementById('quantity');
-    let maxStock = parseInt(quantityInput.getAttribute('max')); 
+    let maxStock = parseInt(quantityInput.getAttribute('max'));
     let currentValue = parseInt(quantityInput.value);
 
     let newValue = currentValue + change;
@@ -395,7 +395,7 @@ function updateQuantity(change) {
 
 function updateProductDetails(element) {
     document.querySelectorAll('.variant-item').forEach(variant => {
-        variant.classList.remove('border-black'); 
+        variant.classList.remove('border-black');
     });
 
     element.classList.add('border-black');
@@ -404,12 +404,12 @@ function updateProductDetails(element) {
     const color = variant.getAttribute('data-color');
     const size = variant.getAttribute('data-size');
     const price = variant.getAttribute('data-price');
-    const stock = parseInt(variant.getAttribute('data-stock')); 
+    const stock = parseInt(variant.getAttribute('data-stock'));
     const imagesData = variant.getAttribute('data-images');
     const variantId = variant.getAttribute("data-variant");
       // Cập nhật số lượng còn lại trên giao diện
       document.getElementById("stock-remaining").textContent = stock;
-    
+
     // Cập nhật max cho input số lượng
     document.getElementById("quantity").max = stock;
 
@@ -426,7 +426,7 @@ function updateProductDetails(element) {
     document.getElementById('selected-size').innerText = `EU ${size}`;
 
     updateSizeOptions(size);
-    
+
     let addToBagBtn = document.getElementById("add-to-bag");
     if (addToBagBtn) {
         addToBagBtn.setAttribute("data-variant", variantId);
@@ -438,7 +438,7 @@ function updateProductDetails(element) {
     // Cập nhật lại số lượng tối đa khi thay đổi biến thể
     let quantityInput = document.getElementById('quantity');
     quantityInput.max = stock;
-    quantityInput.value = 1; 
+    quantityInput.value = 1;
 }
 
 function updateSizeOptions(selectedSize) {
@@ -489,7 +489,7 @@ function resetSizeSelection() {
     });
 }
 
-    
+
     </script>
-    
+
 @endsection
