@@ -8,21 +8,26 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <div class="flex space-x-3.5">
-                                <!-- Cột chứa ảnh biến thể -->
-                                <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
-                                    @foreach ($product->variants as $variant)
-                                    @php
-                                        $variantImage = optional($variant->images->first())->image_url;
-                                    @endphp
-                                
-                                    <img class="" 
-                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
-                                        alt="{{ $variant->color ?? 'No Color' }}" 
-                                        onclick="updateProductDetails(this)">
-                                @endforeach
-                                
+                            <div class="flex space-x-3.5 ">
+                                <!-- Cột chứa ảnh chi tiết biến thể -->
+                                <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
+                                    <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
+                                        @foreach ($product->variants as $variant)
+                                            @foreach ($variant->images as $image)
+                                                <img
+                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
+                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
+                                                    alt="{{ $variant->color ?? 'No Color' }}"
+                                                    data-color="{{ $variant->color }}"
+                                                    data-price="{{ $variant->price }}"
+                                                    data-size="{{ $variant->size }}"
+                                                    data-images="{{ json_encode($variant->images) }}"
+                                                    onclick="updateProductDetails(this)">
+                                            @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
+
 
                                 <!-- Ảnh chính -->
                                 <div class="relative">
@@ -78,7 +83,7 @@
                         data-price="{{ $variant->price }}"
                         data-stock="{{ $variant->stock }}"
                         data-images="{{ json_encode($variant->images) }}">
-                
+
                         <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
                             src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
                             alt="{{ $variant->color ?? 'No Color' }}"
@@ -87,6 +92,23 @@
                 @endforeach
                 
 
+
+                        <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
+                            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                            data-price="{{ $firstVariant->price }}"
+                            data-images="{{ json_encode($firstVariant->images) }}">
+
+                            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                                alt="{{ $color }}"
+                                data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                                data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                                data-price="{{ $firstVariant->price }}"
+
+                                >
+                        </div>
+                    @endforeach
                 </div>
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
@@ -154,50 +176,28 @@
                 <div class="hidden">
                     <p id="selected-size" class="mt-2 text-sm text-gray-700">Chưa chọn kích thước</p>
                 </div>
-               @php
-    $cartQuantity = $cartQuantity ?? 0;
-    $hasVariant = $product->variants->isNotEmpty();
-    $stock = $hasVariant ? $product->variants->first()->stock : $product->stock;
-    $maxQuantity = max(1, $stock - $cartQuantity);
-@endphp
+                <div class="flex items-center space-x-4 mt-4">
+                    <label for="quantity" class="font-semibold">Quantity:</label>
+                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(-1)">-</button>
+                    @php
+                        $cartQuantity = $cartQuantity ?? 0;
+                        $stock = $product->variants->first()->stock ?? 1;
+                        $maxQuantity = max(1, $stock - $cartQuantity);
+                    @endphp
+                    <input id="quantity" type="number" class="w-16 text-center border border-gray-300 rounded-md"
+                        value="1" min="1" max="{{ $maxQuantity }}">
+                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
+                    <span class="text-gray-600">Còn lại: <span id="stock-remaining">{{ $product->variants->first()->stock ?? 1 }}</span></span>
+                </div>
 
-<div class="flex items-center space-x-4 mt-4">
-    <label for="quantity" class="font-semibold">Quantity:</label>
-
-    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(-1)">-</button>
-
-    <input 
-        id="quantity" 
-        type="number" 
-        class="w-16 text-center border border-gray-300 rounded-md"
-        value="1" 
-        min="1" 
-        max="{{ $maxQuantity }}"
-    >
-
-    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
-
-    <span class="text-gray-600">
-        Còn lại: 
-        <span id="stock-remaining">{{ $stock }}</span>
-    </span>
-</div>
-
-                
 
                 <!-- Thêm vào giỏ hàng -->
                 <div class="space-y-2 mt-8">
-                   
-                    <button id="add-to-bag"  
-                    class="bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white py-4 w-full rounded-full font-semibold" 
-                    data-product="{{ $product->product_id }}"
-                    @if($product->variants->isNotEmpty())
-                        data-variant="{{ $product->variants->first()->variant_id }}" 
-                    @endif>
-                    Add to Bag
-                </button>
-                
-                    <button
+
+                    <button id="add-to-bag"  class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold " data-product="{{ $product->product_id }} " data-variant="{{ $variant->variant_id  }}">
+                        Add to Bag
+                    </button>
+                    <button  onclick="addToWishlist({{ $product->product_id }})"
                         class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
@@ -353,7 +353,7 @@
     </div>
 
 
-  
+
     <script>
       document.addEventListener("DOMContentLoaded", function() {
     const firstVariant = document.querySelector(".variant-item");
@@ -362,7 +362,7 @@
     }
 
     document.getElementById("add-to-bag").addEventListener("click", addToCart);
-    
+
     document.querySelectorAll('.variant-item').forEach(variant => {
         variant.addEventListener('click', function() {
             updateProductDetails(this);
@@ -411,10 +411,10 @@ function addToCart() {
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
-        body: JSON.stringify({ 
-            product_id: productId, 
-            variant_id: variantId, 
-            quantity: quantity 
+        body: JSON.stringify({
+            product_id: productId,
+            variant_id: variantId,
+            quantity: quantity
         })
     })
     .then(response => response.json())
@@ -438,7 +438,7 @@ document.addEventListener("DOMContentLoaded", updateCartCount);
 
 function updateQuantity(change) {
     let quantityInput = document.getElementById('quantity');
-    let maxStock = parseInt(quantityInput.getAttribute('max')); 
+    let maxStock = parseInt(quantityInput.getAttribute('max'));
     let currentValue = parseInt(quantityInput.value);
 
     let newValue = currentValue + change;
@@ -450,7 +450,7 @@ function updateQuantity(change) {
 
 function updateProductDetails(element) {
     document.querySelectorAll('.variant-item').forEach(variant => {
-        variant.classList.remove('border-black'); 
+        variant.classList.remove('border-black');
     });
 
     element.classList.add('border-black');
@@ -459,12 +459,12 @@ function updateProductDetails(element) {
     const color = variant.getAttribute('data-color');
     const size = variant.getAttribute('data-size');
     const price = variant.getAttribute('data-price');
-    const stock = parseInt(variant.getAttribute('data-stock')); 
+    const stock = parseInt(variant.getAttribute('data-stock'));
     const imagesData = variant.getAttribute('data-images');
     const variantId = variant.getAttribute("data-variant");
       // Cập nhật số lượng còn lại trên giao diện
       document.getElementById("stock-remaining").textContent = stock;
-    
+
     // Cập nhật max cho input số lượng
     document.getElementById("quantity").max = stock;
 
@@ -483,7 +483,7 @@ document.getElementById('product-price').innerHTML = `${formattedPrice} <span cl
     document.getElementById('selected-size').innerText = `EU ${size}`;
 
     updateSizeOptions(size);
-    
+
     let addToBagBtn = document.getElementById("add-to-bag");
     if (addToBagBtn) {
         addToBagBtn.setAttribute("data-variant", variantId);
@@ -495,7 +495,7 @@ document.getElementById('product-price').innerHTML = `${formattedPrice} <span cl
     // Cập nhật lại số lượng tối đa khi thay đổi biến thể
     let quantityInput = document.getElementById('quantity');
     quantityInput.max = stock;
-    quantityInput.value = 1; 
+    quantityInput.value = 1;
 }
 
 function updateSizeOptions(selectedSize) {
@@ -551,7 +551,7 @@ function resetSizeSelection() {
     });
 }
 
-    
+
     </script>
-    
+
 @endsection

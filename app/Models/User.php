@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
-use Illuminate\Notifications\Notifiable; 
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -50,12 +50,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAddresses::class, 'user_id', 'user_id');
     }
-    
+
     public function carts()
     {
         return $this->hasMany(Cart::class);
     }
- 
+
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
@@ -64,31 +64,8 @@ class User extends Authenticatable
     {
         return $this->roles()->where('name', $role)->exists();
     }
-    public function hasPermission($permission)
-    {
-        foreach ($this->roles as $role) {
-            if ($role->permissions->contains('name', $permission)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    public function wallet()
-    {
-        return $this->hasOne(Wallet::class, 'user_id', 'user_id');
-    }
-    public function banks()
-    {
-        return $this->hasMany(UserBank::class, 'user_id');
-    }
-    public function notifications()
-    {
-        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
-    }
     public function wishlist()
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->hasMany(Wishlist::class,'user_id','user_id');
     }
-
-
 }
