@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Models\Coupon;
+use App\Models\Order;
+use App\Models\OrderReview;
+use App\Models\OrderStatus;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -29,28 +32,38 @@ class HomeController extends Controller
 
         return view('client.products.detail', compact('product', 'productImages'));
     }
+public function showDetail($productId)
+{
+    // Lấy sản phẩm theo ID, bao gồm các biến thể, ảnh, danh mục, và các thuộc tính của biến thể
+    $product = Product::with([
+        'variants.variantAttributeValues.variantAttribute', // Lấy các thuộc tính (size, color) của biến thể
+        'images', // Lấy ảnh của sản phẩm
+        'category' // Lấy danh mục của sản phẩm
+    ])->findOrFail($productId);
 
-    public function showDetail($productId)
-    {
-        // Lấy sản phẩm theo ID, bao gồm các biến thể, ảnh, danh mục, và các thuộc tính của biến thể
-        $product = Product::with([
-            'variants.variantAttributeValues.variantAttribute', // Lấy các thuộc tính (size, color) của biến thể
-            'images', // Lấy ảnh của sản phẩm
-            'category' // Lấy danh mục của sản phẩm
-        ])->findOrFail($productId);
+    // Lấy tất cả màu sắc và kích thước của các biến thể
+    $colors = $product->variants->flatMap(function ($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->pluck('variantAttribute.attribute_value');
+    })->unique();
 
-        // Lấy tất cả màu sắc và kích thước của các biến thể
-        $colors = $product->variants->flatMap(function ($variant) {
-            return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->pluck('variantAttribute.attribute_value');
-        })->unique();
+    $sizes = $product->variants->flatMap(function ($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->pluck('variantAttribute.attribute_value');
+    })->unique();
 
-        $sizes = $product->variants->flatMap(function ($variant) {
-            return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->pluck('variantAttribute.attribute_value');
-        })->unique();
+    // Lấy tất cả đánh giá của sản phẩm
+$reviews = $product->orderReviews()->with([
+    'user',
+    'orderDetail.product',
+    'orderDetail.variant.attributes.variantAttribute'
 
-        // Trả về view với thông tin sản phẩm và các giá trị màu sắc, kích thước
-        return view('client.products.detail', compact('product', 'colors', 'sizes'));
-    }
+])->get();
+
+
+    return view('client.products.detail', compact('product', 'colors', 'sizes', 'reviews'));
+}
+
+
+
 public function indexVoucher(Request $request)
 {
     // Lưu URL trước đó vào session

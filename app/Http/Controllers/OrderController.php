@@ -17,6 +17,7 @@ use App\Models\UserAddress;
 use App\Models\User; // Nếu chưa có
 use App\Models\Coupon;
 use App\Models\OrderDetail;
+use App\Models\OrderReview;
 use App\Models\OrderStatus;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -25,7 +26,7 @@ use App\Models\ShippingFee;
 use App\Models\UserAddresses;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Session;
 class OrderController extends Controller
 {
      // Hiển thị danh sách đơn hàng của người dùng
@@ -566,7 +567,123 @@ public function create(Request $request)
             }
         }
     }
-    
+public function submitReview(Request $request)
+{
+    // Validate dữ liệu đầu vào
+    $validated = $request->validate([
+        'order_id' => 'required|exists:orders,order_id',
+        'ratings' => 'required|array',
+        'comments' => 'required|array',
+    ]);
+
+    $order = Order::with([
+        'orderDetails.product',
+        'orderDetails.variant.variantAttributeValues.variantAttribute',
+    ])->findOrFail($request->order_id);
+
+    // Kiểm tra điều kiện: người dùng có quyền đánh giá, trạng thái đơn hàng hợp lệ
+    if ($order->user_id !== auth()->id() || $order->status_id != 4) {
+        return back()->with('error', 'Không thể đánh giá đơn hàng này.');
+    }
+
+    // Mảng lưu các lỗi
+    $errors = [];
+
+    // Kiểm tra từng chi tiết đơn hàng
+    foreach ($order->orderDetails as $orderDetail) {
+        // Kiểm tra nếu sản phẩm đã có đánh giá thì bỏ qua
+        if ($orderDetail->reviews()->exists()) {
+            continue;
+        }
+
+        $id = $orderDetail->order_detail_id;
+
+        // Kiểm tra xem rating và comment có hợp lệ không
+        if (!isset($request->ratings[$id]) || !isset($request->comments[$id])) {
+            $errors[$id][] = 'Bạn phải đánh giá đầy đủ cho mỗi sản phẩm.';
+            continue;
+        }
+
+        // Kiểm tra hình ảnh/video
+        $mediaFiles = $request->file("media")[$id] ?? [];
+        if (!$mediaFiles || count($mediaFiles) == 0) {
+            $errors[$id][] = 'Phải có ít nhất 1 ảnh hoặc video.';
+            continue;
+        }
+
+        $imageCount = 0;
+        $videoCount = 0;
+        $validExtensions = ['jpeg', 'jpg', 'png', 'mp4', 'webm', 'mov'];
+        $mediaPaths = [];
+
+        // Kiểm tra từng file media
+        foreach ($mediaFiles as $file) {
+            if ($file && $file->isValid()) {
+                $ext = strtolower($file->getClientOriginalExtension());
+
+                // Kiểm tra định dạng tệp
+                if (!in_array($ext, $validExtensions)) {
+                    $errors[$id][] = "Tệp $ext không hợp lệ.";
+                    continue;
+                }
+
+                // Kiểm tra số lượng ảnh và video
+                if (in_array($ext, ['jpeg', 'jpg', 'png'])) $imageCount++;
+                if (in_array($ext, ['mp4', 'webm', 'mov'])) $videoCount++;
+
+                if ($imageCount > 5) {
+                    $errors[$id][] = 'Tối đa 5 ảnh.';
+                    break;
+                }
+                if ($videoCount > 1) {
+                    $errors[$id][] = 'Chỉ được 1 video.';
+                    break;
+                }
+
+                $mediaPaths[] = $file->store('reviews', 'public');
+            } else {
+                $errors[$id][] = 'Tệp không hợp lệ.';
+            }
+        }
+
+        // Nếu không có lỗi, lưu đánh giá
+        if (!isset($errors[$id])) {
+            OrderReview::create([
+                'order_id' => $order->order_id,
+                'user_id' => auth()->id(),
+                'rating' => $request->ratings[$id],
+                'comment' => $request->comments[$id],
+                'media_paths' => $mediaPaths,
+                'order_detail_id' => $id,
+                'product_id' => $orderDetail->product_id,
+                'variant_id' => $orderDetail->variant_id,
+            ]);
+        }
+    }
+
+    // Nếu có lỗi, lưu lỗi vào session và không submit
+    if (!empty($errors)) {
+        // Lưu lỗi vào session và quay lại form
+        Session::flash('review_errors', $errors);
+        return back()->withInput();
+    }
+
+    // Kiểm tra xem tất cả sản phẩm trong đơn hàng đã được đánh giá chưa
+    $allReviewed = $order->orderDetails->every(function ($detail) {
+        return $detail->reviews()->exists();
+    });
+
+    // Nếu tất cả sản phẩm đã được đánh giá, cập nhật trạng thái đơn hàng
+    if ($allReviewed) {
+        $order->status_id = 6; // Đơn hàng đã hoàn tất
+        $order->save();
+    }
+
+    // Trả về thông báo thành công
+    return back()->with('success', 'Đánh giá thành công!');
+}
+
+
     
 
 }

@@ -64,5 +64,16 @@ public function mainImage()
 {
     return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('type', 'main');
 }
+public function orderDetails()
+{
+    return $this->hasMany(OrderDetail::class, 'product_id', 'product_id');
+}
+public function orderReviews()
+{
+    return $this->hasManyThrough(OrderReview::class, OrderDetail::class, 'product_id', 'order_detail_id', 'product_id', 'order_detail_id');
+}
+
+
+
 
 }

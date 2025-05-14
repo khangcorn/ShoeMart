@@ -256,7 +256,97 @@
         </div>
 
     </div>
+ <div class="mt-5">
+    <style>
+        .review {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s;
+}
 
+.review:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info strong {
+    font-size: 16px;
+    color: #333;
+}
+
+.review-time {
+    font-size: 13px;
+    color: #888;
+}
+
+.rating .star {
+    font-size: 18px;
+    color: #ccc;
+    margin-right: 2px;
+}
+
+.rating .star.filled {
+    color: #fbc02d;
+}
+
+.review-product-info {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.review-product-info .badge {
+    font-size: 12px;
+    background-color: #6c757d;
+    color: #fff;
+    margin-right: 4px;
+}
+
+.review-body {
+    margin-top: 12px;
+}
+
+.review-comment {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #444;
+}
+
+.review-media {
+    margin-top: 10px;
+}
+
+.review-media img {
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: transform 0.2s ease;
+}
+
+.review-media img:hover {
+    transform: scale(1.05);
+}
+.review .star {
+    font-size: 18px;
+    color: #ccc;
+}
+.review .star.filled {
+    color: #ffc107; /* Bootstrap warning color */
+}
+
+    </style>
+        <h4>Đánh giá từ người mua</h4>
+        {{-- Phần này bạn sẽ xử lý tiếp --}}
+         @include('client.products.product_reviews', ['reviews' => $reviews])
+    </div>
 
 
 

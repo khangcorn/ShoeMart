@@ -27,7 +27,9 @@
                 <li class="flex items-center space-x-4">
                     <!-- Hiển thị ảnh sản phẩm nếu có -->
                     @if ($detail->product->images->isNotEmpty())
-                        <img src="{{ asset('storage/' . $detail->product->images->first()->image_url) }}" alt="{{ $detail->product->name }}" class="w-16 h-16 object-cover rounded-md">
+                        <a href="{{ route('products.detail', $detail->product->product_id) }}">
+                            <img src="{{ asset('storage/' . $detail->product->images->first()->image_url) }}" alt="{{ $detail->product->name }}" class="w-16 h-16 object-cover rounded-md">
+                        </a>
                     @else
                         <span class="text-gray-500">Không có ảnh sản phẩm</span>
                     @endif

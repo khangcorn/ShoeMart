@@ -16,6 +16,52 @@
     background-color: #f8d7da; /* Light red */
     color: #721c24; /* Dark red */
 }
+.review-modal {
+    position: fixed;
+    top: 50%; /* Căn giữa theo chiều dọc */
+    left: 50%; /* Căn giữa theo chiều ngang */
+    transform: translate(-50%, -50%); /* Điều chỉnh lại vị trí để chính giữa hoàn toàn */
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+    display: none; /* Ẩn mặc định */
+    width: 90%; /* Mở rộng chiều rộng modal, 90% màn hình */
+    max-width: 800px; /* Giới hạn chiều rộng tối đa của modal */
+}
+
+
+.review-modal.show {
+    display: flex; /* Hiện modal khi có class 'show' */
+}
+
+
+.media-preview {
+    display: flex;
+    flex-wrap: wrap; /* Cho phép xuống dòng nếu quá rộng */
+    gap: 10px; /* Khoảng cách giữa các ảnh/video */
+    margin-top: 10px;
+}
+
+.media-preview img,
+.media-preview video {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+
+.review-modal .bg-white {
+    width: 70%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+
 
 /* Table Styling */
 table {
@@ -248,14 +294,129 @@ button[type="submit"]:hover {
             @csrf
             <button type="submit" class="text-green-500">Đã nhận hàng</button>
         </form>
-    @elseif($order->status->status_id == 4) 
-        @if (!$order->returnRequest)
-            <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">Trả hàng và hoàn tiền</button>
-        @elseif($order->returnRequest && $order->returnRequest->status == 'rejected')
-            <span class="text-red-500">Yêu cầu hoàn hàng bị từ chối, vui lòng liên hệ Admin</span>
-        @else
-            <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
-        @endif
+   @elseif($order->status->status_id == 4)
+    {{-- Nút trả hàng và hoàn tiền --}}
+    @if (!$order->returnRequest)
+        <button id="return-button-{{ $order->order_id }}" class="text-yellow-500" onclick="openReturnModal({{ $order->order_id }},{{ $order->total }})">
+            Trả hàng và hoàn tiền
+        </button>
+    @elseif($order->returnRequest && $order->returnRequest->status == 'rejected')
+        <span class="text-red-500">Yêu cầu hoàn hàng bị từ chối, vui lòng liên hệ Admin</span>
+    @else
+        <span class="text-orange-500 italic">Đã gửi yêu cầu trả hàng và hoàn tiền</span>
+    @endif
+
+    {{-- Nút đánh giá đơn hàng --}}
+    @if(!$order->reviewed)
+       <button class="text-blue-500 ml-2" onclick="if (confirmReview()) { openReviewModal({{ $order->order_id }}); }">
+    Đánh giá đơn hàng
+</button>
+
+    <!-- Modal đánh giá riêng cho từng đơn hàng -->
+ <form id="review-modal-{{ $order->order_id }}" class="review-modal" method="POST" action="{{ route('orders.review.submit') }}" enctype="multipart/form-data">
+    @csrf
+    <div class="bg-white w-2/3 p-6 rounded shadow-lg overflow-y-auto max-h-[80vh]">
+        <input type="hidden" name="order_id" value="{{ $order->order_id }}">
+
+        @foreach ($order->orderDetails as $orderDetail)
+            @if ($orderDetail->reviews()->exists())
+                <div class="text-sm text-green-600 mb-4">
+                    @if ($orderDetail->variant)
+                        Sản phẩm ({{ $orderDetail->product->name }}) 
+                        @if ($orderDetail->variant->variantAttributeValues)
+                            <div>
+                                @foreach ($orderDetail->variant->variantAttributeValues as $attrValue)
+                                    @php
+                                        $attribute = $attrValue->variantAttribute;
+                                    @endphp
+                                    @if ($attribute && in_array(strtolower($attribute->attribute_name), ['size', 'color']))
+                                        <span class="badge bg-secondary me-1">
+                                            {{ ucfirst($attribute->attribute_name) }}: {{ $attribute->attribute_value }}
+                                        </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                        đã được đánh giá.
+                    @else
+                        Sản phẩm ({{ $orderDetail->product->name }}) đã được đánh giá.
+                    @endif
+                </div>
+
+                @continue
+            @endif
+
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">
+                    @if ($orderDetail->variant) 
+                        {{ $orderDetail->product->name }}
+                        
+                        @if ($orderDetail->variant->variantAttributeValues)
+                            <div>
+                                @foreach ($orderDetail->variant->variantAttributeValues as $attrValue)
+                                    @php
+                                        $attribute = $attrValue->variantAttribute;
+                                    @endphp
+                                    @if ($attribute)
+                                        <span class="badge bg-secondary me-1">
+                                            {{ $attribute->attribute_name }}: {{ $attribute->attribute_value }}
+                                        </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    @else
+                        {{ $orderDetail->product->name }}
+                    @endif
+                </h3>
+
+                
+                @php
+                    $reviewErrors = session('review_errors')[$orderDetail->order_detail_id] ?? [];
+                @endphp
+
+                @if (!empty($reviewErrors))
+                    <ul class="text-red-500 text-sm mb-2 list-disc list-inside">
+                        @foreach ($reviewErrors as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                <label class="block mb-2">Số sao:</label>
+                <select name="ratings[{{ $orderDetail->order_detail_id }}]" class="w-full border rounded mb-4">
+                    @for ($i = 5; $i >= 1; $i--)
+                        <option value="{{ $i }}">{{ $i }} sao</option>
+                    @endfor
+                </select>
+
+                <label class="block mb-2">Nội dung đánh giá:</label>
+                <textarea name="comments[{{ $orderDetail->order_detail_id }}]" class="w-full border rounded mb-4" rows="4"></textarea>
+
+                <label class="block mb-2">Hình ảnh/Video (tuỳ chọn):</label>
+                <input type="file" name="media[{{ $orderDetail->order_detail_id }}][]" multiple accept="image/*,video/*" class="mb-4" onchange="previewMedia(event, {{ $orderDetail->order_detail_id }})">
+                <div class="media-preview" id="media-preview-{{ $orderDetail->order_detail_id }}"></div>
+            </div>
+        @endforeach
+
+        <div class="flex justify-end">
+            <button type="button" onclick="closeReviewModal({{ $order->order_id }})" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Gửi đánh giá</button>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+    @else
+        <span class="text-green-500 italic ml-2">Đã đánh giá</span>
+    @endif
+
+@elseif($order->status->status_id == 6)
+    <span class="text-green-600 font-semibold italic">Đơn đã hoàn thành</span>
+
     @elseif($order->status->status_id == 8) 
         <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
     @elseif($order->status->status_id == 1)
@@ -264,6 +425,7 @@ button[type="submit"]:hover {
             @method('PATCH')
             <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
         </form>
+        
     @else
         <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
     @endif
@@ -302,6 +464,7 @@ button[type="submit"]:hover {
     </div>
 </div>
 
+
 <!-- Pagination -->
 <div class="pagination mt-4">
     {{ $orders->links() }}
@@ -328,7 +491,84 @@ document.getElementById('returnModal').addEventListener('click', function(event)
         closeReturnModal();
     }
 });
+function confirmReview() {
+    return confirm("Sau khi đánh giá, bạn sẽ không thể trả hàng nữa. Bạn có chắc muốn tiếp tục?");
+}
+function openReviewModal(orderId) {
+    const modal = document.getElementById(`review-modal-${orderId}`);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.classList.add('overflow-hidden');
 
+    }
+}
+
+function closeReviewModal(orderId) {
+    const modal = document.getElementById(`review-modal-${orderId}`);
+    if (modal) {
+        modal.classList.remove('show'); // Loại bỏ class 'show' để ẩn modal
+        modal.style.display = 'none';   // Đảm bảo ẩn modal bằng cách thay đổi display
+    }
+}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const reviewErrors = @json(session('review_errors'));
+
+        if (reviewErrors) {
+            // Duyệt qua các order_detail_id có lỗi
+            for (const orderDetailId in reviewErrors) {
+                // Tìm form cha (modal) chứa lỗi đó
+                const modalForm = document.querySelector(`form.review-modal`);
+                
+                if (modalForm) {
+                    // Mở lại modal đó (tuỳ bạn dùng kiểu modal nào, ví dụ Tailwind Modal, AlpineJS, hoặc custom)
+                    modalForm.style.display = 'block'; // Giả sử bạn dùng display: none/block để ẩn/hiện modal
+                    document.body.classList.add('overflow-hidden'); // Nếu cần scroll lock
+                    break; // Mở một modal là đủ
+                }
+            }
+        }
+    });
+    function previewMedia(event, orderDetailId) {
+        const mediaPreviewContainer = document.getElementById('media-preview-' + orderDetailId);
+        mediaPreviewContainer.innerHTML = ''; // Clear previous previews
+
+        const files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileReader = new FileReader();
+
+            fileReader.onload = function(e) {
+                const fileUrl = e.target.result;
+                const fileType = file.type.split('/')[0];
+
+                // Create preview element
+                let previewElement;
+                if (fileType === 'image') {
+                    previewElement = document.createElement('img');
+                    previewElement.src = fileUrl;
+                    previewElement.style.width = '100px';
+                    previewElement.style.height = '100px';
+                    previewElement.style.objectFit = 'cover';
+                    previewElement.classList.add('rounded');
+                } else if (fileType === 'video') {
+                    previewElement = document.createElement('video');
+                    previewElement.src = fileUrl;
+                    previewElement.width = 100;
+                    previewElement.classList.add('rounded');
+                    previewElement.setAttribute('controls', 'true');
+                }
+
+                // Append preview element
+                if (previewElement) {
+                    mediaPreviewContainer.appendChild(previewElement);
+                }
+            };
+
+            fileReader.readAsDataURL(file);
+        }
+    }
 </script>
+
 
 @endsection

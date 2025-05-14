@@ -66,5 +66,10 @@ class Order extends Model
     {
         return $this->hasOne(RefundRequest::class, 'order_id', 'order_id');
     }
+    public function review()
+{
+    return $this->hasOne(OrderReview::class, 'order_id');
+}
+
 }
 

@@ -233,3 +233,5 @@ Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'
 Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippingFee']);
 
 // routes/web.php
+Route::post('/orders/review', [OrderController::class, 'submitReview'])->name('orders.review.submit');
+
