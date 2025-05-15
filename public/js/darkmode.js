@@ -1,14 +1,11 @@
 function toggleDarkMode() {
-  const html = document.documentElement; 
-  const isDarkMode = html.classList.toggle("dark");  // Thêm hoặc xóa class 'dark' trên <html>
+  const html = document.documentElement;
+  const isDarkMode = html.classList.toggle("dark");
 
-  // Lưu trạng thái chế độ sáng/tối trong localStorage
   localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
 
-  // Cập nhật icon tương ứng (mặt trời/mặt trăng)
   updateDarkModeIcon(isDarkMode);
 
-  // Thêm hiệu ứng chuyển màu nền và văn bản (background-color và color)
   html.style.transition = "background-color 0.5s, color 0.5s";
 }
 
@@ -17,13 +14,11 @@ function updateDarkModeIcon(isDarkMode) {
   if (!svg) return;
 
   if (isDarkMode) {
-    // Hiển thị icon mặt trăng (Dark Mode)
     svg.innerHTML = `
       <path d="M21 12.79A9 9 0 1111.21 3 
       7 7 0 0021 12.79z" stroke="white" stroke-width="1.5" fill="none"/>
     `;
   } else {
-    // Hiển thị icon mặt trời (Light Mode)
     svg.innerHTML = `
       <circle cx="12" cy="12" r="6" stroke="#000000" stroke-width="1.5"></circle>
       <path d="M12 2V3" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
@@ -39,11 +34,12 @@ function updateDarkModeIcon(isDarkMode) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const isDarkMode = localStorage.getItem("darkMode") === "enabled"; // Kiểm tra trạng thái từ localStorage
+  const darkModeSetting = localStorage.getItem("darkMode") || "disabled";
+  const isDarkMode = darkModeSetting === "enabled";
 
   if (isDarkMode) {
-    document.documentElement.classList.add("dark");  // Thêm class 'dark' vào <html> nếu đã bật chế độ tối
+    document.documentElement.classList.add("dark");
   }
 
-  updateDarkModeIcon(isDarkMode);  // Cập nhật icon khi trang được tải
+  updateDarkModeIcon(isDarkMode);
 });

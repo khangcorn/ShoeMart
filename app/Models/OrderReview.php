@@ -9,10 +9,18 @@ class OrderReview extends Model
 {
     use HasFactory;
 
-    // Cập nhật `$fillable` để bao gồm `product_id` và `variant_id`
-    protected $fillable = ['order_id', 'user_id', 'rating', 'comment', 'media_paths', 'order_detail_id', 'product_id', 'variant_id'];
+    protected $fillable = [
+        'order_id',
+        'user_id',
+        'rating',
+        'comment',
+        'media_paths',
+        'order_detail_id',
+        'product_id',
+        'variant_id',
+        'admin_response',
+    ];
 
-    // Cập nhật phần cast cho media_paths
     protected $casts = [
         'media_paths' => 'array',
     ];
@@ -20,30 +28,30 @@ class OrderReview extends Model
     // Quan hệ với Order
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 
     // Quan hệ với OrderDetail
     public function orderDetail()
     {
-        return $this->belongsTo(OrderDetail::class, 'order_detail_id', 'order_detail_id');
+        return $this->belongsTo(OrderDetail::class, 'order_detail_id', 'id');
     }
 
-    // Quan hệ với Product (Sản phẩm)
+    // Quan hệ với Product
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    // Quan hệ với ProductVariant (Biến thể sản phẩm)
+    // Quan hệ với ProductVariant
     public function variant()
     {
-        return $this->belongsTo(ProductVariant::class, 'variant_id', 'variant_id');
+        return $this->belongsTo(ProductVariant::class, 'variant_id', 'id');
     }
 
-    // Quan hệ với User (Người dùng)
+    // Quan hệ với User
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

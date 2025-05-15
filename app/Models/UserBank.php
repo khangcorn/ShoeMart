@@ -13,8 +13,9 @@ class UserBank extends Model
     protected $fillable = ['user_id', 'bank_name', 'account_number'];
 
     // Quan hệ với bảng users
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+public function users()
+{
+    return $this->belongsToMany(User::class, 'user_banks', 'bank_id', 'user_id');
+}
+
 }

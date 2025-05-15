@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\RefundRequestController;
 use App\Http\Controllers\Admin\WithdrawRequestController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
+use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WishlistController;
 use App\Models\VariantAttribute;
 
@@ -85,7 +86,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart/count',[CartController::class, 'count'] )->name('cart.count');
 
 
+Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+// Nếu route dùng phương thức GET
+Route::get('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
 
+// Hoặc nếu dùng POST (thường rút tiền sẽ là POST)
+Route::post('/wallet/withdraw', [WalletController::class, 'processWithdraw'])->name('wallet.withdraw');
+Route::get('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
+Route::post('/wallet/link-bank', [WalletController::class, 'storeLinkBank'])->name('wallet.link-bank');
+Route::delete('/wallet/unlink-bank/{bankId}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
 
      // Đơn hàng
      Route::get('/checkout', [OrderController::class, 'create'])->name('cart.checkout');
@@ -97,6 +106,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index'); // Danh sách đơn hàng
     Route::get('/orders/{order_id}', [OrderController::class, 'show'])->name('order.show'); // Chi tiết đơn hàng
     Route::patch('/orders/{order_id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
+    Route::post('/order/return-request', [OrderController::class, 'returnRequest'])->name('order.returnRequest');
 
 
 
@@ -206,6 +216,11 @@ Route::prefix('admin')->middleware('auth')->group(function() {
     Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])
         ->middleware('check_permission:update_order_status')
         ->name('admin.orders.ajaxUpdateStatus');
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('admin.reviews.index');
+    Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+    Route::get('admin/reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])->name('admin.reviews.reply');
+    Route::post('admin/reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'storeReply'])->name('admin.reviews.reply.store');
+
 });
 
 // Định nghĩa route DELETE để xóa biến thể
@@ -225,3 +240,4 @@ Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippi
 // routes/web.php
 Route::post('/orders/review', [OrderController::class, 'submitReview'])->name('orders.review.submit');
 
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');

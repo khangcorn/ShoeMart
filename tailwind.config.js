@@ -5,6 +5,7 @@ export default {
     './resources/**/*.js',
     './resources/**/*.vue',
   ],
+  darkMode: 'class', // 👉 Thêm dòng này để bật dark mode theo class
   theme: {
     extend: {},
   },

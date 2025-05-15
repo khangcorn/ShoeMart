@@ -89,26 +89,26 @@
                             alt="{{ $variant->color ?? 'No Color' }}"
                             onclick="updateProductDetails(this)">
                     </div>
-                @endforeach
+                    @endforeach
                 
 
 
-                        <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
-                            data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                            data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                            data-price="{{ $firstVariant->price }}"
-                            data-images="{{ json_encode($firstVariant->images) }}">
-
-                            <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                                alt="{{ $color }}"
+                        {{-- @foreach($product->variants as $firstVariant)
+                            <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
                                 data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
                                 data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
                                 data-price="{{ $firstVariant->price }}"
+                                data-images="{{ json_encode($firstVariant->images) }}">
 
-                                >
-                        </div>
-                    @endforeach
+                                <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                                    src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                                    alt="{{ $variant->color ?? 'No Color' }}"
+                                    data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
+                                    data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
+                                    data-price="{{ $firstVariant->price }}">
+                            </div>
+                        @endforeach --}}
+
                 </div>
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">

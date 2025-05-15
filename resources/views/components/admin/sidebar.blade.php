@@ -232,7 +232,7 @@
         </li>
         <li>
             
-            <a class="flex  items-center p-2.5 rounded" href="{{ route('products.index') }}">
+            <a class="flex  items-center p-2.5 rounded" href="{{ route('admin.reviews.index') }}">
                 <svg viewBox="0 0 24 24" class="stroke-black dark:stroke-white" stroke-width="1" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     
@@ -243,7 +243,7 @@
                         
                     </g>
                 </svg>
-                <span class="ml-2">Comments</span>
+                <span class="ml-2">Reviews</span>
             </a>
         </li>
 

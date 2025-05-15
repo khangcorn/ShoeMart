@@ -280,7 +280,7 @@ public function create(Request $request)
         return redirect()->route('order.success')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)->with('order', $order);
 
     }
-}
+
 
 
     

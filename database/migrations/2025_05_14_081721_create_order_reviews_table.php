@@ -17,16 +17,17 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->tinyInteger('rating'); // 1–5 sao
             $table->text('comment');
+            $table->text('admin_response')->nullable(); // phản hồi của admin
             $table->json('media_paths')->nullable(); // Lưu đường dẫn hình ảnh hoặc video
-            $table->unsignedBigInteger('order_detail_id'); // Cột order_detail_id
-            $table->unsignedBigInteger('product_id'); // Thêm cột product_id
-            $table->unsignedBigInteger('variant_id'); // Thêm cột variant_id
+            $table->unsignedBigInteger('order_detail_id');
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('variant_id');
             $table->timestamps();
 
-            // Đảm bảo rằng mỗi người dùng chỉ có thể đánh giá mỗi sản phẩm trong đơn hàng một lần
-            $table->unique(['order_id', 'user_id', 'order_detail_id']); // Khóa duy nhất
+            // Khóa duy nhất: mỗi người dùng chỉ đánh giá mỗi chi tiết đơn hàng 1 lần
+            $table->unique(['order_id', 'user_id', 'order_detail_id']);
 
-            // Khóa ngoại
+            // Khóa ngoại (tham chiếu cột id của bảng tương ứng)
             $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('order_detail_id')->references('order_detail_id')->on('order_details')->onDelete('cascade');

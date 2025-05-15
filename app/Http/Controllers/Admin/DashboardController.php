@@ -18,15 +18,15 @@ public function index()
     // Lấy tổng doanh thu, số sản phẩm còn, giá trị tồn kho, đơn hàng hoàn tất và bị huỷ
     $totalRevenue = Order::whereHas('status', function ($query) {
         $query->whereIn('name', ['Đã nhận hàng', 'Đã giao hàng']);
-    })->sum('total_price');
+    })->sum('total');
 
-    $totalStock = ProductVariant::sum('stock');
+    $totalStock = Product::sum('stock');
     $totalInventoryValue = ProductVariant::sum(DB::raw('stock * price_sale')); // Tính giá trị tồn kho
     $completedOrders = Order::whereHas('status', function ($query) {
         $query->where('name', 'Đã nhận hàng', 'Đã giao hàng');
     })->count();
     $canceledOrders = Order::whereHas('status', function ($query) {
-        $query->where('name', 'Đã huỷ');
+        $query->where('name', 'Đã huỷ bởi người mua',"Đơn đã hủy bởi shop");
     })->count();
 
     // Lấy sản phẩm bán chạy
