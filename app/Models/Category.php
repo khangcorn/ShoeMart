@@ -12,7 +12,7 @@ class Category extends Model
     protected $primaryKey = 'category_id';
     
     // Thêm image_url vào mảng $fillable
-    protected $fillable = ['name', 'description', 'parent_id', 'image_url'];
+    protected $fillable = ['name', 'description','description', 'parent_id', 'image_url'];
 
 
     public function parent()

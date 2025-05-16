@@ -83,7 +83,7 @@
                 <p class="text-gray-700"><strong>Username:</strong> {{ $user->username }}</p>
                 <p class="text-gray-700"><strong>Email:</strong> {{ $user->email }}</p>
                 <p class="text-gray-700"><strong>Địa chỉ:</strong> 
-                    {{ $address ? $address->street_address . ', ' . $address->ward . ', ' . $address->district . ', ' . $address->province : 'Chưa cập nhật' }}
+                    {{ $address ? $address->street_address . ', ' . $address->ward . ', ' . $address->district . ', ' . $address->city : 'Chưa cập nhật' }}
                 </p>
             </div>
 
@@ -311,7 +311,7 @@
                 </tr>
             </thead>
             <tbody>
-                <p>Class: {{ get_class($transactions) }}</p>
+
                 @foreach ($transactions as $transaction)
                     <tr class="text-center border-t">
                         <td class="px-4 py-2">{{ $transaction->transaction_id }}</td>

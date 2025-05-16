@@ -127,7 +127,11 @@ class UserController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        $address = UserAddresses::where('user_id', $user->user_id)->first();
+        $address = UserAddresses::where('user_id', $user->user_id)
+            ->orderByDesc('is_default') // Ưu tiên is_default = true
+            ->orderBy('user_id')              // Nếu không có thì lấy theo id tăng dần (địa chỉ đầu tiên)
+            ->first();
+
         $wallet = $user->wallet; // Nếu bạn có quan hệ User -> Wallet (hasOne)
         $transactions = $wallet ? $wallet->transactions()->latest()->limit(10)->get() : collect(); // Lấy lịch sử giao dịch ví
 
@@ -136,55 +140,70 @@ class UserController extends Controller
     }
 
     // Cập nhật địa chỉ
-    public function updateAddress(Request $request)
-    {
-        $user = Auth::user();
+public function updateAddress(Request $request)
+{
+    $user = Auth::user();
 
-        $request->validate([
-            'city' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'ward' => 'required|string|max:100',
-            'street_address' => 'required|string|max:255',
-        ]);
+    $request->validate([
+        'city' => 'required|string|max:100',
+        'district' => 'required|string|max:100',
+        'ward' => 'required|string|max:100',
+        'street_address' => 'required|string|max:255',
+    ]);
 
-        // Lấy dữ liệu từ API
-        $jsonData = file_get_contents("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json");
-        $location = json_decode($jsonData, true);
+    // Lấy dữ liệu từ API
+    $jsonData = file_get_contents("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json");
+    $location = json_decode($jsonData, true);
 
-        // Tìm thành phố
-        $city = collect($location)->firstWhere('Id', $request->city);
+    // Tìm thành phố
+    $city = collect($location)->firstWhere('Id', $request->city);
 
-        if (!$city) {
-            return back()->withErrors(['city' => 'Thành phố không tồn tại!']);
-        }
-
-        // Tìm quận huyện trong thành phố
-        $district = collect($city['Districts'])->firstWhere('Id', $request->district);
-
-        if (!$district) {
-            return back()->withErrors(['district' => 'Quận huyện không tồn tại!']);
-        }
-
-        // Tìm phường xã trong quận huyện
-        $ward = collect($district['Wards'])->firstWhere('Id', $request->ward);
-
-        if (!$ward) {
-            return back()->withErrors(['ward' => 'Phường xã không tồn tại!']);
-        }
-
-        UserAddresses::updateOrCreate(
-            ['user_id' => $user->user_id],
-            [
-                'city' => $city['Name'],
-                'district' => $district['Name'],
-                'ward' => $ward['Name'],
-                'street_address' => $request->street_address,
-                'is_default' => true,
-            ]
-        );
-
-        return back()->with('success', 'Cập nhật địa chỉ thành công.');
+    if (!$city) {
+        return back()->withErrors(['city' => 'Thành phố không tồn tại!']);
     }
+
+    // Tìm quận huyện trong thành phố
+    $district = collect($city['Districts'])->firstWhere('Id', $request->district);
+
+    if (!$district) {
+        return back()->withErrors(['district' => 'Quận huyện không tồn tại!']);
+    }
+
+    // Tìm phường xã trong quận huyện
+    $ward = collect($district['Wards'])->firstWhere('Id', $request->ward);
+
+    if (!$ward) {
+        return back()->withErrors(['ward' => 'Phường xã không tồn tại!']);
+    }
+
+    // Tìm địa chỉ mặc định hiện có của user
+    $defaultAddress = UserAddresses::where('user_id', $user->user_id)
+        ->where('is_default', true)
+        ->first();
+
+    if ($defaultAddress) {
+        // Cập nhật địa chỉ mặc định hiện có
+        $defaultAddress->update([
+            'city' => $city['Name'],
+            'district' => $district['Name'],
+            'ward' => $ward['Name'],
+            'street_address' => $request->street_address,
+        ]);
+    } else {
+        // Tạo mới địa chỉ mặc định nếu chưa có
+        UserAddresses::create([
+            'user_id' => $user->user_id,
+            'city' => $city['Name'],
+            'district' => $district['Name'],
+            'ward' => $ward['Name'],
+            'street_address' => $request->street_address,
+            'is_default' => true,
+        ]);
+    }
+
+    return back()->with('success', 'Cập nhật địa chỉ thành công.');
+}
+
     public function updateAvatar(Request $request)
     {
         $user = Auth::user();

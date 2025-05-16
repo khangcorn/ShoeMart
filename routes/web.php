@@ -123,6 +123,10 @@ Route::middleware('auth')->group(function () {
 
     // Tự động cập nhật trạng thái đơn hàng sau 7 ngày
     Route::get('/orders/auto-complete', [OrderController::class, 'autoCompleteOrderStatus'])->name('orders.autoComplete');
+
+    Route::get('/admin/request-access', [App\Http\Controllers\Admin\UserController::class, 'requestAccess'])->name('admin.request-access');
+    Route::post('/admin/send-request', [App\Http\Controllers\Admin\UserController::class, 'sendRequest'])->name('admin.send-request');
+
 });
 
 
@@ -137,90 +141,71 @@ Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wish
 
 
 // Các route cho admin, thêm middleware 'permission' vào
-Route::prefix('admin')->middleware('auth')->group(function() {
+Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () {
+
+    Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'dashboard'])->name('admin.dashboard');
+Route::post('requests/{id}/revoke', [App\Http\Controllers\Admin\UserController::class, 'revoke'])->name('admin.requests.revoke');
+
+    Route::get('/requests', [App\Http\Controllers\Admin\UserController::class, 'viewRequests'])
+        ->middleware('check_permission:access_request.view') 
+        ->name('admin.view-requests');
+
+    Route::post('/requests/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approveRequest'])
+ 
+        ->name('admin.approve-request');
+
+    Route::post('/requests/{id}/reject', [App\Http\Controllers\Admin\UserController::class, 'rejectRequest'])
+
+        ->name('admin.reject-request');
+
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])
+        ->middleware('check_permission:review.view')
+        ->name('admin.reviews.index');
+
+    Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])
+
+        ->name('admin.reviews.destroy');
+
+    Route::get('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])
+        ->middleware('check_permission:review.respond')
+        ->name('admin.reviews.reply');
+
+    Route::post('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'storeReply'])
+        ->middleware('check_permission:review.respond')
+        ->name('admin.reviews.reply.store');
+
     // Refund Requests
     Route::get('/refund-requests', [RefundRequestController::class, 'index'])
         ->middleware('check_permission:view_refunds')
         ->name('admin.refunds.index');
-
-    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])
-
-        ->name('admin.refunds.approve');
-
-    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])
-
-        ->name('admin.refunds.reject');
+    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])->name('admin.refunds.approve');
+    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])->name('admin.refunds.reject');
 
     // Withdraw Requests
-    Route::get('withdraw', [WithdrawRequestController::class, 'index'])
+    Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
+    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
 
-        ->name('admin.withdraw.index');
-
-    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])
-
-        ->name('admin.withdraw.update');
-    
-    // Quản lý sản phẩm, categories, sizes, colors, v.v...
-    Route::resource('products', ProductController::class)
-        ->middleware('check_permission:view_products');
-       
-    Route::resource('categories', CategoryController::class)
-        ->middleware('check_permission:view_categories');
-       
-
-    Route::resource('sizes', SizeController::class)
-        ->middleware('check_permission:view_sizes');
-       
-
-    Route::resource('colors', ColorController::class)
-        ->middleware('check_permission:view_colors');
-        
-
-    Route::resource('order-coupons', OrderCouponController::class)
-        ->middleware('check_permission:view_order_statuses');
-
-
-    Route::resource('order-statuses', OrderStatusController::class)
-        ->middleware('check_permission:view_order_statuses');
-        
-
-    Route::resource('sliders', SliderController::class)
-        ->middleware('check_permission:view_sliders');
-
-
-    Route::resource('shipping-fees', ShippingFeeController::class)
-        ->middleware('check_permission:view_shipping_fees');
-
-
-    Route::resource('coupons', CouponController::class)
-        ->middleware('check_permission:view_coupons');
-
-
-    Route::resource('users', AdminUserController::class)
-        ->middleware('check_permission:view_users');
-
+    // Quản lý sản phẩm, danh mục, size, màu sắc, v.v...
+    Route::resource('products', ProductController::class)->middleware('check_permission:view_products');
+    Route::resource('categories', CategoryController::class)->middleware('check_permission:view_categories');
+    Route::resource('sizes', SizeController::class)->middleware('check_permission:view_sizes');
+    Route::resource('colors', ColorController::class)->middleware('check_permission:view_colors');
+    Route::resource('order-coupons', OrderCouponController::class)->middleware('check_permission:view_order_statuses');
+    Route::resource('order-statuses', OrderStatusController::class)->middleware('check_permission:view_order_statuses');
+    Route::resource('sliders', SliderController::class)->middleware('check_permission:view_sliders');
+    Route::resource('shipping-fees', ShippingFeeController::class)->middleware('check_permission:view_shipping_fees');
+    Route::resource('coupons', CouponController::class)->middleware('check_permission:view_coupons');
+    Route::resource('users', AdminUserController::class)->middleware('check_permission:view_users');
 
     // Orders
-    Route::get('/orders', [AdminOrderController::class, 'index'])
-        ->middleware('check_permission:view_orders')
-        ->name('admin.orders.index');
+    Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('check_permission:view_orders')->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->middleware('check_permission:view_order_details')->name('admin.orders.show');
+    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])->middleware('check_permission:update_order_status')->name('admin.orders.ajaxUpdateStatus');
 
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
-        ->middleware('check_permission:view_order_details')
-        ->name('admin.orders.show');
-
-    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
-
-        ->name('admin.orders.cancel');
-
-    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])
-        ->middleware('check_permission:update_order_status')
-        ->name('admin.orders.ajaxUpdateStatus');
+    // Xóa biến thể
+    Route::post('/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])->name('products.variants.delete');
 });
-
-// Định nghĩa route DELETE để xóa biến thể
-Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
-    ->name('products.variants.delete');
  
   
 
@@ -234,4 +219,3 @@ Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippi
 
 // routes/web.php
 Route::post('/orders/review', [OrderController::class, 'submitReview'])->name('orders.review.submit');
-

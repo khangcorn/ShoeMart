@@ -116,7 +116,7 @@ public function create(Request $request)
     // Nếu không khớp, dùng phí mặc định (ID = 3)
     $shippingFee = $shippingFee ?: $defaultShippingFee;
 
-    $shippingFeeValue = $shippingFee ? $shippingFee->fee : 120000; // fallback cuối cùng
+    $shippingFeeValue = $shippingFee ? $shippingFee->fee : 50000; // fallback cuối cùng
     $shippingId = $shippingFee ? $shippingFee->shipping_id : null;
 
 
@@ -161,6 +161,15 @@ public function create(Request $request)
 
         if (!$address) {
             return redirect()->back()->withErrors(['address' => 'Địa chỉ không hợp lệ.']);
+        }
+        if (
+            empty($address->address_name) ||
+            empty($address->recipient_name) ||
+            empty($address->recipient_phone)
+        ) {
+            return redirect()->back()->withErrors([
+                'address' => 'Vui lòng cập nhật đầy đủ thông tin địa chỉ: tên địa chỉ, người nhận và số điện thoại.'
+            ]);
         }
 
 
@@ -436,6 +445,7 @@ public function create(Request $request)
             
             // Cập nhật trạng thái đơn hàng thành "Đã nhận hàng" (id = 4)
             $order->status_id = 4;
+            $order->delivered_at = now();
             $order->save();
         
             
@@ -551,22 +561,21 @@ public function create(Request $request)
     
     
 
-    public function autoCompleteOrderStatus()
-    {
-        // Cập nhật tất cả các đơn hàng có trạng thái "Đã giao hàng" (id = 7)
-        $orders = Order::where('status_id', 7)->get();
-        foreach ($orders as $order) {
-            $orderDate = $order->created_at;
-            $now = now();
-            $differenceInDays = $now->diffInDays($orderDate);
-    
-            // Nếu đơn hàng đã giao và đã quá 7 ngày thì chuyển sang trạng thái "Đơn hoàn thành" (id = 8)
-            if ($differenceInDays >= 7) {
-                $order->status_id = 8;
-                $order->save();
-            }
+   public function autoCompleteOrderStatus()
+{
+    $orders = Order::where('status_id', 7)
+                   ->whereNotNull('delivered_at')
+                   ->get();
+
+    foreach ($orders as $order) {
+        $differenceInDays = now()->diffInDays($order->delivered_at);
+
+        if ($differenceInDays >= 3) {
+            $order->status_id = 6;
+            $order->save();
         }
     }
+}
 public function submitReview(Request $request)
 {
     // Validate dữ liệu đầu vào
@@ -656,7 +665,7 @@ public function submitReview(Request $request)
                 'media_paths' => $mediaPaths,
                 'order_detail_id' => $id,
                 'product_id' => $orderDetail->product_id,
-                'variant_id' => $orderDetail->variant_id,
+                'variant_id' => $orderDetail->variant_id ?? null,
             ]);
         }
     }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->json('media_paths')->nullable(); // Lưu đường dẫn hình ảnh hoặc video
             $table->unsignedBigInteger('order_detail_id'); // Cột order_detail_id
             $table->unsignedBigInteger('product_id'); // Thêm cột product_id
-            $table->unsignedBigInteger('variant_id'); // Thêm cột variant_id
+            $table->unsignedBigInteger('variant_id')->nullable()->change();
             $table->timestamps();
 
             // Đảm bảo rằng mỗi người dùng chỉ có thể đánh giá mỗi sản phẩm trong đơn hàng một lần

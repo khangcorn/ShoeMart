@@ -279,10 +279,19 @@
                             {{ $address->street_address }}, {{ $address->ward }}, {{ $address->district }}, {{ $address->city }}
                         </span>
                     </label>
-                        <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
-                        onclick="editAddress({{ $address->address_id }}, '{{ $address->address_name }}', '{{ $address->recipient_name }}',{{  $address->recipient_phone }}, '{{ $address->street_address }}', '{{ $address->ward }}', '{{ $address->district }}', '{{ $address->city }}')">
-                        Sửa
-                        </button>    
+                       <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
+                                onclick="editAddress(
+                                    {{ $address->address_id }},
+                                    '{{ $address->address_name ?? '' }}',
+                                    '{{ $address->recipient_name ?? '' }}',
+                                    '{{ $address->recipient_phone ?? '' }}',
+                                    '{{ $address->street_address ?? '' }}',
+                                    '{{ $address->ward ?? '' }}',
+                                    '{{ $address->district ?? '' }}',
+                                    '{{ $address->city ?? '' }}'
+                                )">
+                                Sửa
+                        </button>  
                                
                 </div>
             @endforeach
@@ -569,9 +578,18 @@ function updateAddressList(newAddress) {
             </label>
 
             <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
-                onclick="editAddress(${newAddress.address_id}, '${newAddress.address_name}', '${newAddress.recipient_name}', ${newAddress.recipient_phone}, '${newAddress.street_address}', '${newAddress.ward}', '${newAddress.district}', '${newAddress.city}')">
-                Sửa
-            </button>
+                                onclick="editAddress(
+                                    {{ $address->address_id }},
+                                    '{{ $address->address_name ?? '' }}',
+                                    '{{ $address->recipient_name ?? '' }}',
+                                    '{{ $address->recipient_phone ?? '' }}',
+                                    '{{ $address->street_address ?? '' }}',
+                                    '{{ $address->ward ?? '' }}',
+                                    '{{ $address->district ?? '' }}',
+                                    '{{ $address->city ?? '' }}'
+                                )">
+                                Sửa
+                        </button>  
         </div>
     `;
     let addressError = document.querySelector('#addressError');
