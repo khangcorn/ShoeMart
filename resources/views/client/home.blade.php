@@ -69,36 +69,64 @@
     </style>
     <div class="bg-white">
         <div class="">
-            <img class="relative"
-                src="https://static.nike.com/a/images/f_auto/dpr_1.0,cs_srgb/h_1704,c_limit/e0b60c2f-d245-42e9-86ca-f7ea95ba6d45/nike-just-do-it.jpg"
-                alt="">
-            <div class="text-center  absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <p class=" font-semibold text-white mb-3"
-                    style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
-                    Just In
-                </p>
-
-                <span class="uppercase text-4xl font-bold text-white"
-                    style="font: 800 4.5rem / 0.9 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
-                    Air Max Dn8
-                </span>
-
-                <p class="font-semibold  text-white mt-3"
-                    style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;"> Introducing the
-                    next chapter of Dynamic Air. Get the sensation.</p>
-                <button class="font-bold px-4 py-2 mt-3 text-black bg-white rounded-full"
-                    style="font: 700 1rem / 1 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">Shop</button>
-
-                <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
-
-
-
-
-
-
-
+            <div class="relative w-full">
+                <!-- Video 1 -->
+                <video id="video1" autoplay muted playsinline class="w-full block">
+                    <source src="{{ asset('storage/images/LukaVideo1.mp4') }}" type="video/mp4">
+                </video>
+            
+                <!-- Video 2 -->
+                <video id="video2" muted playsinline class="w-full hidden">
+                    <source src="{{ asset('storage/images/LukaVideo2.mp4') }}" type="video/mp4">
+                </video>
+            
+                <!-- Overlay text -->
+                <div class="text-center absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                    <p class="font-semibold text-lg text-white mb-3"
+                        style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
+                        Just In
+                    </p>
+            
+                    <span class="uppercase text-5xl font-bold text-white"
+                        style="font: 800 4.5rem / 0.9 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
+                        Air Max Luka8
+                    </span>
+            
+                    <p class="font-semibold text-white mt-3"
+                        style="font: 500 1rem / 1.5 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
+                        Introducing the next chapter of Dynamic Air. Get the sensation.
+                    </p>
+            
+                    <button class="font-bold px-4 py-2 mt-3 text-black bg-white rounded-full"
+                        style="font: 700 1rem / 1 'Nike Futura ND', 'Helvetica Now Text Medium', Helvetica, Arial, sans-serif;">
+                        Shop
+                    </button>
                 </div>
             </div>
+            
+            <script>
+                const video1 = document.getElementById('video1');
+                const video2 = document.getElementById('video2');
+            
+                video1.play();
+            
+                video1.addEventListener('ended', () => {
+                    video1.classList.add('hidden');
+                    video1.classList.remove('block');
+                    video2.classList.remove('hidden');
+                    video2.classList.add('block');
+                    video2.play();
+                });
+            
+                video2.addEventListener('ended', () => {
+                    video2.classList.add('hidden');
+                    video2.classList.remove('block');
+                    video1.classList.remove('hidden');
+                    video1.classList.add('block');
+                    video1.play();
+                });
+            </script>
+            
 
 
         </div>
