@@ -269,7 +269,8 @@ button[type="submit"]:hover {
     </script>
 @endif
 
-<h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
+<div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-semibold py-4">Danh sách đơn hàng của bạn</h1>
 
 <table>
     <thead>
@@ -468,6 +469,7 @@ button[type="submit"]:hover {
 <!-- Pagination -->
 <div class="pagination mt-4">
     {{ $orders->links() }}
+</div>
 </div>
 
 <script>

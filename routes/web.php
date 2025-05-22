@@ -3,7 +3,6 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -26,11 +25,10 @@ use App\Http\Controllers\Admin\WithdrawRequestController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\VariantAttributeController;
 use App\Http\Controllers\WalletController;
-use App\Http\Controllers\WishlistController;
 use App\Models\VariantAttribute;
-
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
-
 
 
 /*
@@ -44,9 +42,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 // Authentication
-
 
 
 
@@ -55,10 +51,8 @@ Route::get('/login', [UserController::class, 'showLoginForm'])->name('login.form
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
-
 Route::get('/register', [UserController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [UserController::class, 'register'])->name('register');
-
 
 
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
@@ -84,30 +78,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
     Route::post('/cart/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkoutSelected');
     Route::get('/cart/count',[CartController::class, 'count'] )->name('cart.count');
-
-
-Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
-// Nếu route dùng phương thức GET
-Route::get('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
-
-// Hoặc nếu dùng POST (thường rút tiền sẽ là POST)
-Route::post('/wallet/withdraw', [WalletController::class, 'processWithdraw'])->name('wallet.withdraw');
-Route::get('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
-Route::post('/wallet/link-bank', [WalletController::class, 'storeLinkBank'])->name('wallet.link-bank');
-Route::delete('/wallet/unlink-bank/{bankId}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
+    
+    Route::get('/', [WalletController::class, 'index']);
+    Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+    Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+    Route::post('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
+    Route::delete('/wallet/unlink-bank/{bank}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
+    Route::post('wallet/withdraw', [WithdrawRequestController::class, 'store'])->name('wallet.withdraw');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist', [WishlistController::class, 'delete'])->name('wishlist.delete');
 
      // Đơn hàng
      Route::get('/checkout', [OrderController::class, 'create'])->name('cart.checkout');
     // Có thể sử dụng POST cho việc tạo đơn hàng
     Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
     Route::post('/order/{order_id}/process-payment', [OrderController::class, 'processPayment'])->name('order.processPayment');
-    Route::get('/order/success', [OrderController::class, 'paymentSuccess'])->name('order.success');
+    Route::get('/order/success', [OrderController::class, 'paymentSuccess'])->name('order.success');    
     Route::get('/order/details', [OrderController::class, 'showOrderDetails'])->name('order.details');
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index'); // Danh sách đơn hàng
     Route::get('/orders/{order_id}', [OrderController::class, 'show'])->name('order.show'); // Chi tiết đơn hàng
     Route::patch('/orders/{order_id}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
-    Route::post('/order/return-request', [OrderController::class, 'returnRequest'])->name('order.returnRequest');
-
+    Route::patch('/orders/return-request', [OrderController::class, 'returnRequest'])->name('order.returnRequest');
 
 
     Route::get('/address', [AddressController::class, 'index'])->name('address.index');
@@ -117,14 +109,18 @@ Route::delete('/wallet/unlink-bank/{bankId}', [WalletController::class, 'unlinkB
     Route::put('/address/{address_id}', [AddressController::class, 'update'])->name('address.update');
     Route::delete('/address/{address_id}', [AddressController::class, 'destroy'])->name('address.delete');
     Route::patch('/address/{address_id}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
+    
+    Route::post('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])->name('orders.confirmReceived');
+    // Hoàn trả đơn hàng
+    Route::post('/orders/{order_id}/return', [OrderController::class, 'returnOrder'])->name('orders.return');
 
-    Route::prefix('wishlist')->name('wishlist.')->group(function () {
-        Route::get('/', [WishlistController::class, 'index'])->name('index');
-        Route::post('/add', [WishlistController::class, 'store'])->name('store');
-        Route::get('/delete', [WishlistController::class, 'delete'])->name('delete');
-    });
+    // Tự động cập nhật trạng thái đơn hàng sau 7 ngày
+    Route::get('/orders/auto-complete', [OrderController::class, 'autoCompleteOrderStatus'])->name('orders.autoComplete');
+
+    Route::get('/admin/request-access', [App\Http\Controllers\Admin\UserController::class, 'requestAccess'])->name('admin.request-access');
+    Route::post('/admin/send-request', [App\Http\Controllers\Admin\UserController::class, 'sendRequest'])->name('admin.send-request');
+
 });
-
 
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
@@ -135,97 +131,73 @@ Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVouch
 Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
 Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
 
-
 // Các route cho admin, thêm middleware 'permission' vào
-Route::prefix('admin')->middleware('auth')->group(function() {
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    
+Route::post('requests/{id}/revoke', [App\Http\Controllers\Admin\UserController::class, 'revoke'])->name('admin.requests.revoke');
+
+    Route::get('/requests', [App\Http\Controllers\Admin\UserController::class, 'viewRequests'])
+        ->middleware('check_permission:access_request.view') 
+        ->name('admin.view-requests');
+
+    Route::post('/requests/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approveRequest'])
+ 
+        ->name('admin.approve-request');
+
+    Route::post('/requests/{id}/reject', [App\Http\Controllers\Admin\UserController::class, 'rejectRequest'])
+
+        ->name('admin.reject-request');
+
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])
+        ->middleware('check_permission:review.view')
+        ->name('admin.reviews.index');
+
+    Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])
+
+        ->name('admin.reviews.destroy');
+
+    Route::get('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])
+        ->middleware('check_permission:review.respond')
+        ->name('admin.reviews.reply');
+
+    Route::post('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'storeReply'])
+        ->middleware('check_permission:review.respond')
+        ->name('admin.reviews.reply.store');
+
     // Refund Requests
     Route::get('/refund-requests', [RefundRequestController::class, 'index'])
         ->middleware('check_permission:view_refunds')
         ->name('admin.refunds.index');
-
-    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])
-
-        ->name('admin.refunds.approve');
-
-    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])
-
-        ->name('admin.refunds.reject');
+    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])->name('admin.refunds.approve');
+    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])->name('admin.refunds.reject');
 
     // Withdraw Requests
-    Route::get('withdraw', [WithdrawRequestController::class, 'index'])
+    Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
+    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
 
-        ->name('admin.withdraw.index');
-
-    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])
-
-        ->name('admin.withdraw.update');
-    
-    // Quản lý sản phẩm, categories, sizes, colors, v.v...
-    Route::resource('products', ProductController::class)
-        ->middleware('check_permission:view_products');
-       
-    Route::resource('categories', CategoryController::class)
-        ->middleware('check_permission:view_categories');
-       
-
-    Route::resource('sizes', SizeController::class)
-        ->middleware('check_permission:view_sizes');
-       
-
-    Route::resource('colors', ColorController::class)
-        ->middleware('check_permission:view_colors');
-        
-
-    Route::resource('order-coupons', OrderCouponController::class)
-        ->middleware('check_permission:view_order_statuses');
-
-
-    Route::resource('order-statuses', OrderStatusController::class)
-        ->middleware('check_permission:view_order_statuses');
-        
-
-    Route::resource('sliders', SliderController::class)
-        ->middleware('check_permission:view_sliders');
-
-
-    Route::resource('shipping-fees', ShippingFeeController::class)
-        ->middleware('check_permission:view_shipping_fees');
-
-
-    Route::resource('coupons', CouponController::class)
-        ->middleware('check_permission:view_coupons');
-
-
-    Route::resource('users', AdminUserController::class)
-        ->middleware('check_permission:view_users');
-
+    // Quản lý sản phẩm, danh mục, size, màu sắc, v.v...
+    Route::resource('products', ProductController::class)->middleware('check_permission:view_products');
+    Route::resource('categories', CategoryController::class)->middleware('check_permission:view_categories');
+    Route::resource('sizes', SizeController::class)->middleware('check_permission:view_sizes');
+    Route::resource('colors', ColorController::class)->middleware('check_permission:view_colors');
+    Route::resource('order-coupons', OrderCouponController::class)->middleware('check_permission:view_order_statuses');
+    Route::resource('order-statuses', OrderStatusController::class)->middleware('check_permission:view_order_statuses');
+    Route::resource('sliders', SliderController::class)->middleware('check_permission:view_sliders');
+    Route::resource('shipping-fees', ShippingFeeController::class)->middleware('check_permission:view_shipping_fees');
+    Route::resource('coupons', CouponController::class)->middleware('check_permission:view_coupons');
+    Route::resource('users', AdminUserController::class)->middleware('check_permission:view_users');
 
     // Orders
-    Route::get('/orders', [AdminOrderController::class, 'index'])
-        ->middleware('check_permission:view_orders')
-        ->name('admin.orders.index');
+    Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('check_permission:view_orders')->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->middleware('check_permission:view_order_details')->name('admin.orders.show');
+    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])->middleware('check_permission:update_order_status')->name('admin.orders.ajaxUpdateStatus');
 
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
-        ->middleware('check_permission:view_order_details')
-        ->name('admin.orders.show');
-
-    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
-
-        ->name('admin.orders.cancel');
-
-    Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])
-        ->middleware('check_permission:update_order_status')
-        ->name('admin.orders.ajaxUpdateStatus');
-    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('admin.reviews.index');
-    Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
-    Route::get('admin/reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])->name('admin.reviews.reply');
-    Route::post('admin/reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'storeReply'])->name('admin.reviews.reply.store');
-
+    // Xóa biến thể
+    Route::post('/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])->name('products.variants.delete');
 });
-
-// Định nghĩa route DELETE để xóa biến thể
-Route::post('/admin/products/{product_id}/variants/{variant_id}/delete', [ProductController::class, 'deleteVariant'])
-    ->name('products.variants.delete');
  
   
 
@@ -234,10 +206,9 @@ Route::post('/coupons/validate', [CouponController::class, 'validateCoupons'])->
 // Trong routes/web.php
 Route::patch('/order/{orderId}/refund', [OrderController::class, 'requestRefund'])->name('order.requestRefund');
 
-
 Route::post('/update-shipping-fee', [ShippingFeeController::class, 'updateShippingFee']);
 
 // routes/web.php
 Route::post('/orders/review', [OrderController::class, 'submitReview'])->name('orders.review.submit');
 
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+

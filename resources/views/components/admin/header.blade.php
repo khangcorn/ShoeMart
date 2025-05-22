@@ -35,14 +35,6 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <div class="cursor-pointer border border-gray-300 bg-white rounded-full p-2" onclick="toggleDarkMode()">
-               <svg id="darkModeToggleIcon" class="w-5 h-5 text-black dark:text-white" width="20"
-                    height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                </svg>
-
-
-
-            </div>
             <div class="relative cursor-pointer border border-gray-300 rounded-full p-2 bg-white">
                 <div class="absolute h-2 w-2 animate-ping bg-red-600 rounded-full top-0 right-0"></div>
                 <div class="absolute h-2 w-2 bg-red-600 rounded-full top-0 right-0"></div>

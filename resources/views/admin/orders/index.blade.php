@@ -2,8 +2,8 @@
 
 @section('content')
 @if(session('success'))
-    <div id="flash-message" class="fixed top-5 right-5 bg-green-100 text-green-800 px-4 py-2 rounded shadow z-50">
-        {{ session('success') }}
+        <div class=" bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded relative" id="flash-message" >
+            {{ session('success') }}
     </div>
 
     <script>
@@ -12,13 +12,13 @@
             if (flash) {
                 flash.remove();
             }
-        }, 5000); // 5000ms = 5 giây
+        }, 5000); 
     </script>
 @endif
 
 
 @if(session('error'))
-    <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
+    <div id="flash-error" class="bg-red-500 text-white px-4 py-3  rounded-md">
         {{ session('error') }}
     </div>
 
@@ -33,32 +33,30 @@
 @endif
 <div id="toast" class="hidden"></div>
 
-<div class="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-700">Danh sách đơn hàng</h1>
-    </div>
+<div class="px-4 py-4">
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-center border-collapse border border-gray-200 rounded-lg shadow-sm">
-            <thead class="bg-gray-100 text-gray-700">
-                <tr class="border-b border-gray-300">
-                    <th class="px-4 py-3 border">Mã đơn</th>
-                    <th class="px-4 py-3 border">Người đặt</th>
-                    <th class="px-4 py-3 border">SĐT</th>
-                    <th class="px-4 py-3 border">Email</th>
-                    <th class="px-4 py-3 border">Trạng thái</th>
-                    <th class="px-4 py-3 border">Ngày đặt</th>
-                    <th class="px-4 py-3 border">Thao tác</th>
+
+
+        <table class="w-full ">
+            <thead>
+                <tr >
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Mã đơn</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Người đặt</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">SĐT</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Email</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Trạng thái</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Ngày đặt</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Thao tác</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody >
                 @foreach ($orders as $order)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-gray-700">{{ $order->order_code }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $order->user->username ?? 'N/A' }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $order->user->phone ?? 'N/A' }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $order->user->email ?? 'N/A' }}</td>
-                        <td class="px-4 py-3 text-gray-700">
+                    <tr >
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $order->order_code }}</td>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $order->user->username ?? 'N/A' }}</td>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $order->user->phone ?? 'N/A' }}</td>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $order->user->email ?? 'N/A' }}</td>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
                             @php
                                 $lockedStatuses = [3,4,5,6,7,8];
                             @endphp
@@ -75,28 +73,42 @@
                         </td>
                         
                         
-                        <td class="px-4 py-3 text-gray-700">{{ $order->created_at->format('d/m/Y') }}</td>
-                        <td class="px-4 py-3">
-                            <a href="{{ route('admin.orders.show', $order->order_id) }}"
-                               class="inline-block bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium py-1.5 px-3 rounded-md shadow">
-                                👁️ Xem
-                            </a>
-                            @if ($order->status_id == 1) 
-                            <form id="cancel-form-{{ $order->order_id }}" action="{{ route('admin.orders.cancel', $order->order_id) }}" method="POST" class="inline-block ml-2">
-                                @csrf
-                                @method('PUT')
-                                <button type="submit" class="inline-block bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-1.5 px-3 rounded-md shadow">
-                                    ❌ Hủy
-                                </button>
-                            </form>
-                        @endif
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $order->created_at->format('d/m/Y') }}</td>
+                        <td class="border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
+                            <div class="flex justify-center items-center gap-2"> 
+                                <a
+                                class="cursor-pointer text-sm p-1.5 rounded-full bg-[#ECFDF3] text-[#03A27E] flex items-center justify-center"
+                                href="{{ route('admin.orders.show', $order->order_id) }}"
+                              >
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                                    <g transform="translate(1, 4)" fill="#000000">
+                                        <path d="M20.92,7.6 C18.9,2.91 15.1,0 11,0 C6.9,0 3.1,2.91 1.08,7.6 C0.968686852,7.85505046 0.968686852,8.14494954 1.08,8.4 C3.1,13.09 6.9,16 11,16 C15.1,16 18.9,13.09 20.92,8.4 C21.0313131,8.14494954 21.0313131,7.85505046 20.92,7.6 Z M11,14 C7.83,14 4.83,11.71 3.1,8 C4.83,4.29 7.83,2 11,2 C14.17,2 17.17,4.29 18.9,8 C17.17,11.71 14.17,14 11,14 Z M11,4 C8.790861,4 7,5.790861 7,8 C7,10.209139 8.790861,12 11,12 C13.209139,12 15,10.209139 15,8 C15,6.93913404 14.5785726,5.92171839 13.8284271,5.17157288 C13.0782816,4.42142736 12.060866,4 11,4 Z M11,10 C9.8954305,10 9,9.1045695 9,8 C9,6.8954305 9.8954305,6 11,6 C12.1045695,6 13,6.8954305 13,8 C13,9.1045695 12.1045695,10 11,10 Z" />
+                                      </g>
+                                </svg>
+                              </a>
+                              @if ($order->status_id == 1) 
+                              <form id="cancel-form-{{ $order->order_id }}" action="{{ route('admin.orders.cancel', $order->order_id) }}" method="POST" class="inline-block ml-2">
+                                  @csrf
+                                  @method('PUT')
+                                  <button
+                                      type="submit"
+                                      class="cursor-pointer text-sm p-1.5 rounded-full bg-[#FEF3F2] text-[#D93948] flex items-center justify-center"
+                                    >
+                                      <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="1"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M18 6V16.2C18 17.8802 18 18.7202 17.673 19.362C17.3854 19.9265 16.9265 20.3854 16.362 20.673C15.7202 21 14.8802 21 13.2 21H10.8C9.11984 21 8.27976 21 7.63803 20.673C7.07354 20.3854 6.6146 19.9265 6.32698 19.362C6 18.7202 6 17.8802 6 16.2V6M14 10V17M10 10V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+                                      </svg>
+                                    </button>
+                              </form>
+                          @endif
+                            </div>
+                         
                         
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-    </div>
+
 
     <div class="mt-6">
         {{ $orders->links('pagination::tailwind') }}

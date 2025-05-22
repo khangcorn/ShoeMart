@@ -8,26 +8,21 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <div class="flex space-x-3.5 ">
-                                <!-- Cột chứa ảnh chi tiết biến thể -->
-                                <div class="max-h-[550px] overflow-y-auto hidden-scrollbar">
-                                    <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
-                                        @foreach ($product->variants as $variant)
-                                            @foreach ($variant->images as $image)
-                                                <img
-                                                    class="w-[65px] h-[65px] object-cover border border-gray-200 cursor-pointer variant-item"
-                                                    src="{{ asset($image->image_url ? 'storage/' . $image->image_url : 'storage/default-image.jpg') }}"
-                                                    alt="{{ $variant->color ?? 'No Color' }}"
-                                                    data-color="{{ $variant->color }}"
-                                                    data-price="{{ $variant->price }}"
-                                                    data-size="{{ $variant->size }}"
-                                                    data-images="{{ json_encode($variant->images) }}"
-                                                    onclick="updateProductDetails(this)">
-                                            @endforeach
-                                        @endforeach
-                                    </div>
+                            <div class="flex space-x-3.5">
+                                <!-- Cột chứa ảnh biến thể -->
+                                <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
+                                    @foreach ($product->variants as $variant)
+                                    @php
+                                        $variantImage = optional($variant->images->first())->image_url;
+                                    @endphp
+                                
+                                    <img class="" 
+                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
+                                        alt="{{ $variant->color ?? 'No Color' }}" 
+                                        onclick="updateProductDetails(this)">
+                                @endforeach
+                                
                                 </div>
-
 
                                 <!-- Ảnh chính -->
                                 <div class="relative">
@@ -35,7 +30,7 @@
                                   $mainImage = optional($product->images->first())->image_url;
                                     @endphp
                                    <img id="main-product-image"
-                                   class="object-cover w-auto h-[550px] " 
+                                   class="object-cover w-auto rounded-3xl h-[550px] " 
                                     alt="{{ $product->name }}"
                                    src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
@@ -83,31 +78,14 @@
                         data-price="{{ $variant->price }}"
                         data-stock="{{ $variant->stock }}"
                         data-images="{{ json_encode($variant->images) }}">
-
+                
                         <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
                             src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
                             alt="{{ $variant->color ?? 'No Color' }}"
                             onclick="updateProductDetails(this)">
                     </div>
-                    @endforeach
+                @endforeach
                 
-
-
-                        {{-- @foreach($product->variants as $firstVariant)
-                            <div class="w-1/5 variant-item" data-variant-id="{{ $firstVariant->id }}"
-                                data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                                data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                                data-price="{{ $firstVariant->price }}"
-                                data-images="{{ json_encode($firstVariant->images) }}">
-
-                                <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
-                                    src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                                    alt="{{ $variant->color ?? 'No Color' }}"
-                                    data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                                    data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                                    data-price="{{ $firstVariant->price }}">
-                            </div>
-                        @endforeach --}}
 
                 </div>
                 <!-- Hiển thị màu sắc của sản phẩm -->
@@ -129,24 +107,6 @@
                             </path>
                         </svg> Size guide</p>
                 </div>
-
-
-
-                <!-- Hiển thị kích thước của sản phẩm -->
-                {{-- <div class="">
-                <div class="grid grid-cols-4 gap-2">
-                    @php
-                        $sizeArray = $sizes->toArray(); 
-                    @endphp
-            
-                    @for ($size = 30; $size <= 41; $size++)
-                        <p id="selected-size" class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md 
-                            {{ in_array($size, $sizeArray) ? 'bg-white text-black' : 'bg-white opacity-50 line-through' }}">
-                            EU {{ $size }}
-                        </p>
-                    @endfor
-                </div>
-            </div> --}}
             <div>
                 <div class="grid grid-cols-4 gap-2">
                     @php
@@ -176,28 +136,52 @@
                 <div class="hidden">
                     <p id="selected-size" class="mt-2 text-sm text-gray-700">Chưa chọn kích thước</p>
                 </div>
-                <div class="flex items-center space-x-4 mt-4">
-                    <label for="quantity" class="font-semibold">Quantity:</label>
-                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(-1)">-</button>
-                    @php
-                        $cartQuantity = $cartQuantity ?? 0;
-                        $stock = $product->variants->first()->stock ?? 1;
-                        $maxQuantity = max(1, $stock - $cartQuantity);
-                    @endphp
-                    <input id="quantity" type="number" class="w-16 text-center border border-gray-300 rounded-md"
-                        value="1" min="1" max="{{ $maxQuantity }}">
-                    <button type="button" class="px-3 py-2 bg-gray-200 rounded" onclick="updateQuantity(1)">+</button>
-                    <span class="text-gray-600">Còn lại: <span id="stock-remaining">{{ $product->variants->first()->stock ?? 1 }}</span></span>
-                </div>
+               @php
+    $cartQuantity = $cartQuantity ?? 0;
+    $hasVariant = $product->variants->isNotEmpty();
+    $stock = $hasVariant ? $product->variants->first()->stock : $product->stock;
+    $maxQuantity = max(1, $stock - $cartQuantity);
+@endphp
 
+<div class="flex items-center space-x-4  mt-4">
+    <label for="quantity" class="font-semibold">Số lượng</label>
+<div class="space-x-0">
+    
+    <button type="button" class="px-3 h-10 bg-gray-200 " onclick="updateQuantity(-1)">-</button>
+
+    <input 
+        id="quantity" 
+        type="number" 
+        class="w-16 h-10 text-center border border-gray-300 "
+        value="1" 
+        min="1" 
+        max="{{ $maxQuantity }}"
+    >
+
+    <button type="button" class="px-3 h-10  bg-gray-200 " onclick="updateQuantity(1)">+</button>
+</div>
+
+    <span class="text-gray-600">
+        Còn lại: 
+        <span id="stock-remaining">{{ $stock }}</span>
+    </span>
+</div>
+
+                
 
                 <!-- Thêm vào giỏ hàng -->
                 <div class="space-y-2 mt-8">
-
-                    <button id="add-to-bag"  class=" bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white  py-4 w-full rounded-full font-semibold " data-product="{{ $product->product_id }} " data-variant="{{ $variant->variant_id  }}">
-                        Add to Bag
-                    </button>
-                    <button  onclick="addToWishlist({{ $product->product_id }})"
+                   
+                    <button id="add-to-bag"  
+                    class="bg-black cursor-pointer hover:bg-gray-800 transition ease-in-out duration-200 text-white py-4 w-full rounded-full font-semibold" 
+                    data-product="{{ $product->product_id }}"
+                    @if($product->variants->isNotEmpty())
+                        data-variant="{{ $product->variants->first()->variant_id }}" 
+                    @endif>
+                    Add to Bag
+                </button>
+                
+                    <button
                         class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
                         Add to Favourite
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
@@ -225,38 +209,19 @@
                     </p></li>
                     <li class="">Style: HM6803-101</li>
                     <li class="">Country/Region of Origin: Vietnam</li>
-                    <p class="font-semibold underline py-4">View Product Details</p>
                 </div>
-                <div x-data="{ isOpen: false }" class="w-full max-w-md mx-auto">
-                    <!-- Header -->
-                    <div class="flex py-4 p-2 border-b border-gray-200 items-center justify-between cursor-pointer" @click="isOpen=!isOpen">
-                        <p class="font-semibold text-lg">Free Delivery and Returns</p>
-                        <svg width="20px" height="20px"  viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" transform="rotate(270)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools --> <title>ic_fluent_ios_arrow_left_24_filled</title> <desc>Created with Sketch.</desc> <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="ic_fluent_ios_arrow_left_24_filled" fill="#212121" fill-rule="nonzero"> <path d="M12.7270006,3.68663679 C13.1062197,3.28512543 13.0881482,2.6522184 12.6866368,2.27299937 C12.2851254,1.89378034 11.6522184,1.91185185 11.2729994,2.31336321 L2.77268886,11.3133632 C2.40871099,11.6987375 2.4086868,12.3011749 2.77263373,12.6865784 L11.2729442,21.6880264 C11.652131,22.0895682 12.2850366,22.1076905 12.6865784,21.7285038 C13.0881202,21.349317 13.1062426,20.7164114 12.7270558,20.3148696 L4.87515196,12.0000552 L12.7270006,3.68663679 Z" id="🎨-Color"> </path> </g> </g> </g></svg>
-                    </div>
-                 
-                
-                    <!-- Dropdown Content -->
-                    <div x-show="isOpen" x-transition class="overflow-hidden rounded-md text-sm text-gray-600">
-                        <p>
-                            Your order of <span class="font-bold">5,000,000₫</span> or more gets free standard delivery.
-                        </p>
-                        <br />
-                        <strong>Standard:</strong> delivered in 4-5 Business Days <br />
-                        <strong>Express:</strong> delivered in 2-4 Business Days <br /><br />
-                        Orders are processed and delivered Monday-Friday (excluding public holidays).<br /><br />
-                        <span class="font-bold">Nike Members enjoy free returns.</span>
-                    </div>
-                </div>
+               
                 
 
 
 
             </div>
+            
 
         </div>
 
     </div>
- <div class="mt-5">
+ <div class="mt-5 mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
     <style>
         .review {
     border: 1px solid #ddd;
@@ -343,9 +308,8 @@
 }
 
     </style>
-        <h4>Đánh giá từ người mua</h4>
-        {{-- Phần này bạn sẽ xử lý tiếp --}}
-         @include('client.products.product_reviews', ['reviews' => $reviews])
+        <h4 class="font-semibold">Đánh giá từ người mua</h4>
+        @include('client.products.product_reviews', ['reviews' => $reviews])
     </div>
 
 
@@ -353,7 +317,7 @@
     </div>
 
 
-
+  
     <script>
       document.addEventListener("DOMContentLoaded", function() {
     const firstVariant = document.querySelector(".variant-item");
@@ -362,7 +326,7 @@
     }
 
     document.getElementById("add-to-bag").addEventListener("click", addToCart);
-
+    
     document.querySelectorAll('.variant-item').forEach(variant => {
         variant.addEventListener('click', function() {
             updateProductDetails(this);
@@ -411,10 +375,10 @@ function addToCart() {
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
-        body: JSON.stringify({
-            product_id: productId,
-            variant_id: variantId,
-            quantity: quantity
+        body: JSON.stringify({ 
+            product_id: productId, 
+            variant_id: variantId, 
+            quantity: quantity 
         })
     })
     .then(response => response.json())
@@ -438,7 +402,7 @@ document.addEventListener("DOMContentLoaded", updateCartCount);
 
 function updateQuantity(change) {
     let quantityInput = document.getElementById('quantity');
-    let maxStock = parseInt(quantityInput.getAttribute('max'));
+    let maxStock = parseInt(quantityInput.getAttribute('max')); 
     let currentValue = parseInt(quantityInput.value);
 
     let newValue = currentValue + change;
@@ -450,7 +414,7 @@ function updateQuantity(change) {
 
 function updateProductDetails(element) {
     document.querySelectorAll('.variant-item').forEach(variant => {
-        variant.classList.remove('border-black');
+        variant.classList.remove('border-black'); 
     });
 
     element.classList.add('border-black');
@@ -459,12 +423,12 @@ function updateProductDetails(element) {
     const color = variant.getAttribute('data-color');
     const size = variant.getAttribute('data-size');
     const price = variant.getAttribute('data-price');
-    const stock = parseInt(variant.getAttribute('data-stock'));
+    const stock = parseInt(variant.getAttribute('data-stock')); 
     const imagesData = variant.getAttribute('data-images');
     const variantId = variant.getAttribute("data-variant");
       // Cập nhật số lượng còn lại trên giao diện
       document.getElementById("stock-remaining").textContent = stock;
-
+    
     // Cập nhật max cho input số lượng
     document.getElementById("quantity").max = stock;
 
@@ -483,7 +447,7 @@ document.getElementById('product-price').innerHTML = `${formattedPrice} <span cl
     document.getElementById('selected-size').innerText = `EU ${size}`;
 
     updateSizeOptions(size);
-
+    
     let addToBagBtn = document.getElementById("add-to-bag");
     if (addToBagBtn) {
         addToBagBtn.setAttribute("data-variant", variantId);
@@ -495,7 +459,7 @@ document.getElementById('product-price').innerHTML = `${formattedPrice} <span cl
     // Cập nhật lại số lượng tối đa khi thay đổi biến thể
     let quantityInput = document.getElementById('quantity');
     quantityInput.max = stock;
-    quantityInput.value = 1;
+    quantityInput.value = 1; 
 }
 
 function updateSizeOptions(selectedSize) {
@@ -551,7 +515,7 @@ function resetSizeSelection() {
     });
 }
 
-
+    
     </script>
-
+    
 @endsection

@@ -29,7 +29,7 @@
                         : ($item->product->price_sale ?? $item->product->price);
                 @endphp
                 <tr data-cart-detail-id="{{ $item->cart_detail_id }}">
-                    <td class="px-4 py-2 border border-gray-300 text-center">
+                    <td class="px-4 py-2 border border-gray-300 text-center items-center">
                         <input type="checkbox" class="select-product" 
                                data-cart-detail-id="{{ $item->cart_detail_id }}" 
                                data-price="{{ $price * $item->quantity }}"
@@ -37,23 +37,23 @@
                                onclick="toggleCartDetailId({{ $item->cart_detail_id }})">
                     </td>
                     
-                    <td class="px-4 py-2 border border-gray-300">
+                    <td class="px-4 py-2 border border-gray-300 text-center items-center">
                         <a href="{{ route('products.detail', $item->product->product_id) }}" class="text-blue-500 hover:underline">
                             {{ $item->product->name }}
                         </a>
                     </td>
                     
-                    <td class="px-4 py-2 border border-gray-300">{{ number_format($price, 0, ',', '.') }} đ</td>
-                    <td class="px-4 py-2 border border-gray-300">
+                    <td class="px-4 py-2 border border-gray-300 text-center items-center">{{ number_format($price, 0, ',', '.') }} đ</td>
+                    <td class="px-4 py-2 border border-gray-300 text-center items-center">
                         <input type="number" value="{{ $item->quantity }}" min="1"
                                class="quantity-input px-2 py-1 border border-gray-300 rounded-md w-16"
                                data-cart-detail-id="{{ $item->cart_detail_id }}"
                                data-stock="{{ $item->variant ? $item->variant->stock : $item->product->stock }}">
                     </td>
-                    <td class="px-4 py-2 border border-gray-300 total-price">
+                    <td class="px-4 py-2 border border-gray-300 total-price text-center items-center">
                         {{ number_format($price * $item->quantity, 0, ',', '.') }} đ
                     </td>
-                    <td class="px-4 py-2 border border-gray-300">
+                    <td class="px-4 py-2 border border-gray-300 text-center items-center">
                         <button class="delete-item bg-red-500 text-white py-1 px-4 rounded-md hover:bg-red-600"
                                 data-cart-detail-id="{{ $item->cart_detail_id }}">
                             Xóa

@@ -59,34 +59,44 @@
         text-decoration: none;
     }
 </style>
+@if(session('success'))
+        <div class=" bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded relative" id="flash-message" >
+            {{ session('success') }}
+    </div>
 
-<div class="container">
-    <h4 class="mb-4">Danh sách đánh giá sản phẩm</h4>
+    <script>
+        setTimeout(() => {
+            const flash = document.getElementById('flash-message');
+            if (flash) {
+                flash.remove();
+            }
+        }, 5000); 
+    </script>
+@endif
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+<div class="px-4 py-4">
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle text-center">
+
+
+        <table class="w-full">
             <thead class="table-dark">
                 <tr>
-                    <th>Người dùng</th>
-                    <th>Sản phẩm</th>
-                    <th>Biến thể</th>
-                    <th>Đánh giá</th>
-                    <th>Bình luận</th>
-                    <th>Media</th>
-                    <th>Thời gian</th>
-                    <th>Thao tác</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Người dùng</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Sản phẩm</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Biến thể</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Đánh giá</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Bình luận</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Media</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Thời gian</th>
+                    <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($reviews as $review)
                     <tr>
-                        <td>{{ $review->user->username }}</td>
-                        <td>{{ $review->product->name }}</td>
-                        <td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $review->user->username }}</td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $review->product->name }}</td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
                             @if($review->variant && $review->variant->attributes)
                                 @foreach($review->variant->attributes as $attr)
                                     <span class="badge bg-secondary">{{ $attr->variantAttribute->attribute_name }}: {{ $attr->variantAttribute->attribute_value }}</span>
@@ -95,13 +105,13 @@
                                 <span class="text-muted">Không có</span>
                             @endif
                         </td>
-                        <td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
                             @for($i = 1; $i <= 5; $i++)
                                 <span class="text-warning">{{ $i <= $review->rating ? '★' : '☆' }}</span>
                             @endfor
                         </td>
-                        <td>{{ $review->comment }}</td>
-                        <td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $review->comment }}</td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
                             <div class="d-flex flex-wrap gap-1 justify-content-center">
                                 @foreach($review->media_paths as $media)
                                     @php
@@ -123,8 +133,8 @@
                                 @endforeach
                             </div>
                         </td>
-                        <td>{{ $review->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">{{ $review->created_at->format('d/m/Y H:i') }}</td>
+                        <td  class="font-semibold border border-gray-300 dark:border-gray-700 px-2 py-5 items-center text-center">
                             <!-- Nút phản hồi -->
                             <a href="{{ route('admin.reviews.reply', $review->id) }}" class="btn-feedback btn-action">Phản hồi</a>
 
@@ -143,9 +153,9 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
 
-    <div class="mt-4">
+
+    <div class="">
         {{ $reviews->links('pagination::tailwind') }}
     </div>
 </div>

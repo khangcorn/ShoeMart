@@ -74,31 +74,31 @@
 
 
 </style>
-<div class="p-6">
-    <h1 class="text-2xl font-semibold mb-4">Danh sách yêu cầu rút tiền</h1>
+<div class="py-4 px-4">
+ 
 
-    <table class="w-full border">
-        <thead class="bg-gray-100">
+    <table class="w-full ">
+        <thead >
             <tr>
-                <th class="py-2 px-4 border">#</th>
-                <th class="py-2 px-4 border">Người dùng</th>
-                <th class="py-2 px-4 border">Số tiền</th>
-                <th class="py-2 px-4 border">Trạng thái</th>
-                <th class="py-2 px-4 border">Ngày yêu cầu</th>
-                <th class="py-2 px-4 border">Thao tác</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">#</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Người dùng</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Số tiền</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Trạng thái</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Ngày yêu cầu</th>
+                <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Thao tác</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($withdrawRequests as $withdraw)
                 <tr class="text-center">
-                    <td class="py-2 px-4 border">{{ $withdraw->id }}</td>
-                    <td class="py-2 px-4 border">
+                    <td class="px-2 py-5 border border-gray-300 text-center font-semibold">{{ $withdraw->id }}</td>
+                    <td class="px-2 py-5 border border-gray-300 text-center font-semibold">
                         {{ optional($withdraw->user)->username }}<br>
                         {{ optional($withdraw->user)->email }}
                     </td>
                     
-                    <td class="py-2 px-4 border">{{ number_format($withdraw->amount, 0, ',', '.') }}đ</td>
-                    <td class="py-2 px-4 border">
+                    <td class="px-2 py-5 border border-gray-300 text-center font-semibold">{{ number_format($withdraw->amount, 0, ',', '.') }}đ</td>
+                    <td class="px-2 py-5 border border-gray-300 text-center font-semibold">
                         @if ($withdraw->status === 'pending')
                             <span class="text-yellow-500 font-semibold">Chờ duyệt</span>
                         @elseif ($withdraw->status === 'approved')
@@ -107,9 +107,9 @@
                             <span class="text-red-500 font-semibold">Đã từ chối</span>
                         @endif
                     </td>
-                    <td class="py-2 px-4 border">{{ $withdraw->created_at->format('d/m/Y H:i') }}</td>
+                    <td class="px-2 py-5 border border-gray-300 text-center font-semibold">{{ $withdraw->created_at->format('d/m/Y H:i') }}</td>
 
-                            <td class="py-2 px-4 border">
+                            <td class="px-2 py-5 border border-gray-300 text-center font-semibold">
                                 @if ($withdraw->status === 'pending')
                                     <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block">
                                         @csrf

@@ -51,7 +51,82 @@
                             data-category="walking">Walking</a></li>
                 </ul>
 
+<!-- Bộ lọc theo khoảng giá -->
+<div class="mt-4">
+    <p class="font-semibold mb-2">Lọc theo giá (₫)</p>
+    <div class="">
+      <!-- Min Price -->
+      <div class="w-full">
+        <div class="flex justify-between items-center"> 
+            <label for="minPrice" class="text-sm font-medium">Từ</label>
+            <div id="minPriceValue" class="text-sm mt-1">₫100,000</div>
+        </div>
+       
+        <input id="minPrice" type="range" min="100000" max="15000000" step="100000" value="100000"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+       
+      </div>
+  
+      <!-- Max Price -->
+      <div class="w-full">
+       <div class="flex justify-between items-center">
+        <label for="maxPrice" class="text-sm font-medium">Đến</label>
+        <div id="maxPriceValue" class="text-sm mt-1">₫15,000,000</div>
+       </div>
+        <input id="maxPrice" type="range" min="100000" max="15000000" step="100000" value="15000000"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+      
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const minSlider = document.getElementById("minPrice");
+      const maxSlider = document.getElementById("maxPrice");
+      const minValue = document.getElementById("minPriceValue");
+      const maxValue = document.getElementById("maxPriceValue");
+  
+      const formatPrice = (value) =>
+        "₫" + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  
+        const updateValues = () => {
+  let min = parseInt(minSlider.value);
+  let max = parseInt(maxSlider.value);
 
+  if (min > max) {
+    min = max;
+    minSlider.value = min;
+  }
+
+  if (max < min) {
+    max = min;
+    maxSlider.value = max;
+  }
+
+  minValue.textContent = formatPrice(min);
+  maxValue.textContent = formatPrice(max);
+
+  filterProducts(min, max); // ← gọi hàm lọc
+};
+
+      minSlider.addEventListener("input", updateValues);
+      maxSlider.addEventListener("input", updateValues);
+    });
+    const filterProducts = (min, max) => {
+  const products = document.querySelectorAll(".product-item");
+  products.forEach((item) => {
+    const price = parseInt(item.dataset.price);
+    if (price >= min && price <= max) {
+      item.classList.remove("hidden");
+    } else {
+      item.classList.add("hidden");
+    }
+  });
+};
+
+  </script>
+  
 
                 <!-- Dropdown Gender -->
                 <div class="mt-4">
@@ -150,127 +225,8 @@
                         </label>
                     </div>
                 </div>
-                <!-- Dropdown Colour Filter -->
-                <div class="">
-                    <button id="colourToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
-                        Colours
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                    <div id="colourDropdown" class="hidden space-y-2 rounded-md mb-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorBlack" class="form-checkbox">
-                            <span class="font-semibold">Black</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorWhite" class="form-checkbox">
-                            <span class="font-semibold">White</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorRed" class="form-checkbox">
-                            <span class="font-semibold">Red</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorPink" class="form-checkbox">
-                            <span class="font-semibold">Pink</span>
-                        </label>
-                    </div>
-                </div>
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        // Lấy các phần tử
-                        const colourToggle = document.getElementById("colourToggle");
-                        const colourDropdown = document.getElementById("colourDropdown");
-                        const colorCheckboxes = document.querySelectorAll("#colourDropdown input[type='checkbox']");
-
-                        // Toggle hiển thị dropdown
-                        colourToggle.addEventListener("click", function () {
-                            colourDropdown.classList.toggle("hidden");
-                        });
-
-                        // Chỉ cho phép chọn một màu duy nhất
-                        colorCheckboxes.forEach(checkbox => {
-                            checkbox.addEventListener("change", function () {
-                                if (this.checked) {
-                                    colorCheckboxes.forEach(cb => {
-                                        if (cb !== this) cb.checked = false;
-                                    });
-                                }
-                            });
-                        });
-                    });
-                </script>
-                <!-- Dropdown Size Filter -->
-                <div class="">
-                    <button id="sizeToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
-                        Size
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                    <div id="sizeDropdown" class="hidden space-y-2 rounded-md mb-2">
-                        <div class="grid grid-cols-4 gap-2 p-0.5">
-                            <button type="button" data-value="35"
-                                class="size-btn bg-white text-gray-700 font-semibold px-1.5 py-1 border border-gray-200 rounded-md transition">
-                                35
-                            </button>
-                            <button type="button" data-value="35.5"
-                                class="size-btn bg-white text-gray-700 font-semibold px-1.5 py-1 border border-gray-200 rounded-md transition">
-                                35.5
-                            </button>
-                            <button type="button" data-value="36"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                36
-                            </button>
-                            <button type="button" data-value="36.5"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                36.5
-                            </button>
-                            <button type="button" data-value="37"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                37
-                            </button>
-                            <button type="button" data-value="37.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            37.5
-                        </button>
-                            <button type="button" data-value="38"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                38
-                            </button>
-                            <button type="button" data-value="38.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            38.5
-                        </button>
-                            <button type="button" data-value="39"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                39
-                            </button>
-                            <button type="button" data-value="40"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                40
-                            </button>
-                            <button type="button" data-value="40.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            40.5
-                        </button>
-                            <button type="button" data-value="41"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                41
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            
+               
                 
                 <script>
                 document.addEventListener("DOMContentLoaded", function () {
@@ -315,20 +271,14 @@
             <!-- Cột Sản Phẩm (80%) -->
             <div id="productColumn" class="w-4/5 transition-all duration-500 ease-in-out">
                 <div class="grid grid-cols-3 gap-3">
-                    {{-- <div class="relative">
-                        <img src="https://static.nike.com/a/images/w_960,c_limit/72a4154a-74dd-4e18-b3ee-c076135dd54f/image.jpg" alt="">
-                        <div class="absolute bottom-28 left-14 transform -translate-x-1/2 -translate-y-1/2">
-                            <button class="rounded-full px-5 py-1.5 bg-white text-black font-semibold shadow-md hover:bg-gray-200 transition">
-                                Shop
-                            </button>
-                        </div>
-                    </div> --}}
                     
                     @foreach ($products as $product)
-                        <div class="bg-white product-item"
-                            data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
-                            data-category="{{ Str::slug($product->category->name) }}"
-                            data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}">
+                    <div class="bg-white product-item"
+                    data-price="{{ $product->price }}"
+                    data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
+                    data-category="{{ Str::slug($product->category->name) }}"
+                    data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}">
+                
 
                             <a href="{{ route('products.detail', $product->product_id) }}">
                                 @if ($product->images->isNotEmpty())
@@ -362,7 +312,57 @@
 
         </div>
     </div>
-
+    <script>
+        const minSlider = document.getElementById("minPrice");
+        const maxSlider = document.getElementById("maxPrice");
+        const minValue = document.getElementById("minValue");
+        const maxValue = document.getElementById("maxValue");
+    
+        const formatPrice = (value) => {
+            return "₫" + parseInt(value).toLocaleString("vi-VN");
+        };
+    
+        const updateValues = () => {
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
+    
+            minValue.textContent = formatPrice(min);
+            maxValue.textContent = formatPrice(max);
+    
+            filterByPrice(min, max);
+        };
+    
+        const filterByPrice = (min, max) => {
+            const products = document.querySelectorAll(".product-item");
+            products.forEach((item) => {
+                const price = parseInt(item.dataset.price);
+                if (price >= min && price <= max) {
+                    item.classList.remove("hidden");
+                } else {
+                    item.classList.add("hidden");
+                }
+            });
+        };
+    
+        // Gắn sự kiện
+        minSlider.addEventListener("input", () => {
+            if (parseInt(minSlider.value) > parseInt(maxSlider.value)) {
+                minSlider.value = maxSlider.value;
+            }
+            updateValues();
+        });
+    
+        maxSlider.addEventListener("input", () => {
+            if (parseInt(maxSlider.value) < parseInt(minSlider.value)) {
+                maxSlider.value = minSlider.value;
+            }
+            updateValues();
+        });
+    
+        // Gọi lọc ban đầu
+        updateValues();
+    </script>
+    
 
     <style>
         .active {

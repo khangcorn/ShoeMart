@@ -5,23 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notifiable; 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory,Notifiable;
 
     protected $table = 'users';
     protected $primaryKey = 'user_id';
     public $timestamps = true;
-
     protected static function booted()
     {
         static::created(function ($user) {
             Wallet::create([
-                'user_id' => $user->user_id,
+                'user_id' => $user->user_id, 
                 'balance' => 0,
             ]);
         });
@@ -31,9 +31,8 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
-        'remember_token',
+         'remember_token',
     ];
-
     // Quan hệ một nhiều với Order
     public function orders()
     {
@@ -51,53 +50,45 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAddresses::class, 'user_id', 'user_id');
     }
-
+    
     public function carts()
     {
         return $this->hasMany(Cart::class);
     }
-
+ 
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
-
     public function hasRole($role)
     {
         return $this->roles()->where('name', $role)->exists();
     }
-
-    public function wishlist()
+    public function hasPermission($permission)
     {
-        return $this->hasMany(Wishlist::class,'user_id','user_id');
-    }
-      public function wallet()
-    {
-        return $this->hasOne(Wallet::class, 'user_id', 'user_id');
-    }
-
-     public function hasPermission($permission)
-    {
-        // Kiểm tra quyền thông qua các vai trò của người dùng
         foreach ($this->roles as $role) {
             if ($role->permissions->contains('name', $permission)) {
                 return true;
             }
         }
-
         return false;
     }
-
-    // Quan hệ nhiều-nhiều với bảng permissions
-    public function permissions()
+    public function wallet()
     {
-        // Nếu có bảng `permissions` và quan hệ nhiều-nhiều với bảng `user_permissions`
-        return $this->belongsToMany(Permission::class, 'user_permissions', 'user_id', 'permission_id');
+        return $this->hasOne(Wallet::class, 'user_id', 'user_id');
     }
-public function banks()
-{
-    return $this->hasMany(UserBank::class, 'user_id');
-}
+    public function banks()
+    {
+        return $this->hasMany(UserBank::class, 'user_id');
+    }
+    public function notifications()
+    {
+        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
+    }
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 
 
 }

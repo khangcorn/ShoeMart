@@ -18,11 +18,11 @@
                     <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
                     
             
-                    <div class="flex items-center gap-2 relative group">
-                        <a href="{{ route('profile') }}" class="text-black font-medium ">
+                    <div class="flex items-center  relative group">
+                        <a href="{{ route('profile') }}" class="text-black h-10 mt-5  items-center mb-0  font-medium ">
                             Hello {{ Auth::user()->username }}
                         </a>
-                        <div class="dropdown-content absolute hidden bg-white shadow-md rounded-lg mt-2 p-4 w-48 ">
+                        <div class="dropdown-content absolute top-0 hidden  bg-white shadow-md rounded-lg mt-0  h-30  ">
                             <a href="{{ route('profile') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Thông tin cá nhân</a>
                             <a href="{{ route('order.index') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Đơn hàng của tôi</a>
                         </div>
@@ -57,18 +57,18 @@
 
 /* Phần tử dropdown */
 .dropdown-content {
-    display: none; /* Ban đầu ẩn */
+    display: none; 
     position: absolute;
     background-color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     width: 200px;
     padding: 10px;
-    z-index: 50; /* Đảm bảo nó hiển thị trên các phần tử khác */
-    top: 100%; /* Đảm bảo dropdown xuất hiện dưới tên người dùng */
+    z-index: 9990;
+    top: 90%;
     left: 0;
-    transform: translateY(5px); /* Tạo khoảng cách nhẹ để dropdown không dính vào tên người dùng */
-    pointer-events: none; /* Không cho phép tương tác khi ẩn */
+    transform: translateY(5px); 
+    pointer-events: none; 
     opacity: 0; /* Ban đầu ẩn */
     transition: opacity 0.2s ease;
 }

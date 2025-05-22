@@ -116,7 +116,6 @@ if ($request->hasFile('product_images')) {
     }
 }
 
-
     // Xử lý biến thể sản phẩm
     $variants = $request->input('variants', []);
     if (is_array($variants) && count($variants) > 0) {
@@ -191,7 +190,6 @@ if ($request->hasFile('product_images')) {
         'redirect_url' => route('products.index') // Cung cấp URL để redirect khi hoàn tất
     ], 200);
 
-
 } catch (\Exception $e) {
     // Log lỗi chi tiết
     Log::error('Lỗi tạo sản phẩm: ' . $e->getMessage());
@@ -254,8 +252,8 @@ if ($request->hasFile('product_images')) {
             'price_sale' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,category_id',
-            'product_images' => 'array|min:1|max:5',  // Kiểm tra số lượng ảnh chính từ 1 đến 5
-            'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048', // Kiểm tra định dạng và kích thước ảnh
+            // 'product_images' => 'array|min:1|max:5',  // Kiểm tra số lượng ảnh chính từ 1 đến 5
+            // 'product_images.*' => 'image|mimes:jpeg,png,jpg,gif,bmp,tiff|max:2048', // Kiểm tra định dạng và kích thước ảnh
             'variants.*.price' => 'required|numeric|min:0',
             'variants.*.price_sale' => 'nullable|numeric|min:0|lt:variants.*.price',
             'variants.*.stock' => 'required|integer|min:0',
@@ -404,7 +402,6 @@ if ($request->hasFile('product_images')) {
 
         $product->save();
 
-
             
         return redirect()->route('products.index')->with('success', 'Sản phẩm và biến thể đã được cập nhật thành công!');
     }
@@ -473,3 +470,5 @@ public function count()
 }
 
 }
+
+

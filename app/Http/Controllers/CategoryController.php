@@ -11,11 +11,21 @@ class CategoryController extends Controller
     /**
      * Hiển thị danh sách danh mục.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        $query = Category::query();
+    
+        // Nếu có từ khóa tìm kiếm
+        if ($request->has('search') && $request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+    
+        // Lấy toàn bộ danh mục hoặc đã lọc
+        $categories = $query->get();
+    
         return view('admin.category.index', compact('categories'));
     }
+    
 
     /**
      * Hiển thị form tạo danh mục mới.

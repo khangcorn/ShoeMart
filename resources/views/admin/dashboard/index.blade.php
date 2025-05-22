@@ -1,6 +1,7 @@
 @extends('admin.layout')
 
 @section('content')
+<div class="px-4 py-4">
     <h1 class="text-2xl font-bold mb-4">Thống kê hệ thống</h1>
 
     {{-- Thống kê nằm ngang --}}
@@ -66,6 +67,7 @@
         <h2 class="text-xl font-semibold mb-2">Biểu đồ sản phẩm bán ra theo ngày</h2>
         <canvas id="salesChart" height="220"></canvas>
     </div>
+</div>
 </div>
 
 

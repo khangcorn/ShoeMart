@@ -63,7 +63,6 @@
 
 
 
-
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Chỉnh Sửa Sản Phẩm</h1>
 
@@ -107,7 +106,7 @@
                             class="text-black w-full p-2 border rounded-lg @error('stock') border-red-500 @enderror"
                             value="{{ old('stock', $product->stock) }}">
                         @error('stock')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            {{-- <p class="text-red-500 text-sm mt-1">{{ $message }}</p> --}}
                         @enderror
                     </div>
                 @endif
@@ -288,7 +287,6 @@
 
  
     <script>
-         const oldVariants = @json(old('variants'));
         document.addEventListener('DOMContentLoaded', function () {
             const productForm = document.getElementById('product_form');
             const addVariantButton = document.getElementById('add_variant_button');
@@ -296,7 +294,7 @@
             let variantIndex = {{ count($product->variants) }};
             const colors = @json($colors);
             const sizes = @json($sizes);
-
+        
             function getExistingVariants(ignoreElement = null) {
                 let existingVariants = [];
                 document.querySelectorAll('.variant').forEach(variant => {
@@ -359,51 +357,45 @@
                 const newVariant = document.createElement('div');
                 newVariant.classList.add('variant', 'mt-3', 'border', 'p-4', 'rounded-lg', 'shadow-md');
         
-            // ✅ Gán options trước
-let colorOptions = colors.map(c => `<option value="${c.attribute_value}">${c.attribute_value}</option>`).join('');
-let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
-
-// ✅ Sau đó mới tạo variant
-
-newVariant.classList.add('variant-item');
-newVariant.innerHTML = `
-    <div class="form-group">
-        <label>Giá</label>
-        <input type="number" class="form-control" name="variants[${variantIndex}][price]">
-    </div>
-    <div class="form-group">
-        <label>Giá Khuyến Mãi</label>
-        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
-    </div>
-    <div class="form-group">
-        <label>Số lượng</label>
-        <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
-    </div>
-    <div class="form-group">
-        <label>Màu sắc</label>
-        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
-            <option value="">Chọn màu</option>
-            ${colorOptions}
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Kích cỡ</label>
-        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
-            <option value="">Chọn kích cỡ</option>
-            ${sizeOptions}
-        </select>
-        <p class="text-red size-error-msg" style="display: none;"></p>
-    </div>
-    <div class="form-group">
-        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
-        <input type="file" class="form-control" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
-        <div class="image-preview" id="image_preview_${variantIndex}"></div>
-    </div>
-    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
-`;
-
-        console.log(newVariant.innerHTML);
-
+                let colorOptions = colors.map(c => `<option value="${c.attribute_value}">${c.attribute_value}</option>`).join('');
+                let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
+        
+                newVariant.innerHTML = `
+                    <div class="form-group">
+                        <label>Giá</label>
+                        <input type="number" class="form-control" name="variants[${variantIndex}][price]">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá Khuyến Mãi</label>
+                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng</label>
+                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
+                    </div>
+                    <div class="form-group">
+                        <label>Màu sắc</label>
+                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
+                            <option value="">Chọn màu</option>
+                            ${colorOptions}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kích cỡ</label>
+                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
+                            <option value="">Chọn kích cỡ</option>
+                            ${sizeOptions}
+                        </select>
+                        <p class="text-red size-error-msg" style="display: none;"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+                        <input type="file" class="form-control" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
+                        <div class="image-preview" id="image_preview_${variantIndex}"></div>
+                    </div>
+                    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
+                `;
+        
                 variantFieldsContainer.appendChild(newVariant);
                 variantIndex++;
         
@@ -589,3 +581,4 @@ if (document.getElementById('error-messages')) {
         
 
 @endsection
+
