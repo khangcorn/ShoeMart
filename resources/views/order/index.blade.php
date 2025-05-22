@@ -222,52 +222,59 @@ button[type="submit"]:hover {
     color: white;
 }
 
+.star-rating {
+  direction: rtl; /* Đảo chiều để dễ chọn từ phải sang trái */
+  font-size: 1.5rem;
+  unicode-bidi: bidi-override;
+  display: inline-flex;
+}
+
+.star-rating input[type="radio"] {
+  display: none; /* Ẩn input radio */
+}
+
+.star-rating label {
+  color: #ccc;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input[type="radio"]:checked ~ label {
+  color: #ffc107; /* màu vàng sao được chọn */
+}
+
+
 </style>
 @if(session('success'))
-
-     <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
+    <div id="flash-message" class="bg-green-500 text-white p-4 mb-4 rounded-md">
         {{ session('success') }}
     </div>
-
-    <script>
-        setTimeout(() => {
-            const flashError = document.getElementById('flash-error');
-            if (flashError) {
-                flashError.remove();
-            }
-        }, 5000); // 5 giây
-    </script>
 @endif
 
 @if(session('error'))
-       <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
+    <div id="flash-message" class="bg-red-500 text-white p-4 mb-4 rounded-md">
         {{ session('error') }}
     </div>
-
-    <script>
-        setTimeout(() => {
-            const flashError = document.getElementById('flash-error');
-            if (flashError) {
-                flashError.remove();
-            }
-        }, 5000); // 5 giây
-    </script>
 @endif
 
 @if(session('info'))
-    <div id="flash-error" class="bg-red-500 text-white p-4 mb-4 rounded-md">
+    <div id="flash-message" class="bg-blue-500 text-white p-4 mb-4 rounded-md">
         {{ session('info') }}
     </div>
-
-    <script>
-        setTimeout(() => {
-            const flashError = document.getElementById('flash-error');
-            if (flashError) {
-                flashError.remove();
-            }
-        }, 5000); // 5 giây
-    </script>
 @endif
+
+<script>
+    setTimeout(() => {
+        const flashMessage = document.getElementById('flash-message');
+        if (flashMessage) {
+            flashMessage.remove();
+        }
+    }, 5000); // 5 giây
+</script>
+
 
 <h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
 
@@ -284,7 +291,26 @@ button[type="submit"]:hover {
         @foreach($orders as $order)
             <tr>
                 <td>{{ $order->order_code }}</td>
-                <td>{{ number_format($order->total, 0, ',', '.') }} đ</td>
+              @php
+    $isCancelled = $order->status_id == 5;
+
+    $allDetails = $order->orderDetails ?? collect();
+    $validDetails = $allDetails->filter(fn($detail) => $detail->status !== 'cancelled');
+
+    $subtotal = $isCancelled ? $allDetails->sum('total_price') : $validDetails->sum('total_price');
+    $discount = $order->discount_amount ?? 0;
+    $shipping = $order->shipping_fee ?? 0;
+    $shippingDiscount = $order->shipping_discount ?? 0;
+
+    $finalTotal = $subtotal + $shipping - $discount - $shippingDiscount;
+@endphp
+
+<td>{{ number_format($finalTotal, 0, ',', '.') }} đ
+    @if ($isCancelled)
+    <p class="text-sm text-red-500 italic">Đơn hàng đã bị huỷ bởi shop — đây là tổng tiền ban đầu trước khi huỷ.</p>
+@endif
+</td>
+
                 <td>{{ $order->status->name }}</td>
                <td>
     <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-500">Xem chi tiết</a>
@@ -312,99 +338,97 @@ button[type="submit"]:hover {
     Đánh giá đơn hàng
 </button>
 
-    <!-- Modal đánh giá riêng cho từng đơn hàng -->
- <form id="review-modal-{{ $order->order_id }}" class="review-modal" method="POST" action="{{ route('orders.review.submit') }}" enctype="multipart/form-data">
+<!-- Modal đánh giá riêng cho từng đơn hàng -->
+<form id="review-modal-{{ $order->order_id }}" class="review-modal" method="POST" action="{{ route('orders.review.submit') }}" enctype="multipart/form-data">
     @csrf
     <div class="bg-white w-2/3 p-6 rounded shadow-lg overflow-y-auto max-h-[80vh]">
         <input type="hidden" name="order_id" value="{{ $order->order_id }}">
 
+        @php
+            $hasActiveUnreviewed = false;
+        @endphp
+
         @foreach ($order->orderDetails as $orderDetail)
-            @if ($orderDetail->reviews()->exists())
-                <div class="text-sm text-green-600 mb-4">
-                    @if ($orderDetail->variant)
-                        Sản phẩm ({{ $orderDetail->product->name }}) 
-                        @if ($orderDetail->variant->variantAttributeValues)
-                            <div>
-                                @foreach ($orderDetail->variant->variantAttributeValues as $attrValue)
-                                    @php
-                                        $attribute = $attrValue->variantAttribute;
-                                    @endphp
-                                    @if ($attribute && in_array(strtolower($attribute->attribute_name), ['size', 'color']))
-                                        <span class="badge bg-secondary me-1">
-                                            {{ ucfirst($attribute->attribute_name) }}: {{ $attribute->attribute_value }}
-                                        </span>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endif
-                        đã được đánh giá.
-                    @else
-                        Sản phẩm ({{ $orderDetail->product->name }}) đã được đánh giá.
-                    @endif
-                </div>
+            @php
+                $isActive = $orderDetail->status === 'active';
+                $isUnreviewed = !$orderDetail->reviews()->exists();
+                $isReviewable = $isActive && $isUnreviewed;
 
-                @continue
-            @endif
+                if ($isReviewable) $hasActiveUnreviewed = true;
+            @endphp
 
-            <div class="mb-6">
+            <div class="mb-6 border-b pb-4">
                 <h3 class="font-semibold mb-2">
-                    @if ($orderDetail->variant) 
-                        {{ $orderDetail->product->name }}
-                        
-                        @if ($orderDetail->variant->variantAttributeValues)
-                            <div>
-                                @foreach ($orderDetail->variant->variantAttributeValues as $attrValue)
-                                    @php
-                                        $attribute = $attrValue->variantAttribute;
-                                    @endphp
-                                    @if ($attribute)
-                                        <span class="badge bg-secondary me-1">
-                                            {{ $attribute->attribute_name }}: {{ $attribute->attribute_value }}
-                                        </span>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endif
-                    @else
-                        {{ $orderDetail->product->name }}
+                    {{ $orderDetail->product->name }}
+
+                    @if ($orderDetail->variant && $orderDetail->variant->variantAttributeValues)
+                        <div class="mt-1">
+                            @foreach ($orderDetail->variant->variantAttributeValues as $attrValue)
+                                @php
+                                    $attribute = $attrValue->variantAttribute;
+                                @endphp
+                                @if ($attribute)
+                                    <span class="badge bg-secondary me-1">
+                                        {{ $attribute->attribute_name }}: {{ $attribute->attribute_value }}
+                                    </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($orderDetail->status === 'cancelled' || $orderDetail->status === 'canceled')
+                        <span class="text-red-600 font-semibold ml-2">(Đã bị hủy)</span>
+                    @endif
+
+                    @if (!$isUnreviewed)
+                        <span class="text-green-600 font-semibold ml-2">(Đã đánh giá)</span>
                     @endif
                 </h3>
 
-                
-                @php
-                    $reviewErrors = session('review_errors')[$orderDetail->order_detail_id] ?? [];
-                @endphp
+                @if ($isReviewable)
+                    @php
+                        $reviewErrors = session('review_errors')[$orderDetail->order_detail_id] ?? [];
+                    @endphp
 
-                @if (!empty($reviewErrors))
-                    <ul class="text-red-500 text-sm mb-2 list-disc list-inside">
-                        @foreach ($reviewErrors as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                    @if (!empty($reviewErrors))
+                        <ul class="text-red-500 text-sm mb-2 list-disc list-inside">
+                            @foreach ($reviewErrors as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    <label class="block mb-2">Số sao:</label>
+                    <div class="star-rating mb-3">
+                        @for ($i = 5; $i >= 1; $i--)
+                            <input type="radio" id="star-{{ $orderDetail->order_detail_id }}-{{ $i }}" name="ratings[{{ $orderDetail->order_detail_id }}]" value="{{ $i }}">
+                            <label for="star-{{ $orderDetail->order_detail_id }}-{{ $i }}" title="{{ $i }} sao">&#9733;</label>
+                        @endfor
+                    </div>
+
+                    <label class="block mb-2">Nội dung đánh giá:</label>
+                    <textarea name="comments[{{ $orderDetail->order_detail_id }}]" class="w-full border rounded mb-4" rows="4"></textarea>
+
+                    <label class="block mb-2">Hình ảnh/Video (tuỳ chọn):</label>
+                    <input type="file" name="media[{{ $orderDetail->order_detail_id }}][]" multiple accept="image/*,video/*" class="mb-4" onchange="previewMedia(event, {{ $orderDetail->order_detail_id }})">
+                    <div class="media-preview" id="media-preview-{{ $orderDetail->order_detail_id }}"></div>
                 @endif
-
-                <label class="block mb-2">Số sao:</label>
-                <select name="ratings[{{ $orderDetail->order_detail_id }}]" class="w-full border rounded mb-4">
-                    @for ($i = 5; $i >= 1; $i--)
-                        <option value="{{ $i }}">{{ $i }} sao</option>
-                    @endfor
-                </select>
-
-                <label class="block mb-2">Nội dung đánh giá:</label>
-                <textarea name="comments[{{ $orderDetail->order_detail_id }}]" class="w-full border rounded mb-4" rows="4"></textarea>
-
-                <label class="block mb-2">Hình ảnh/Video (tuỳ chọn):</label>
-                <input type="file" name="media[{{ $orderDetail->order_detail_id }}][]" multiple accept="image/*,video/*" class="mb-4" onchange="previewMedia(event, {{ $orderDetail->order_detail_id }})">
-                <div class="media-preview" id="media-preview-{{ $orderDetail->order_detail_id }}"></div>
             </div>
         @endforeach
 
-        <div class="flex justify-end">
+        @unless ($hasActiveUnreviewed)
+            <p class="text-center text-gray-500">Không có sản phẩm nào để đánh giá.</p>
+        @endunless
+
+        <div class="flex justify-end mt-4">
             <button type="button" onclick="closeReviewModal({{ $order->order_id }})" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Gửi đánh giá</button>
+            @if ($hasActiveUnreviewed)
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Gửi đánh giá</button>
+            @endif
         </div>
     </div>
 </form>
+
 
 
 
@@ -419,12 +443,27 @@ button[type="submit"]:hover {
 
     @elseif($order->status->status_id == 8) 
         <span class="text-gray-500">Đơn trả hàng, hoàn tiền</span>
+        @elseif($order->status->status_id == 9)
+    <form action="{{ route('payment.vnpay.redirect') }}" method="GET">
+        <input type="hidden" name="order_id" value="{{ $order->order_id }}">
+        <input type="hidden" name="method" value="{{ $order->payment_method }}">
+        <button type="submit" class="text-blue-600">Thanh toán ngay</button>
+    </form>
+
+
+ <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirmCancel(this);">
+    @csrf
+    @method('PATCH')
+    <input type="hidden" name="cancel_reason" class="cancel-reason">
+    <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
+</form>
     @elseif($order->status->status_id == 1)
-        <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
-            @csrf
-            @method('PATCH')
-            <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
-        </form>
+       <form action="{{ route('order.cancel', $order->order_id) }}" method="POST" onsubmit="return confirmCancel(this);">
+    @csrf
+    @method('PATCH')
+    <input type="hidden" name="cancel_reason" class="cancel-reason">
+    <button type="submit" class="text-red-500 ml-2">Hủy đơn</button>
+</form>
         
     @else
         <span class="text-gray-400 ml-2 italic">Không thể hủy</span>
@@ -567,6 +606,16 @@ function closeReviewModal(orderId) {
 
             fileReader.readAsDataURL(file);
         }
+      
+    }
+      function confirmCancel(form) {
+        const reason = prompt("Vui lòng nhập lý do hủy đơn:");
+        if (reason === null || reason.trim() === "") {
+            alert("Bạn cần nhập lý do hủy đơn.");
+            return false;
+        }
+        form.querySelector('.cancel-reason').value = reason;
+        return true;
     }
 </script>
 

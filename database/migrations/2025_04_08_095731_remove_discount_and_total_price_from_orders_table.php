@@ -16,7 +16,7 @@ return new class extends Migration
             $table->dropColumn('total_price');
         });
     }
-    
+
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
@@ -24,5 +24,4 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2)->default(0);
         });
     }
-    
 };

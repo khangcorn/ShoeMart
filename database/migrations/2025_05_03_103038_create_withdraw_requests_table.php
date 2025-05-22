@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('withdraw_requests', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');            
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->decimal('amount', 12, 2);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('note')->nullable(); // Ghi chú từ admin
             $table->timestamps();
         });
-        
+
     }
 
     /**

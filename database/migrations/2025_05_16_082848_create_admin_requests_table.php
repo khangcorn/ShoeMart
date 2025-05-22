@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('admin_requests', function (Blueprint $table) {
-        $table->id();
-         $table->unsignedBigInteger('user_id');
-        $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
-        $table->enum('status', ['pending', 'approved', 'rejected', 'revoked'])->default('pending');
-        $table->timestamps();
-    });
+        Schema::create('admin_requests', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'revoked'])->default('pending');
+            $table->timestamps();
+        });
 
     }
 

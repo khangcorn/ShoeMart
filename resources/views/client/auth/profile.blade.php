@@ -98,6 +98,7 @@
                 <label class="block mb-2 font-medium">Số tiền muốn nạp:</label>
                 <input type="number" name="amount" min="10000" class="w-full p-2 border rounded" required>
             </div>
+            
             <div class="mb-4">
                 <label class="block mb-2 font-medium">Chọn ngân hàng liên kết:</label>
                 <select name="bank_id" class="w-full p-2 border rounded" required>
@@ -126,6 +127,11 @@
                 <label class="block mb-2 font-medium">Số tiền:</label>
                 <input type="number" name="amount" class="w-full p-2 border rounded" min="1000" required>
             </div>
+            @if ($errors->has('amount'))
+    <div class="alert alert-danger">
+        {{ $errors->first('amount') }}
+    </div>
+@endif
             <div class="mb-4">
                 <label class="block mb-2 font-medium">Chọn tài khoản ngân hàng:</label>
                 <select name="user_bank_id" class="w-full p-2 border rounded" required>

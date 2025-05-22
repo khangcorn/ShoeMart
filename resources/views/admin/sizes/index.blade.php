@@ -19,10 +19,12 @@
         @endif
 
         <div class="flex justify-end mb-4">
+             @if(auth()->user()->hasPermission('create_sizes'))
             <a href="{{ route('sizes.create') }}"
                 class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
                 + Add New Size
             </a>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -38,10 +40,13 @@
                         <tr class="border border-gray-300 hover:bg-gray-50 transition">
                             <td class="border border-gray-300 px-4 py-2">{{ $size->attribute_value }}</td>
                             <td class="border border-gray-300 px-4 py-2 text-center flex justify-center space-x-2">
+                                 @if(auth()->user()->hasPermission('edit_sizes'))
                                 <a href="{{ route('sizes.edit', $size->attribute_id) }}"
                                     class="px-3 py-1 bg-green-500 text-white rounded hover:bg-yellow-600 transition">
                                     Edit
                                 </a>
+                                @endif
+ @if(auth()->user()->hasPermission('delete_sizes'))
                                 <form action="{{ route('sizes.destroy', $size->attribute_id) }}" method="POST" 
                                     onsubmit="return confirm('Bạn có chắc muốn xóa Size này?');">
                                     @csrf
@@ -51,6 +56,7 @@
                                         Delete
                                     </button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

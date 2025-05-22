@@ -6,8 +6,10 @@ use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class CartSeeder extends Seeder {
-    public function run() {
+class CartSeeder extends Seeder
+{
+    public function run()
+    {
         $users = User::pluck('user_id')->toArray(); // Lấy danh sách user_id từ bảng users
 
         Cart::factory(100)->create([
@@ -15,4 +17,3 @@ class CartSeeder extends Seeder {
         ]);
     }
 }
-

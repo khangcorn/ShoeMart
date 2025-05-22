@@ -20,7 +20,7 @@ class OrderManagementController extends Controller
     public function show($order_id)
     {
         $order = Order::with(['orderDetails.product', 'status'])->findOrFail($order_id);
-        
+
         return view('admin.orders.show', compact('order'));
     }
 

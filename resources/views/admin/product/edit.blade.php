@@ -91,7 +91,7 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-                <div>
+                {{-- <div>
                     <label for="price" class="block text-sm font-medium">Giá</label>
                     <input type="number" id="price" name="price"
                         class="  text-black w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
@@ -99,7 +99,7 @@
                     @error('price')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> --}}
                 @if($product->variants->isEmpty())
                     <div>
                         <label for="stock" class="block text-sm font-medium">Số Lượng  </label>
@@ -112,7 +112,7 @@
                     </div>
                 @endif
 
-                <div>
+                {{-- <div>
                     <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
                     <input type="number" id="price_sale" name="price_sale"
                         class="  text-black w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
@@ -120,7 +120,9 @@
                     @error('price_sale')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> --}}
+<input type="hidden" id="product_price" name="product_price" value="{{ old('product_price', $product->price ?? '') }}">
+<input type="hidden" id="product_stock_input" name="product_stock" value="{{ old('product_stock', $product->stock ?? '') }}">
 
                 <div class="form-group">
                     <label for="category_id">Danh Mục</label>
@@ -523,54 +525,96 @@ function validateImages() {
 productForm.addEventListener('submit', function (event) {
     let allVariants = document.querySelectorAll('.variant');
     let isValid = true;
+    if (allVariants.length === 0) {
+        alert("⚠ Sản phẩm phải có ít nhất một biến thể.");
+        event.preventDefault();
+        return;
+    }
+    let totalStock = 0;
+    let prices = [];
 
     allVariants.forEach(variant => {
         if (!validateVariant(variant)) isValid = false;
 
-        const price = variant.querySelector('input[name*="[price]"]');
-        const salePrice = variant.querySelector('input[name*="[price_sale]"]');
-        const stock = variant.querySelector('input[name*="[stock]"]');
-        const color = variant.querySelector('select[name*="[color]"]');
-        const size = variant.querySelector('select[name*="[size]"]');
+        const priceInput = variant.querySelector('input[name*="[price]"]');
+        const salePriceInput = variant.querySelector('input[name*="[price_sale]"]');
+        const stockInput = variant.querySelector('input[name*="[stock]"]');
+        const colorSelect = variant.querySelector('select[name*="[color]"]');
+        const sizeSelect = variant.querySelector('select[name*="[size]"]');
 
-        clearError(price);
-        clearError(salePrice);
-        clearError(stock);
-        clearError(color);
-        clearError(size);
+        clearError(priceInput);
+        clearError(salePriceInput);
+        clearError(stockInput);
+        clearError(colorSelect);
+        clearError(sizeSelect);
 
-        if (!price.value || parseFloat(price.value) < 0) {
-            showError(price, "Giá không hợp lệ");
+        if (!priceInput.value || parseFloat(priceInput.value) < 0) {
+            showError(priceInput, "Giá không hợp lệ");
             isValid = false;
         }
 
-        if (salePrice.value && parseFloat(salePrice.value) < 0) {
-            showError(salePrice, "Giá khuyến mãi không hợp lệ");
+        if (salePriceInput.value && parseFloat(salePriceInput.value) < 0) {
+            showError(salePriceInput, "Giá khuyến mãi không hợp lệ");
             isValid = false;
         }
 
-        if (!stock.value || parseInt(stock.value) < 0) {
-            showError(stock, "Số lượng không hợp lệ");
+        if (!stockInput.value || parseInt(stockInput.value) < 0) {
+            showError(stockInput, "Số lượng không hợp lệ");
             isValid = false;
         }
 
-        if (!color.value) {
-            showError(color, "Vui lòng chọn màu sắc");
+        if (!colorSelect.value) {
+            showError(colorSelect, "Vui lòng chọn màu sắc");
             isValid = false;
         }
 
-        if (!size.value) {
-            showError(size, "Vui lòng chọn kích cỡ");
+        if (!sizeSelect.value) {
+            showError(sizeSelect, "Vui lòng chọn kích cỡ");
             isValid = false;
+        }
+
+        // Lấy giá để tính giá sản phẩm (ưu tiên giá khuyến mãi nếu có)
+        let priceVal = parseFloat(priceInput.value);
+        let salePriceVal = salePriceInput.value ? parseFloat(salePriceInput.value) : null;
+        if (!isNaN(priceVal)) {
+            if (salePriceVal !== null && !isNaN(salePriceVal) && salePriceVal > 0 && salePriceVal < priceVal) {
+                prices.push(salePriceVal);
+            } else {
+                prices.push(priceVal);
+            }
+        }
+
+        // Tính tổng số lượng
+        let stockVal = parseInt(stockInput.value);
+        if (!isNaN(stockVal)) {
+            totalStock += stockVal;
         }
     });
 
     const imageValid = validateImages();
+
     if (!isValid || !imageValid) {
         event.preventDefault();
         alert("⚠ Vui lòng kiểm tra lại các biến thể. Có lỗi xảy ra!");
+        return;
+    }
+
+    // Lấy giá nhỏ nhất trong mảng giá tính được
+    let productPrice = prices.length > 0 ? Math.min(...prices) : 0;
+
+    // Gán giá và tổng số lượng cho input product (giả sử input ẩn có id product_price và product_stock_input)
+    const productPriceInput = document.getElementById('product_price');
+    const productStockInput = document.getElementById('product_stock_input');
+
+    if (productPriceInput) {
+        productPriceInput.value = productPrice;
+    }
+
+    if (productStockInput) {
+        productStockInput.value = totalStock;
     }
 });
+
 if (document.getElementById('error-messages')) {
         setTimeout(function() {
             document.getElementById('error-messages').style.display = 'none';

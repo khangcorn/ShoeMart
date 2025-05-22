@@ -10,13 +10,12 @@ class CreateUserBanksTable extends Migration
     {
         Schema::create('user_banks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade'); 
+            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
             $table->string('bank_name');
             $table->string('account_number');
             $table->timestamps();
         });
     }
-    
 
     public function down()
     {

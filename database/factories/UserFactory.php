@@ -16,7 +16,7 @@ class UserFactory extends Factory
             'username' => $this->faker->userName,
             'password' => Hash::make('password'),
             'email' => $this->faker->unique()->safeEmail,
-            'phone' => '+84' . $this->faker->numerify('#########'),
+            'phone' => '+84'.$this->faker->numerify('#########'),
             'created_at' => now(),
             'updated_at' => now(),
         ];

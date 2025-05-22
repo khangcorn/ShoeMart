@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('vote_type', ['helpful', 'not_helpful']);
             $table->timestamps();
         });
-        
+
     }
 
     /**

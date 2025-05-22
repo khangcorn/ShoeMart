@@ -2,14 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\UserAddress;
 use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class UserAddressFactory extends Factory {
+class UserAddressFactory extends Factory
+{
     protected $model = UserAddress::class;
 
-    public function definition(): array {
+    public function definition(): array
+    {
         return [
             'user_id' => User::query()->inRandomOrder()->value('user_id') ?? User::factory(),
             'rephpcipient_name' => $this->faker->name,

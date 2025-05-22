@@ -7,54 +7,56 @@ use Illuminate\Http\Request;
 
 class OrderStatusController extends Controller
 {
-public function index()
-{
-    $statuses = OrderStatus::all();
-    return view('admin.order_statuses.index', compact('statuses'));
-}
+    public function index()
+    {
+        $statuses = OrderStatus::all();
 
-public function create()
-{
-    return view('admin.order_statuses.create');
-}
+        return view('admin.order_statuses.index', compact('statuses'));
+    }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|unique:order_statuses,name|max:50',
-        'description' => 'nullable|string',
-    ]);
+    public function create()
+    {
+        return view('admin.order_statuses.create');
+    }
 
-    OrderStatus::create($request->all());
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|unique:order_statuses,name|max:50',
+            'description' => 'nullable|string',
+        ]);
 
-    return redirect()->route('order-statuses.index')->with('success', 'Thêm trạng thái thành công');
-}
+        OrderStatus::create($request->all());
 
-public function edit($id)
-{
-    $status = OrderStatus::findOrFail($id);
-    return view('admin.order_statuses.edit', compact('status'));
-}
+        return redirect()->route('order-statuses.index')->with('success', 'Thêm trạng thái thành công');
+    }
 
-public function update(Request $request, $id)
-{
-    $status = OrderStatus::findOrFail($id);
+    public function edit($id)
+    {
+        $status = OrderStatus::findOrFail($id);
 
-    $request->validate([
-        'name' => 'required|max:50|unique:order_statuses,name,' . $id . ',status_id',
-        'description' => 'nullable|string',
-    ]);
+        return view('admin.order_statuses.edit', compact('status'));
+    }
 
-    $status->update($request->all());
+    public function update(Request $request, $id)
+    {
+        $status = OrderStatus::findOrFail($id);
 
-    return redirect()->route('order-statuses.index')->with('success', 'Cập nhật trạng thái thành công');
-}
+        $request->validate([
+            'name' => 'required|max:50|unique:order_statuses,name,'.$id.',status_id',
+            'description' => 'nullable|string',
+        ]);
 
-public function destroy($id)
-{
-    $status = OrderStatus::findOrFail($id);
-    $status->delete();
+        $status->update($request->all());
 
-    return redirect()->route('order-statuses.index')->with('success', 'Xóa trạng thái thành công');
-}
+        return redirect()->route('order-statuses.index')->with('success', 'Cập nhật trạng thái thành công');
+    }
+
+    public function destroy($id)
+    {
+        $status = OrderStatus::findOrFail($id);
+        $status->delete();
+
+        return redirect()->route('order-statuses.index')->with('success', 'Xóa trạng thái thành công');
+    }
 }

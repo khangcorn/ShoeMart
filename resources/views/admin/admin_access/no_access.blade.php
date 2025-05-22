@@ -58,26 +58,7 @@
 </style>
 
 <div class="container text-center mt-5">
-    <h2>Bạn chưa có quyền truy cập vui lòng gửi yêu cầu</h2>
-
-  @if(session('success'))
-    <div id="flash-message" class="alert alert-success flash-message">
-        {{ session('success') }}
-    </div>
-@elseif(session('info'))
-    <div id="flash-message" class="alert alert-info flash-message">
-        {{ session('info') }}
-    </div>
-@endif
-
-    @if($hasPendingRequest)
-        <p class="text-warning">Đã gửi yêu cầu, vui lòng chờ admin xét duyệt.</p>
-    @else
-        <form action="{{ route('admin.send-request') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn btn-primary">Gửi yêu cầu truy cập</button>
-        </form>
-    @endif
+    <h2>Bạn không có quyền truy trang Admin</h2>
 </div>
 @endsection
 <script>

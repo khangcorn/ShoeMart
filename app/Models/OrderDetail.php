@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/OrderDetail.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +10,29 @@ class OrderDetail extends Model
     use HasFactory;
 
     protected $table = 'order_details';
+
     protected $primaryKey = 'order_detail_id';
+
     public $timestamps = true;
 
-    protected $fillable = ['order_id', 'product_id', 'variant_id', 'quantity', 'price', 'discount_amount', 'total_price'];
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'variant_id',
+        'quantity',
+        'price',
+        'discount_amount',
+        'subtotal',
+        'total_price',
+        'status',
+        'cancel_reason',
+        // ➕ Snapshot fields
+        'product_name',
+        'variant_name',
+        'attributes',
+        'original_price',
+        'final_price',
+    ];
 
     public function order()
     {
@@ -35,5 +53,4 @@ class OrderDetail extends Model
     {
         return $this->hasOne(OrderReview::class, 'order_detail_id', 'order_detail_id');
     }
-
 }

@@ -7,6 +7,25 @@
         <button type="button" class="close-btn" onclick="this.parentElement.remove()">&times;</button>
     </div>
 @endif
+
+@if(session('error'))
+    <div id="alert-error" class="alert alert-danger" style="position: fixed; top: 20px; right: 20px; z-index: 9999; padding: 15px 25px; border-radius: 5px; background-color: #f44336; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        {{ session('error') }}
+    </div>
+
+    <script>
+        // Ẩn thông báo sau 5 giây (5000ms)
+        setTimeout(() => {
+            const alert = document.getElementById('alert-error');
+            if (alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500); // Xóa phần tử sau khi mờ dần
+            }
+        }, 5000);
+    </script>
+@endif
+
 <style>
     /* CSS nếu cần thêm */
 /* Đảm bảo thông báo xuất hiện ở đầu trang */
@@ -83,11 +102,12 @@
     <div class="py-4 px-4">
 
         <div class="flex  items-center justify-between">
+             @if(auth()->user()->hasPermission('create_products'))
             <a href="{{ route('products.create') }}"
                 class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
                 New Product
             </a>
-
+@endif
 
 
 
@@ -256,19 +276,36 @@
                             {{ $product->name }}
                         </td>
                         <td class="border relative border-gray-300 dark:border-gray-700 px-4 py-5 items-center text-center">
-                            @if ($product->price_sale && $product->price_sale > 0)
-                                <span class="line-through text-gray-500">{{ number_format($product->price, 0, ',', '.') }}</span>
-                                /
-                                {{ number_format($product->price_sale, 0, ',', '.') }}
-                                <span class="underline">vnđ</span>
-                                <p class="text-[11px] text-white bg-red-500 px-1 rounded-full absolute top-1 right-1">
-                                    {{ round((($product->price - $product->price_sale) / $product->price) * 100, 2) }}%
-                                </p>
-                            @else
-                                {{ number_format($product->price, 0, ',', '.') }}
-                                <span class="underline">vnđ</span>
-                            @endif
-                        </td>
+    @php
+        $hasVariants = $product->variants && $product->variants->count() > 0;
+
+        if ($hasVariants) {
+            $lowestVariant = $product->variants->sortBy(function ($variant) {
+                return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
+            })->first();
+
+            $originalPrice = $lowestVariant->price;
+            $salePrice = $lowestVariant->price_sale;
+        } else {
+            $originalPrice = $product->price;
+            $salePrice = $product->price_sale;
+        }
+    @endphp
+
+    @if ($salePrice && $salePrice > 0)
+        <span class="line-through text-gray-500">{{ number_format($originalPrice, 0, ',', '.') }}</span>
+        /
+        {{ number_format($salePrice, 0, ',', '.') }}
+        <span class="underline">vnđ</span>
+        <p class="text-[11px] text-white bg-red-500 px-1 rounded-full absolute top-1 right-1">
+            {{ round((($originalPrice - $salePrice) / $originalPrice) * 100, 2) }}%
+        </p>
+    @else
+        {{ number_format($originalPrice, 0, ',', '.') }}
+        <span class="underline">vnđ</span>
+    @endif
+</td>
+
                         
                             
 
@@ -303,9 +340,11 @@
                             {{ $product->category->name ?? 'Không có danh mục' }}</td>
                         <td
                             class="border border-gray-300 dark:border-gray-700  px-2 py-4 text-center  justify-center gap-2">
-
+ @if(auth()->user()->hasPermission('edit_products'))
                             <a class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-yellow-100 text-yellow-600"
                                 href="{{ route('products.edit', $product->product_id) }}">Edit</a>
+                                @endif
+                                 @if(auth()->user()->hasPermission('delete_products'))
                             <form action="{{ route('products.destroy', $product->product_id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf @method('DELETE')
@@ -313,6 +352,7 @@
                                     class="cursor-pointer text-sm px-2 font-semibold rounded-full  bg-[#FEF3F2] text-[#D93948]"
                                     onclick="return confirm('Xóa sản phẩm này?')">Delete</button>
                             </form>
+                            @endif
                             <a class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-[#ECFDF3] text-[#03A27E]"
                             href="{{ route('products.show', ['product' => $product->product_id]) }}">View</a>
 

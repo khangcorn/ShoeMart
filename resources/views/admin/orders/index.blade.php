@@ -37,6 +37,31 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-700">Danh sách đơn hàng</h1>
     </div>
+    <div class="mb-6">
+    <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-wrap items-center justify-between gap-4">
+        {{-- Bên trái: Tìm theo mã đơn và nút lọc --}}
+        <div class="flex items-center gap-4">
+            <input type="text" name="order_code" value="{{ request('order_code') }}"
+                   placeholder="Nhập mã đơn hàng"
+                   class="border rounded px-3 py-2 w-48 text-sm" />
+
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm shadow">
+                🔍 Tìm kiếm
+            </button>
+        </div>
+
+        {{-- Bên phải: Bộ lọc thời gian --}}
+        <div>
+            <select name="date_filter" onchange="this.form.submit()" class="border rounded px-3 py-2 text-sm">
+                <option value="3" {{ request('date_filter', '3') == '3' ? 'selected' : '' }}>3 ngày gần đây</option>
+                <option value="7" {{ request('date_filter') == '7' ? 'selected' : '' }}>7 ngày gần đây</option>
+                <option value="30" {{ request('date_filter') == '30' ? 'selected' : '' }}>30 ngày gần đây</option>
+                <option value="all" {{ request('date_filter') == 'all' ? 'selected' : '' }}>Tất cả</option>
+            </select>
+        </div>
+    </form>
+</div>
+
 
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-center border-collapse border border-gray-200 rounded-lg shadow-sm">
@@ -54,21 +79,30 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach ($orders as $order)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-gray-700">{{ $order->order_code }}</td>
+                        <td class="px-4 py-3 text-gray-700">
+                            <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-600 hover:underline" target="_blank">
+                                {{ $order->order_code }}
+                            </a>
+                        </td>
+
                         <td class="px-4 py-3 text-gray-700">{{ $order->user->username ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $order->user->phone ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $order->user->email ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-700">
                             @php
-                                $lockedStatuses = [3,4,5,6,7,8];
+                                $lockedStatuses = [3,4,5,6,7,8,9];
                             @endphp
                             @if (!in_array($order->status_id, $lockedStatuses))
-                                <select onchange="updateOrderStatus(this, {{ $order->order_id }})"
-                                        class="text-sm border rounded px-2 py-1 bg-white">
-                                    <option value="1" {{ $order->status_id == 1 ? 'selected' : '' }}>Đơn hàng mới</option>
-                                    <option value="2" {{ $order->status_id == 2 ? 'selected' : '' }}>Đang vận chuyển</option>
-                                    <option value="7" {{ $order->status_id == 7 ? 'selected' : '' }}>Đã giao hàng</option>
-                                </select>
+                             @if(auth()->user()->hasPermission('update_order_status'))
+                              <select 
+                                onchange="confirmStatusChange(this, {{ $order->order_id }})"
+                                data-current="{{ $order->status_id }}"
+                                class="text-sm border rounded px-2 py-1 bg-white">
+                                <option value="1" {{ $order->status_id == 1 ? 'selected' : '' }}>Đơn hàng mới</option>
+                                <option value="2" {{ $order->status_id == 2 ? 'selected' : '' }}>Đang vận chuyển</option>
+                                <option value="7" {{ $order->status_id == 7 ? 'selected' : '' }}>Đã giao hàng</option>
+                            </select>
+                            @endif
                             @else
                                 {{ $order->status->name ?? 'Chưa rõ' }}
                             @endif
@@ -77,18 +111,28 @@
                         
                         <td class="px-4 py-3 text-gray-700">{{ $order->created_at->format('d/m/Y') }}</td>
                         <td class="px-4 py-3">
+                             @if(auth()->user()->hasPermission('view_order_details'))
                             <a href="{{ route('admin.orders.show', $order->order_id) }}"
                                class="inline-block bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium py-1.5 px-3 rounded-md shadow">
                                 👁️ Xem
                             </a>
+                            @endif
                             @if ($order->status_id == 1) 
-                            <form id="cancel-form-{{ $order->order_id }}" action="{{ route('admin.orders.cancel', $order->order_id) }}" method="POST" class="inline-block ml-2">
+                             @if(auth()->user()->hasPermission('delete_order'))
+                            <form id="cancel-form-{{ $order->order_id }}"
+                                action="{{ route('admin.orders.cancel', $order->order_id) }}"
+                                method="POST"
+                                class="inline-block ml-2"
+                                onsubmit="return handleCancelSubmit(event, this);">
                                 @csrf
                                 @method('PUT')
+                                <input type="hidden" name="cancel_reason" class="cancel-reason-input">
                                 <button type="submit" class="inline-block bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-1.5 px-3 rounded-md shadow">
                                     ❌ Hủy
                                 </button>
                             </form>
+                            @endif
+
                         @endif
                         
                         </td>
@@ -113,6 +157,19 @@
             toast.classList.add('hidden');
         }, 4000);
     }
+
+    function confirmStatusChange(selectElement, orderId) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex].text;
+        if (confirm(`Bạn có chắc muốn chuyển trạng thái đơn hàng thành "${selectedOption}"?`)) {
+            updateOrderStatus(selectElement, orderId);
+        } else {
+            // Nếu hủy, khôi phục lại lựa chọn ban đầu (trước khi thay đổi)
+            const previousValue = selectElement.getAttribute('data-current');
+            selectElement.value = previousValue;
+        }
+    }
+
+
 function updateOrderStatus(selectElement, orderId) {
     const statusId = selectElement.value;
 
@@ -172,7 +229,22 @@ function updateOrderStatus(selectElement, orderId) {
     });
 }
 
+ function handleCancelSubmit(event, form) {
+        event.preventDefault(); // Ngăn form gửi ngay
 
+        const reason = prompt("Vui lòng nhập lý do hủy đơn:");
+        if (reason === null || reason.trim() === '') {
+            alert("Bạn cần nhập lý do hủy đơn.");
+            return false;
+        }
+
+        // Gán lý do vào input ẩn
+        const input = form.querySelector('.cancel-reason-input');
+        input.value = reason;
+
+        // Submit form
+        form.submit();
+    }
 </script>
 
 @endsection

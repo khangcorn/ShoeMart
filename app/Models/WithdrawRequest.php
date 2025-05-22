@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 // app/Models/WithdrawRequest.php
@@ -15,12 +14,8 @@ class WithdrawRequest extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
-
-public function userBank()
-{
-    return $this->belongsTo(UserBank::class, 'user_bank_id', 'id');
+    public function userBank()
+    {
+        return $this->belongsTo(UserBank::class, 'user_bank_id', 'id');
+    }
 }
-
-}
-

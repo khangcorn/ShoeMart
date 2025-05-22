@@ -17,6 +17,21 @@
             <div class="flex flex-col items-center justify-center w-full mx-auto">
                 <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Login</h2>
                 <p class="text-sm text-center text-gray-600 mb-6">Please enter your credentials to access your account.</p>
+@if ($errors->has('error'))
+    <div id="error-message" class="text-red-600 mb-3 transition-opacity duration-500">
+        {{ $errors->first('error') }}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById('error-message');
+            if (msg) {
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            }
+        }, 5000);
+    </script>
+@endif
 
                 <div class="space-y-6 w-full max-w-md">
                     <!-- Email -->

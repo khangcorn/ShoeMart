@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\UserAddress;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,7 +12,7 @@ class DatabaseSeeder extends Seeder
             // 1️⃣ Seed bảng quyền và vai trò trước
             RoleSeeder::class,
             PermissionSeeder::class,
-            
+
             // 2️⃣ Seed bảng trung gian giữa roles & permissions
             RolePermissionSeeder::class,
 
@@ -26,7 +25,6 @@ class DatabaseSeeder extends Seeder
 
             // 5️⃣ Seed danh mục sản phẩm
             CategorySeeder::class,
-
 
             // 6️⃣ Seed sản phẩm & biến thể
             ProductSeeder::class,

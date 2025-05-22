@@ -13,6 +13,7 @@ class ProductVariantFactory extends Factory
     public function definition()
     {
         $price = $this->faker->randomFloat(2, 100, 500);
+
         return [
             'product_id' => Product::inRandomOrder()->first()->product_id ?? Product::factory(),
             'price' => $price,

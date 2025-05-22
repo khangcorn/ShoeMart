@@ -16,6 +16,7 @@
     }, 5000);
 </script>
 @endif
+
 @if(session('error'))
 <div id="topNotification" class="bg-red-500 text-white p-4 text-center font-semibold">
     {{ session('error') }}
@@ -63,42 +64,228 @@
 </div>
 
        <!-- Phương thức thanh toán -->
-        <div class="mb-6">
+       <div class="mb-6">
             <h3 class="text-xl font-semibold mb-2">Phương thức thanh toán</h3>
             <select name="payment_method" class="w-full p-2 border border-gray-300 rounded-md">
                 <option value="cod">Thanh toán khi nhận hàng (COD)</option>
                 <option value="wallet">Thanh toán qua ví</option>
+                <option value="vnpay">Thanh toán qua VNPay</option>
             </select>
         </div>
 
-
-
-    
-    
-    
     <div class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
-    
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <input type="text" name="codes" id="couponInput"
-                   class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md"
-                   placeholder="Nhập mã giảm giá (cách nhau dấu phẩy)">
-      
+  <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
+
+  <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+    <input 
+      type="text" name="codes" id="couponInput"
+      class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md"
+      placeholder="Nhập mã giảm giá (cách nhau dấu phẩy)"
+    >
+  </div>
+
+  <!-- Popup -->
+  <div x-data="{
+      open: false,
+      selectedOrderCoupon: null,
+      selectedShippingCoupon: null,
+       initSelectedCoupons() {
+      // Lấy mảng codes từ input, loại bỏ khoảng trắng
+      let codes = (document.getElementById('couponInput').value || '')
+                    .split(',')
+                    .map(c => c.trim())
+                    .filter(c => c);
+      // Tìm xem mỗi code có radio tương ứng hay không
+      this.selectedOrderCoupon = codes.find(c =>
+        document.querySelector(`input[name='orderCoupon'][value='${c}']`)
+      ) || null;
+      this.selectedShippingCoupon = codes.find(c =>
+        document.querySelector(`input[name='shippingCoupon'][value='${c}']`)
+      ) || null;
+},
+    }"
+  >
+ <button type="button" 
+        @click="initSelectedCoupons(); open = true"
+        class="mt-2 px-4 py-2 bg-green-600 text-black rounded hover:bg-green-700">
+    📜 Xem danh sách giảm giá
+</button>
+
+    <div
+      x-show="open" x-transition
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      style="display:none"
+      @keydown.escape.window="open = false"
+      @click.outside="open = false"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto relative">
+        <button type="button" @click="open = false"
+          class="absolute top-2 right-2 text-2xl font-bold hover:text-gray-700">&times;</button>
+
+           <!-- Nội dung có thể scroll -->
+        <div class="p-6 overflow-y-auto" style="max-height: 90vh;">
+            <h2 class="text-2xl font-semibold mb-4">Danh sách mã giảm giá</h2>
+
+            @php
+                $orderCoupons = $coupons->where('apply_to', 'order');
+                $shippingCoupons = $coupons->where('apply_to', 'shipping');
+            @endphp
+
+            {{-- Mã giảm giá cho đơn hàng --}}
+            <h3 class="text-xl font-bold mt-6 mb-2">🎁 Mã giảm cho đơn hàng</h3>
+            @if($orderCoupons->isEmpty())
+                <p class="text-gray-500">Hiện không có mã giảm giá cho đơn hàng.</p>
+            @else
+               <ul class="space-y-4">
+    @foreach($orderCoupons as $coupon)
+        @php
+            $disabled = $coupon->status !== 'active' || $coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit || \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
+        @endphp
+        <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
+            <label 
+                class="flex flex-row-reverse items-center cursor-pointer flex-1"
+                :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }"
+            >
+               <input
+  type="radio"
+  name="orderCoupon"
+  :disabled="{{ $disabled ? 'true' : 'false' }}"
+  x-model="selectedOrderCoupon"
+  @click="selectedOrderCoupon = selectedOrderCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
+  value="{{ $coupon->code }}"
+  class="ml-3"
+/>
+
+                <div>
+                    <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
+                    <p class="text-sm">
+                        Giảm giá
+                        @if ($coupon->discount_type === 'percentage')
+                            {{ intval($coupon->discount_value) }}%
+                            @if ($coupon->max_discount_value)
+                                (Tối đa {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
+                            @endif
+                        @elseif ($coupon->discount_type === 'fixed')
+                            tối đa: {{ number_format($coupon->discount_value, 0, ',', '.') }}đ 
+                        @else
+                            Không rõ loại giảm giá
+                        @endif
+                    </p>
+
+                    @if($coupon->min_order_value)
+                        <p class="text-sm text-gray-500">Dành cho đơn hàng từ {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ</p>
+                    @endif
+
+                    @if($coupon->status !== 'active')
+                        <p class="text-xs text-red-500">Mã giảm giá không hoạt động</p>
+                    @elseif($coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit))
+                        <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
+                    @elseif(\Carbon\Carbon::parse($coupon->expiration_date)->isPast())
+                        <p class="text-xs text-red-500">Đã quá hạn</p>
+                    @else
+                        <p class="text-xs text-green-500">Số lượng có hạn</p>
+                    @endif
+
+                    <p class="text-xs text-gray-500">
+                        Hết hạn: {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y H:i:s') }}
+                    </p>
+                </div>
+            </label>
+        </li>
+    @endforeach
+</ul>
+
+            @endif
+
+            {{-- Mã giảm giá cho phí vận chuyển --}}
+            <h3 class="text-xl font-bold mt-10 mb-2">🚚 Mã giảm cho phí vận chuyển</h3>
+            @if($shippingCoupons->isEmpty())
+                <p class="text-gray-500">Hiện không có mã giảm giá cho phí vận chuyển.</p>
+            @else
+                <ul class="space-y-4">
+                    @foreach($shippingCoupons as $coupon)
+                        @php
+                            $disabled = $coupon->status !== 'active' || $coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit || \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
+                        @endphp
+                        <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
+                            <div>
+                                <label class="flex items-center cursor-pointer" :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }">
+                                   <input
+                                    type="radio"
+                                    name="shippingCoupon"
+                                    :disabled="{{ $disabled ? 'true' : 'false' }}"
+                                    x-model="selectedShippingCoupon"
+                                    @click="selectedShippingCoupon = selectedShippingCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
+                                    value="{{ $coupon->code }}"
+                                    class="ml-3"
+                                    />
+
+                                    <div>
+                                        <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
+                                        <p class="text-sm">
+                                            Giảm giá:
+                                            @if ($coupon->discount_type === 'percentage')
+                                                {{ intval($coupon->discount_value) }}%
+                                                @if ($coupon->max_discount_value)
+                                                    (Tối đa {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
+                                                @endif
+                                            @elseif ($coupon->discount_type === 'fixed')
+                                                {{ number_format($coupon->discount_value, 0, ',', '.') }}đ
+                                            @else
+                                                Không rõ loại giảm giá
+                                            @endif
+                                        </p>
+
+                                        @if($coupon->min_order_value)
+                                            <p class="text-sm text-gray-500">Dành cho đơn hàng từ {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ</p>
+                                        @endif
+
+                                        @php
+                                            $expirationDate = \Carbon\Carbon::parse($coupon->expiration_date);
+                                        @endphp
+
+                                        @if($coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit))
+                                            <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
+                                        @elseif($expirationDate->isPast())
+                                            <p class="text-xs text-red-500">Đã quá hạn</p>
+                                        @else
+                                            <p class="text-xs text-green-500">Số lượng có hạn</p>
+                                        @endif
+
+                                        <p class="text-xs text-gray-500">
+                                            Hết hạn: {{ $expirationDate->format('d/m/Y H:i:s') }}
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+
+
+        <div class="mt-6 flex justify-end">
+          <button 
+            type="button" id="btnApplyPopup"
+            class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Áp dụng mã giảm giá
+          </button>
         </div>
-    
-        <a href="{{ route('vouchers.index') }}?cart_detail_ids={{ request()->query('cart_detail_ids') }}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
-            🔍 Xem danh sách mã giảm giá 
-        </a>
-    
-        <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
-    
-
+      </div>
     </div>
-    
-    <input type="hidden" name="order_coupon_id" id="orderCouponIdInput" value="">
-    <input type="hidden" name="shipping_coupon_id" id="shippingCouponIdInput" value="">
+  </div>
 
-        
+  
+</div>
+<div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
+<!-- Các input ẩn để backend nhận coupon_id, discount -->
+<input type="hidden" id="orderCouponIdInput" name="order_coupon_id" value="">
+<input type="hidden" id="shippingCouponIdInput" name="shipping_coupon_id" value="">
+<input type="hidden" id="orderDiscountInput" name="order_discount" value="0">
+<input type="hidden" id="shippingDiscountInput" name="shipping_discount" value="0">
+
 
         <!-- Thông tin giỏ hàng -->
         <div class="mb-6">
@@ -109,7 +296,7 @@
             $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price_sale ?? $item->product->price;
         @endphp
         <li class="flex items-center gap-4">
-            <a href="{{ route('products.detail', $item->product->product_id) }}">
+            <a href="{{ route('products.detail', $item->product->product_id) }}" target="_blank">
 
                 <img src="{{ asset('storage/' . $item->product->images->first()->image_url) }}" alt="{{ $item->product->name }}" class="w-20 h-20 mr-4">
             </a>
@@ -180,8 +367,7 @@
 
 
         </div>
-        <input type="hidden" name="order_discount" id="orderDiscountInput" value="0">
-        <input type="hidden" name="shipping_discount" id="shippingDiscountInput" value="0">
+
 
         @foreach($cartDetailIds as $id)
         <input type="hidden" name="cart_detail_ids[]" value="{{ $id }}">
@@ -201,7 +387,7 @@
 @endsection
 
 <div id="addressFormPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white p-6 rounded-md w-96">
+      <div class="bg-white p-6 rounded-md w-full max-w-3xl">
         <h2 id="addressFormTitle" class="text-xl font-semibold mb-4">Thêm địa chỉ mới</h2>
         
         <form id="addressForm">
@@ -266,7 +452,8 @@
 
 <!-- Popup danh sách địa chỉ -->
 <div id="addressPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white p-6 rounded-md w-96">
+  <div class="bg-white p-6 rounded-md w-full max-w-3xl">
+
         <h2 class="text-xl font-semibold mb-4">Thay đổi địa chỉ nhận hàng</h2>
         <div id="addressList">
             @foreach($user->userAddresses as $address)
@@ -488,7 +675,7 @@ document.getElementById("addressFormPopup").addEventListener("show", function() 
         document.getElementById("addressFormPopup").classList.remove("hidden");
 
         document.getElementById("addressFormTitle").innerText = "Thêm địa chỉ mới";
-        ['addressId', 'addressName', 'recipientName', 'streetAddress', 'ward', 'district', 'city'].forEach(id => {
+        ['addressId', 'addressName', 'recipientName', 'streetAddress','recipientPhone', 'ward', 'district', 'city'].forEach(id => {
             document.getElementById(id).value = "";
         });
         loadCities();
@@ -560,7 +747,7 @@ function updateAddressList(newAddress) {
     if (existingAddress) {
         existingAddress.remove();
     }   
-
+  
     // Tạo HTML mới cho địa chỉ
     let newAddressHTML = `
         <div class="border p-4 rounded-md mb-2 address-item" data-address-id="${newAddress.address_id}">
@@ -570,26 +757,29 @@ function updateAddressList(newAddress) {
                 <span class="ml-2">
                     <strong class="address-name">${newAddress.address_name}</strong> - 
                     <span class="recipient-name">${newAddress.recipient_name}</span><br>
-                    <span class="street-address">${newAddress.street_address}</span>, 
+                    <span class="street-address">${newAddress.street_address}</span>,
+                    <span class="recipient-phone">${newAddress.recipient_phone}</span>,  
                     <span class="ward">${newAddress.ward}</span>, 
                     <span class="district">${newAddress.district}</span>, 
                     <span class="city">${newAddress.city}</span>
                 </span>
             </label>
+                <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
+                onclick="
+                editAddress(
+                    ${newAddress.address_id},
+                    '${(newAddress.address_name || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.recipient_name || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.recipient_phone || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.street_address || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.ward || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.district || '').replace(/'/g, "\\'")}',
+                    '${(newAddress.city || '').replace(/'/g, "\\'")}'
+                )
+                ">
+                Sửa
+                </button>
 
-            <button class="bg-yellow-500 text-black text-sm px-2 py-1 rounded-md"
-                                onclick="editAddress(
-                                    {{ $address->address_id }},
-                                    '{{ $address->address_name ?? '' }}',
-                                    '{{ $address->recipient_name ?? '' }}',
-                                    '{{ $address->recipient_phone ?? '' }}',
-                                    '{{ $address->street_address ?? '' }}',
-                                    '{{ $address->ward ?? '' }}',
-                                    '{{ $address->district ?? '' }}',
-                                    '{{ $address->city ?? '' }}'
-                                )">
-                                Sửa
-                        </button>  
         </div>
     `;
     let addressError = document.querySelector('#addressError');
@@ -724,188 +914,214 @@ function confirmAddressSelection() {
     // }
 
     // Xử lý nút áp dụng mã giảm giá
-    document.addEventListener('DOMContentLoaded', function () {
-         function updateTotalPrice() {
-    const toNumber = (str) => parseInt((str || '0').replace(/\D/g, ''));
+  document.addEventListener('DOMContentLoaded', () => {
+  // --- 1. Hàm dùng chung để gọi API và cập nhật UI ---
+  async function applyCoupons(codes) {
+    const toNumber = str => parseInt((str||'0').replace(/\D/g,''), 10);
+    const totalPriceEl = document.getElementById('totalPrice');
+    const orderTotal = toNumber(totalPriceEl?.innerText);
 
-    const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
-    const shippingFee = parseInt(document.getElementById('shippingFeeValue')?.value || 0);
-    const orderDiscount = parseInt(document.getElementById('orderDiscountInput')?.value || 0);
-    const shippingDiscount = parseInt(document.getElementById('shippingDiscountInput')?.value || 0);
+    if (!codes) {
+      document.getElementById('couponResult').innerText = 'Vui lòng nhập hoặc chọn mã.';
+      return;
+    }
 
-    const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+    try {
+      const res = await fetch('/check-coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          codes: codes,
+          order_total: orderTotal
+        })
+      });
+      const data = await res.json();
+      const resultEl = document.getElementById('couponResult');
 
-    document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
+      if (data.valid_coupons?.length) {
+        // reset trước
+        document.querySelectorAll('.applied-coupon').forEach(el => el.remove());
+
+        let msg = '', totalDisc = 0;
+        let orderDisc = 0, shippingDisc = 0;
+        let usedOrder = false, usedShip = false;
+        const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
+
+        for (const item of data.valid_coupons) {
+          if (item.usage_count >= item.usage_limit) {
+            msg += `<span class="text-red-500">❌ ${item.code} đã hết lượt.</span><br>`;
+            continue;
+          }
+let disc = 0;
+const percentage = parseFloat(item.discount_value);
+const maxDiscount = parseFloat(item.max_discount_value ?? 0);
+
+  const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
+  const shippingFee = parseInt(shippingFeeValue, 10) || 0;
+
+// Nếu giảm theo phần trăm
+if (item.discount_type === 'percentage') {
+  if (item.apply_to === 'order') {
+    disc = (cartTotal * percentage) / 100;
+    console.log('Giảm % đơn hàng:', disc, 'max:', maxDiscount, 'cartTotal:', cartTotal, 'percentage:', percentage);
+    // Giới hạn giảm tối đa
+    if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
+      disc = maxDiscount;
+    }
+
+  } else if (item.apply_to === 'shipping') {
+    // Nếu phí ship chưa được chọn => bỏ qua mã này
+    if (shippingFee <= 0) {
+      msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
+      continue;
+    }
+
+    disc = (shippingFee * percentage) / 100;
+  console.log('Giảm % phí ship:', disc, 'max:', maxDiscount, 'shippingFee:', shippingFee, 'percentage:', percentage);
+    // Giới hạn giảm tối đa
+    if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
+      disc = maxDiscount;
+    }
+  }
+
+} else {
+  // Giảm cố định
+  disc = parseFloat(item.discount_value ?? 0);
+
+  // Không cho mã giảm phí ship vượt quá phí ship
+  if (item.apply_to === 'shipping') {
+    if (shippingFee <= 0) {
+      msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
+      continue;
+    }
+
+    if (disc > shippingFee) {
+      disc = shippingFee;
+    }
+  }
 }
-    const applyBtn = document.createElement('button');
-    applyBtn.type = 'button';
-    applyBtn.textContent = 'Áp dụng';
-    applyBtn.className = 'mt-2 bg-green-500 text-white py-1 px-3 rounded-md ml-2';
-    document.querySelector('#couponInput').after(applyBtn);
 
-        applyBtn.addEventListener('click', function () {
-        const codes = document.getElementById('couponInput').value.trim();
-        console.log('Mã giảm giá gửi đến backend:', codes);
-        if (!codes) {
-            document.getElementById('couponResult').innerText = "Vui lòng nhập mã.";
-            return;
+
+
+          if (item.apply_to === 'order') {
+            if (usedOrder) {
+              msg += `<span class="text-red-500">❌ Chỉ 1 mã đơn hàng.</span><br>`;
+              continue;
+            }
+            orderDisc = disc; usedOrder = true;
+            document.getElementById('orderCouponIdInput').value = item.coupon_id;
+          } else {
+            if (usedShip) {
+              msg += `<span class="text-red-500">❌ Chỉ 1 mã vận chuyển.</span><br>`;
+              continue;
+            }
+            shippingDisc = disc; usedShip = true;
+            document.getElementById('shippingCouponIdInput').value = item.coupon_id;
+          }
+
+          msg += `✔️ ${item.code}: Giảm ${disc.toLocaleString('vi-VN')} đ<br>`;
+          totalDisc += disc;
+
+          // thêm input ẩn gửi về form
+          const h = document.createElement('input');
+          h.type = 'hidden';
+          h.name = 'coupons[]';
+          h.value = item.code;
+          h.classList.add('applied-coupon');
+          document.querySelector('form').appendChild(h);
         }
 
-        fetch('/check-coupon', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ 
-        codes: codes, 
-        order_total: document.getElementById('totalPrice').innerText.replace(/,/g, '')  // lấy giá trị tổng đơn hàng
-    })
+        // cập nhật giá vào hidden & UI
+        document.getElementById('orderDiscountInput').value = Math.floor(orderDisc);
+        document.getElementById('shippingDiscountInput').value = shippingDisc;
+        document.getElementById('orderDiscount').innerText = `${orderDisc.toLocaleString('vi-VN')} đ`;
+        document.getElementById('shippingDiscount').innerText = `${shippingDisc.toLocaleString('vi-VN')} đ`;
 
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);  // In ra dữ liệu trả về từ server để kiểm tra
+        // cập nhật tổng
+        updateTotalPrice();
 
-            const couponResult = document.getElementById('couponResult');
-
-            // Kiểm tra nếu có success và các dữ liệu cần thiết
-            if (data.valid_coupons && data.valid_coupons.length > 0) {
-                let message = '';
-                let totalDiscount = 0;
-                let orderDiscount = 0;  // Giảm cho đơn hàng
-                let shippingDiscount = 0;  // Giảm cho phí vận chuyển
-
-                let orderCouponApplied = false;  // Biến kiểm tra mã giảm giá cho đơn hàng đã được áp dụng chưa
-                let shippingCouponApplied = false;  // Biến kiểm tra mã giảm giá cho phí vận chuyển đã được áp dụng chưa
-
-                // Lặp qua mảng valid_coupons và tính tổng giảm giá
-                data.valid_coupons.forEach(item => {
-                    let discountValue = parseFloat(item.discount_value); // Giá trị giảm giá
-                    let maxDiscount = parseFloat(item.max_discount_value); // Giới hạn giảm giá tối đa
-                    let discount;
-
-                    // Kiểm tra nếu usage_count bằng usage_limit
-                    if (item.usage_count >= item.usage_limit) {
-                        message += `<span class="text-red-500">❌ Mã giảm giá ${item.code} đã hết lượt sử dụng.</span><br>`;
-                        return; // Dừng lại nếu mã đã hết lượt sử dụng
-                    }
-
-                    // Kiểm tra loại giảm giá và tính toán
-                    if (item.discount_type === "percentage") {
-                        // Tính giá trị giảm giá theo phần trăm
-                        discount = (parseFloat('{{ $total }}') * discountValue) / 100;
-
-                        // Kiểm tra nếu discount vượt quá giới hạn giảm giá tối đa
-                        if (maxDiscount && discount > maxDiscount) {
-                            discount = maxDiscount;
-                        }
-
-                        // Phân biệt giảm giá cho đơn hàng và phí vận chuyển
-                        if (item.apply_to === 'order') {
-                            if (orderCouponApplied) {
-                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho đơn hàng.</span><br>`;
-                                return;  // Dừng lại nếu đã có mã giảm giá cho đơn hàng
-                            }
-                            orderDiscount += discount;  // Giảm cho đơn hàng
-                            orderCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho đơn hàng
-                        } else if (item.apply_to === 'shipping') {
-                            if (shippingCouponApplied) {
-                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho phí vận chuyển.</span><br>`;
-                                return;  // Dừng lại nếu đã có mã giảm giá cho phí vận chuyển
-                            }
-                            shippingDiscount += discount;  // Giảm cho phí vận chuyển
-                            shippingCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho phí vận chuyển
-                        }
-                    } else {
-                        // Nếu là giảm giá cố định
-                        discount = discountValue;
-
-                        // Phân biệt giảm giá cho đơn hàng và phí vận chuyển
-                        if (item.apply_to === 'order') {
-                            if (orderCouponApplied) {
-                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho đơn hàng.</span><br>`;
-                                return;  // Dừng lại nếu đã có mã giảm giá cho đơn hàng
-                            }
-                            orderDiscount += discount;  // Giảm cho đơn hàng
-                            orderCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho đơn hàng
-                            document.getElementById('orderCouponIdInput').value = item.coupon_id;
-                        } else if (item.apply_to === 'shipping') {
-                            if (shippingCouponApplied) {
-                                message += `<span class="text-red-500">❌ Bạn chỉ được áp dụng 1 mã giảm giá cho phí vận chuyển.</span><br>`;
-                                return;  // Dừng lại nếu đã có mã giảm giá cho phí vận chuyển
-                            }
-                            shippingDiscount += discount;  // Giảm cho phí vận chuyển
-                            shippingCouponApplied = true;  // Đánh dấu đã áp dụng mã giảm giá cho phí vận chuyển
-                            document.getElementById('shippingCouponIdInput').value = item.coupon_id;
-                        }
-                    }
-
-                    message += `✔️ ${item.code}: Giảm ${discount.toLocaleString('vi-VN')} đ<br>`;
-                    totalDiscount += discount;
-                });
-
-                // Cập nhật giá trị giảm giá vào input ẩn
-                document.getElementById('orderDiscountInput').value = orderDiscount;
-                document.getElementById('shippingDiscountInput').value = shippingDiscount;
-
-                // Cập nhật giá trị của các phần tử HTML ngay lập tức
-                document.getElementById('orderDiscount').innerText = `${orderDiscount.toLocaleString('vi-VN')} đ`;
-                document.getElementById('shippingDiscount').innerText = `${shippingDiscount.toLocaleString('vi-VN')} đ`;
-
-                // Cập nhật lại tổng tiền sau khi áp dụng các giảm giá
-                updateTotalPrice();
-
-                // Hiển thị kết quả giảm giá
-                couponResult.innerHTML = `
-                    ${message}
-                    <br>
-                    <strong>Giảm cho đơn hàng: ${orderDiscount.toLocaleString('vi-VN')} đ</strong><br>
-                    <strong>Giảm cho phí vận chuyển: ${shippingDiscount.toLocaleString('vi-VN')} đ</strong><br>
-                    <strong>Tổng giảm: ${totalDiscount.toLocaleString('vi-VN')} đ</strong>
-                `;
-                setTimeout(() => {
-                    couponResult.innerHTML = '';
-                }, 5000);
-
-                // Xóa các input cũ (nếu người dùng áp lại mã mới)
-                document.querySelectorAll('.applied-coupon').forEach(el => el.remove());
-
-                // Chèn các mã hợp lệ vào form
-                data.valid_coupons.forEach(item => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'coupons[]';
-                    input.value = item.code;
-                    input.classList.add('applied-coupon'); // để tiện xóa sau
-                    document.querySelector('form').appendChild(input);
-                });
-                 
-            } else {
-    const couponResult = document.getElementById('couponResult');
-
-    let errorMessage = "Lỗi không xác định"; // Mặc định
-
-    // Ưu tiên lấy message cụ thể từ backend (nếu có)
-    if (data.message) {
-        errorMessage = data.message;
+        resultEl.innerHTML = `
+          ${msg}
+          <strong>Giảm đơn: ${orderDisc.toLocaleString('vi-VN')} đ</strong><br>
+          <strong>Giảm ship: ${shippingDisc.toLocaleString('vi-VN')} đ</strong><br>
+          <strong>Tổng giảm: ${totalDisc.toLocaleString('vi-VN')} đ</strong>
+        `;
+        setTimeout(() => {
+        resultEl.innerHTML = '';
+        }, 5000);
+      } else {
+        let err = data.message || (data.errors||[]).join('<br>') || 'Mã không hợp lệ';
+        document.getElementById('couponResult').innerHTML = `<span class="text-red-500">❌ ${err}</span>`;
+      }
+    } catch (e) {
+      console.error(e);
+      document.getElementById('couponResult').innerHTML = `<span class="text-red-500">Lỗi khi kiểm tra mã.</span>`;
     }
+  }
 
-    // Nếu backend có mảng errors, nối lại để hiển thị tất cả
-    if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
-        errorMessage = data.errors.join('<br>');
-    }
+  // --- 2. Gắn listener cho nút nhập tay ---
+  const applyBtnManual = document.createElement('button');
+  applyBtnManual.type = 'button';
+  applyBtnManual.textContent = 'Áp dụng';
+  applyBtnManual.className = 'mt-2 bg-green-500 text-white py-1 px-3 rounded-md ml-2';
+  document.querySelector('#couponInput').after(applyBtnManual);
 
-    // Hiển thị lỗi
-    couponResult.innerHTML = `<span class="text-red-500">❌ ${errorMessage}</span>`;
+  applyBtnManual.addEventListener('click', () => {
+    const v = document.getElementById('couponInput').value.trim();
+    applyCoupons(v);
+  });
+
+  // --- 3. Gắn listener cho nút trong popup ---
+  document.getElementById('btnApplyPopup').addEventListener('click', () => {
+    // lấy giá trị radio được chọn
+    const orderCode = document.querySelector('input[name="orderCoupon"]:checked')?.value;
+    const shipCode  = document.querySelector('input[name="shippingCoupon"]:checked')?.value;
+
+    // gộp thành chuỗi, cách nhau ,
+    const codes = [orderCode, shipCode].filter(Boolean).join(',');
+    // tự động set vào input text để hiển thị
+    document.getElementById('couponInput').value = codes;
+    // gọi chung
+    applyCoupons(codes);
+  });
+
+  // --- 4. Hàm cập nhật tổng tiền (giữ nguyên của bạn) ---
+ function updateTotalPrice() {
+  const toNumber = str => parseInt((str||'0').replace(/\D/g,''), 10);
+
+  // 1. Giá trị gốc trong giỏ hàng
+  const cartTotalText = document.getElementById('cartTotal')?.innerText || '0';
+  const cartTotal = toNumber(cartTotalText);
+
+  // 2. Phí vận chuyển (input.value là số nguyên, không chứa dấu)
+  const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
+  const shippingFee = parseInt(shippingFeeValue, 10) || 0;
+
+  // 3. Giảm giá đơn hàng & phí vận chuyển (hidden inputs)
+  const orderDiscValue = document.getElementById('orderDiscountInput')?.value || '0';
+  const shippingDiscValue = document.getElementById('shippingDiscountInput')?.value || '0';
+  const orderDiscount = parseInt(orderDiscValue, 10) || 0;
+  const shippingDiscount = parseInt(shippingDiscValue, 10) || 0;
+
+  // DEBUG: log ra console để xem từng thành phần
+  console.log({ cartTotal, shippingFee, orderDiscount, shippingDiscount });
+
+  // 4. Tính tổng
+  const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+
+  // 5. Hiển thị lại
+  document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
 }
 
-        })
-        .catch(error => {
-            console.error("Lỗi:", error);
-            document.getElementById('couponResult').innerHTML = `<span class="text-red-500">Đã xảy ra lỗi khi kiểm tra mã.</span>`;
-        });
-    });
+
+  // gọi 1 lần khi load
+  updateTotalPrice();
+});
+
+
     document.addEventListener('DOMContentLoaded', function () {
     const citySelect = document.getElementById('city');
     const districtSelect = document.getElementById('district');
@@ -972,7 +1188,7 @@ function confirmAddressSelection() {
 });
 
 
-    });
+
   function updateShippingFee(addressId) {
     console.log("Đang gọi API cập nhật phí vận chuyển với address_id:", addressId);
 
@@ -1030,20 +1246,10 @@ function confirmAddressSelection() {
     .catch(error => {
         console.error('Lỗi khi gọi API:', error);
     });
-  function updateTotalPrice() {
-    const toNumber = (str) => parseInt((str || '0').replace(/\D/g, ''));
 
-    const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
-    const shippingFee = parseInt(document.getElementById('shippingFeeValue')?.value || 0);
-    const orderDiscount = parseInt(document.getElementById('orderDiscountInput')?.value || 0);
-    const shippingDiscount = parseInt(document.getElementById('shippingDiscountInput')?.value || 0);
-
-    const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
-
-    document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
-}
 
 
 
 }
 </script>
+<script src="//unpkg.com/alpinejs" defer></script>

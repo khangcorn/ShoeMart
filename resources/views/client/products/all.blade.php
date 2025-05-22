@@ -349,10 +349,33 @@
                             <p class="font-semibold text-gray-500">
                                 {{ $product->category->name }}
                             </p>
-                            <p class="text-black font-semibold mb-2 relative">
-                                {{ number_format($product->price, 0, ',', ',') }}
-                                <span class="text-xs underline font-thin absolute top-0.5 -left-19">đ</span>
-                            </p>
+                            @php
+    $hasVariants = $product->variants && $product->variants->count() > 0;
+
+    if ($hasVariants) {
+        $lowestVariant = $product->variants->sortBy(function ($variant) {
+            return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
+        })->first();
+
+        $originalPrice = $lowestVariant->price;
+        $salePrice = $lowestVariant->price_sale;
+    } else {
+        $originalPrice = $product->price;
+        $salePrice = $product->price_sale;
+    }
+@endphp
+
+<p class="text-black font-semibold mb-2 relative">
+    @if ($salePrice && $salePrice > 0)
+        <span class="line-through text-gray-500">{{ number_format($originalPrice, 0, ',', '.') }}</span>
+        /
+        {{ number_format($salePrice, 0, ',', '.') }}
+    @else
+        {{ number_format($originalPrice, 0, ',', '.') }}
+    @endif
+    <span class="text-xs underline font-thin absolute top-0.5 -left-4">đ</span>
+</p>
+
                               
 
                         </div>

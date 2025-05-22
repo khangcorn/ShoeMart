@@ -2,22 +2,24 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 class Coupon extends Model
 {
     use HasFactory;
 
     protected $table = 'coupons';
+
     protected $primaryKey = 'coupon_id';
+
     public $timestamps = true;
 
     protected $fillable = [
         'code',
-        'apply_to', 
+        'apply_to',
         'discount_type',
         'discount_value',
         'max_discount_value',
@@ -25,7 +27,7 @@ class Coupon extends Model
         'usage_limit',
         'min_order_value',
         'usage_count',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -49,12 +51,13 @@ class Coupon extends Model
             }
         });
     }
+
     // Phương thức accessor để định dạng expiration_date
     public function getExpirationDateFormattedAttribute()
     {
         return Carbon::parse($this->expiration_date)
-                     ->setTimezone('Asia/Ho_Chi_Minh')
-                     ->format('Y-m-d H:i');
+            ->setTimezone('Asia/Ho_Chi_Minh')
+            ->format('Y-m-d H:i');
     }
 
     public function orders(): HasMany
@@ -69,6 +72,6 @@ class Coupon extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active' && !$this->isExpired();
+        return $this->status === 'active' && ! $this->isExpired();
     }
 }

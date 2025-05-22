@@ -3,22 +3,19 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CheckPermission
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-   public function handle($request, Closure $next, $permission)
+    public function handle($request, Closure $next, $permissionName)
     {
-        if (!auth()->check() || !auth()->user()->hasPermission($permission)) {
-            abort(403, 'Bạn không có quyền truy cập');
+        $user = Auth::user();
+
+        if (!$user || !$user->hasPermission($permissionName)) {
+            abort(403, 'Bạn không có quyền truy cập.');
         }
+
         return $next($request);
     }
-
 }
+

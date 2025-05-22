@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\VariantAttributeValues;
 use App\Models\ProductVariant;
 use App\Models\VariantAttribute;
+use App\Models\VariantAttributeValues;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class VariantAttributeValuesFactory extends Factory
 {

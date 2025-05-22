@@ -17,10 +17,12 @@
     @endif
 
         <div class="flex justify-end mb-4">
+            @if(auth()->user()->hasPermission('create_colors'))
             <a href="{{ route('colors.create') }}"
                 class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
                 + Add New Color
             </a>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -36,10 +38,13 @@
                         <tr class="border border-gray-300 hover:bg-gray-50 transition">
                             <td class="border border-gray-300 px-4 py-2">{{ $color->attribute_value }}</td>
                             <td class="border border-gray-300 px-4 py-2 text-center flex justify-center space-x-2">
+                                 @if(auth()->user()->hasPermission('edit_colors'))
                                 <a href="{{ route('colors.edit', $color->attribute_id) }}"
                                     class="px-3 py-1 bg-green-500 text-white rounded hover:bg-yellow-600 transition">
                                     Edit
                                 </a>
+                                @endif
+                                @if(auth()->user()->hasPermission('delete_colors'))
                                 <form action="{{ route('colors.destroy', $color->attribute_id) }}" method="POST" 
                                     onsubmit="return confirm('Are you sure you want to delete this color?');">
                                     @csrf
@@ -49,6 +54,7 @@
                                         Delete
                                     </button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

@@ -15,12 +15,11 @@ return new class extends Migration
             $table->enum('apply_to', ['order', 'shipping'])->default('order')->after('code');
         });
     }
-    
+
     public function down()
     {
         Schema::table('coupons', function (Blueprint $table) {
             $table->dropColumn('apply_to');
         });
     }
-    
 };

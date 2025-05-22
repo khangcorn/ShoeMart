@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class OrderStatusSeeder extends Seeder
 {
@@ -14,4 +13,3 @@ class OrderStatusSeeder extends Seeder
         \App\Models\OrderStatus::factory(10)->create(); // Số lượng vừa đủ để tránh trùng
     }
 }
-

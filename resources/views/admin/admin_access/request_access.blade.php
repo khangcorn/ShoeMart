@@ -1,4 +1,4 @@
-@extends('admin.layout')
+{{-- @extends('admin.layout')
 
 @section('content')
 <style>
@@ -275,4 +275,4 @@
 
 
 
-</script>
+</script> --}}

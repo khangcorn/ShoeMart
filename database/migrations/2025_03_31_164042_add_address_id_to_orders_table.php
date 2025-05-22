@@ -15,12 +15,12 @@ return new class extends Migration
             // Kiểm tra nếu chưa có cột address_id mới thêm
             if (! Schema::hasColumn('orders', 'address_id')) {
                 $table->unsignedBigInteger('address_id')
-                      ->nullable()
-                      ->after('coupon_id');
+                    ->nullable()
+                    ->after('coupon_id');
                 $table->foreign('address_id')
-                      ->references('address_id')
-                      ->on('user_addresses')
-                      ->onDelete('set null');
+                    ->references('address_id')
+                    ->on('user_addresses')
+                    ->onDelete('set null');
             }
         });
     }

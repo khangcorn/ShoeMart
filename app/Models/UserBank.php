@@ -10,6 +10,7 @@ class UserBank extends Model
     use HasFactory;
 
     protected $table = 'user_banks';
+
     protected $fillable = ['user_id', 'bank_name', 'account_number'];
 
     // Quan hệ với bảng users

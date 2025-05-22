@@ -18,11 +18,10 @@ return new class extends Migration
         });
     }
 
-public function down()
-{
-    Schema::table('categories', function (Blueprint $table) {
-        $table->dropColumn('image_url');
-    });
-}
-
+    public function down()
+    {
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropColumn('image_url');
+        });
+    }
 };

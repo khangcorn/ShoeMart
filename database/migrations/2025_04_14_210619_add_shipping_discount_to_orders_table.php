@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->decimal('shipping_discount', 10, 2)->default(0)->after('shipping_fee');
         });
-        
+
     }
 
     /**

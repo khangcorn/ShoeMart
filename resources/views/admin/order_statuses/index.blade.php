@@ -6,9 +6,11 @@
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
         <h4 class="text-lg font-semibold">Trạng thái đơn hàng</h4>
+         @if(auth()->user()->hasPermission('create_order_statuses'))
         <a href="{{ route('order-statuses.create') }}" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 shadow">
             + Thêm trạng thái
         </a>
+        @endif
     </div>
 
     <div class="p-6">
@@ -39,9 +41,12 @@
                             <td class="px-4 py-3 text-gray-700">{{ $status->description }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-center space-x-2">
+                                     @if(auth()->user()->hasPermission('edit_order_statuses'))
                                     <a href="{{ route('order-statuses.edit', $status->status_id) }}" class="inline-flex items-center px-3 py-1.5 bg-yellow-500 text-black text-xs font-medium rounded-md hover:bg-yellow-600 shadow">
                                         ✏️ Sửa
                                     </a>
+                                    @endif
+                                     @if(auth()->user()->hasPermission('delete_order_statuses'))
                                     <form action="{{ route('order-statuses.destroy', $status->status_id) }}" method="POST" onsubmit="return confirm('Xóa trạng thái này?')">
                                         @csrf
                                         @method('DELETE')
@@ -49,6 +54,7 @@
                                             🗑️ Xóa
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class RefundRequest extends Model
 {
@@ -42,6 +42,5 @@ class RefundRequest extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
     // Trong model RefundRequest
-
 
 }

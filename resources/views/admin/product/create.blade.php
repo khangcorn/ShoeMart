@@ -67,10 +67,31 @@
     </div>
 @endif
 @if ($errors->has('error'))
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="error-general" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
         {{ $errors->first('error') }}
     </div>
 @endif
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const errorMessages = document.getElementById('error-messages');
+            const errorGeneral = document.getElementById('error-general');
+
+            if (errorMessages) {
+                errorMessages.style.transition = 'opacity 0.5s ease';
+                errorMessages.style.opacity = '0';
+                setTimeout(() => errorMessages.remove(), 500);
+            }
+
+            if (errorGeneral) {
+                errorGeneral.style.transition = 'opacity 0.5s ease';
+                errorGeneral.style.opacity = '0';
+                setTimeout(() => errorGeneral.remove(), 500);
+            }
+        }, 5000);
+    });
+</script>
 
 
 
@@ -101,7 +122,7 @@
             @enderror
         </div>
     
-        <div>
+        {{-- <div>
             <label for="price" class="block text-sm font-medium text-gray-700">Giá</label>
             <input type="number" id="price" name="price"
                 class="text-black w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('price') border-red-500 @enderror"
@@ -119,9 +140,9 @@
             @error('price_sale')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-        </div>
+        </div> --}}
     
-        <div id="product_stock_input" class="hidden">
+        {{-- <div id="product_stock_input" class="hidden">
             <label for="total_stock_input" class="block text-sm font-medium text-gray-700">Số Lượng</label>
             <input type="number" name="stock" id="total_stock_input"
                 class="text-black w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('stock') border-red-500 @enderror"
@@ -130,7 +151,9 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
-    
+     --}}
+     <input type="hidden" id="product_price" name="price" value="">
+     <input type="hidden" id="product_stock_input" name="stock" value="">
         <div>
             <label for="category_id" class="block text-sm font-medium text-gray-700">Danh Mục</label>
             <select class="text-black w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('category_id') border-red-500 @enderror"
@@ -193,14 +216,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const addVariantBtn = document.getElementById('add_variant_btn');
     const variantFieldsContainer = document.getElementById('variant_fields');
     const productStockField = document.getElementById('product_stock_input'); // Lấy phần tử input số lượng sản phẩm
     let variantIndex = 0;
     let colorImages = {}; // Lưu ảnh theo màu
 
-    // Đảm bảo rằng trường "Số Lượng" của sản phẩm chính luôn hiển thị khi chưa thêm biến thể
-    productStockField.classList.remove('hidden');
 
     addVariantBtn.addEventListener('click', function () {
         const newVariant = document.createElement('div');
@@ -257,8 +279,6 @@ document.addEventListener('DOMContentLoaded', function () {
         variantFieldsContainer.appendChild(newVariant);
         variantIndex++;
 
-        // Ẩn trường số lượng của sản phẩm chính khi thêm biến thể
-        productStockField.classList.add('hidden'); 
 
         const errorMsg = newVariant.querySelector('.error-message');
         errorMsg.classList.add('d-none');
@@ -293,8 +313,6 @@ document.addEventListener('DOMContentLoaded', function () {
             newVariant.remove();
             checkDuplicateVariant();
 
-            // Kiểm tra lại và hiển thị lại trường số lượng khi không còn biến thể nào
-            productStockField.classList.remove('hidden'); // Hiển thị lại trường số lượng khi không còn biến thể
         });
 
         // Kiểm tra số lượng biến thể mỗi lần thêm biến thể
@@ -350,172 +368,203 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ✅ VALIDATION FORM TRƯỚC KHI SUBMIT
-    document.querySelector('form').addEventListener('submit', function (event) {
-    let isValid = true;
+  document.querySelector('form').addEventListener('submit', function (event) {
+        let isValid = true;
 
-    // Kiểm tra nếu có thông báo lỗi đang hiển thị
-    if (document.querySelector('.error-message:not(.d-none)')) {
-        alert('Có biến thể bị trùng Color & Size. Hãy kiểm tra lại!');
-        event.preventDefault();
-        return;
-    }
+        // Kiểm tra nếu có thông báo lỗi đang hiển thị
+        if (document.querySelector('.error-message:not(.d-none)')) {
+            alert('Có biến thể bị trùng Color & Size. Hãy kiểm tra lại!');
+            event.preventDefault();
+            return;
+        }
 
-    // Kiểm tra trùng lặp giữa các biến thể (Color và Size)
-    let colorSizePairs = [];
-    document.querySelectorAll('.variant').forEach(variant => {
-        const color = variant.querySelector('.variant-color').value;
-        const size = variant.querySelector('.variant-size').value;
-        
-        if (color && size) {
-            let pair = `${color}-${size}`;
-            if (colorSizePairs.includes(pair)) {
-                showError(variant.querySelector('.variant-color'), 'Màu và Kích cỡ này đã tồn tại');
-                showError(variant.querySelector('.variant-size'), 'Màu và Kích cỡ này đã tồn tại');
-                isValid = false;
-            } else {
-                colorSizePairs.push(pair);
+        // Kiểm tra xem có ít nhất 1 biến thể không
+        const variants = document.querySelectorAll('.variant');
+        if (variants.length === 0) {
+            alert('Bạn phải tạo ít nhất 1 biến thể cho sản phẩm.');
+            event.preventDefault();
+            return;
+        }
+
+        let colorSizePairs = [];
+        let totalStock = 0;
+        let prices = [];
+
+        variants.forEach(variant => {
+            const color = variant.querySelector('.variant-color').value;
+            const size = variant.querySelector('.variant-size').value;
+            const errorMsg = variant.querySelector('.error-message');
+
+            // Ẩn lỗi cũ
+            errorMsg.classList.add('d-none');
+            errorMsg.style.display = "none";
+
+            if (color && size) {
+                let pair = `${color}-${size}`;
+                if (colorSizePairs.includes(pair)) {
+                    showError(variant.querySelector('.variant-color'), 'Màu và Kích cỡ này đã tồn tại');
+                    showError(variant.querySelector('.variant-size'), 'Màu và Kích cỡ này đã tồn tại');
+                    isValid = false;
+                } else {
+                    colorSizePairs.push(pair);
+                }
             }
+
+            // Kiểm tra có ảnh cho biến thể
+            const imagesInput = variant.querySelector('.variant-image-input');
+            if (imagesInput && imagesInput.files.length === 0) {
+                showError(imagesInput, 'Vui lòng tải lên ít nhất 1 ảnh cho biến thể');
+                isValid = false;
+            }
+
+            // Kiểm tra giá trị các trường trong biến thể
+            const price = variant.querySelector('.variant-price');
+            const salePrice = variant.querySelector('.variant-sale-price');
+            const stock = variant.querySelector('.variant-stock');
+            const colorInput = variant.querySelector('.variant-color');
+            const sizeInput = variant.querySelector('.variant-size');
+
+            clearError(price);
+            clearError(salePrice);
+            clearError(stock);
+            clearError(colorInput);
+            clearError(sizeInput);
+
+            if (price.value.trim() === '' || parseFloat(price.value) < 0) {
+                showError(price, 'Giá không hợp lệ');
+                isValid = false;
+            }
+
+            if (salePrice.value !== '' && parseFloat(salePrice.value) < 0) {
+                showError(salePrice, 'Giá khuyến mãi không hợp lệ');
+                isValid = false;
+            }
+
+            if (stock.value.trim() === '' || parseInt(stock.value) < 0) {
+                showError(stock, 'Số lượng không hợp lệ');
+                isValid = false;
+            }
+
+            if (!colorInput.value) {
+                showError(colorInput, 'Vui lòng chọn màu');
+                isValid = false;
+            }
+
+            if (!sizeInput.value) {
+                showError(sizeInput, 'Vui lòng chọn kích cỡ');
+                isValid = false;
+            }
+
+            // Tính tổng số lượng
+            totalStock += parseInt(stock.value) || 0;
+
+            // Lấy giá khuyến mãi (nếu có), ưu tiên giá sale
+            let effectivePrice = salePrice.value !== '' && parseFloat(salePrice.value) > 0 ? parseFloat(salePrice.value) : parseFloat(price.value);
+            prices.push(effectivePrice);
+        });
+
+        if (!isValid) {
+            event.preventDefault();
+            alert('Vui lòng điền đầy đủ và hợp lệ tất cả các trường của biến thể.');
+            return;
         }
 
-        // Kiểm tra xem có ảnh không (ít nhất 1 ảnh cho biến thể)
-        const imagesInput = variant.querySelector('.variant-image-input');
-        if (imagesInput && imagesInput.files.length === 0) {
-            showError(imagesInput, 'Vui lòng tải lên ít nhất 1 ảnh cho biến thể');
-            isValid = false;
-        }
-    });
+        // Tính giá sản phẩm = giá thấp nhất trong các biến thể (ưu tiên giá khuyến mãi)
+        let productPrice = Math.min(...prices);
 
-    // Kiểm tra các trường dữ liệu khác (Giá, Số lượng, Màu, Kích cỡ)
-    document.querySelectorAll('.variant').forEach(variant => {
-        const price = variant.querySelector('.variant-price');
-        const salePrice = variant.querySelector('.variant-sale-price');
-        const stock = variant.querySelector('.variant-stock');
-        const color = variant.querySelector('.variant-color');
-        const size = variant.querySelector('.variant-size');
+        // Gán giá và tổng số lượng cho input product (giả sử input ẩn có id product_price và product_stock_input)
+        const productPriceInput = document.getElementById('product_price');
+        const productStockInput = document.getElementById('product_stock_input');
 
-        clearError(price);
-        clearError(salePrice);
-        clearError(stock);
-        clearError(color);
-        clearError(size);
-
-        if (price.value.trim() === '' || parseFloat(price.value) < 0) {
-            showError(price, 'Giá không hợp lệ');
-            isValid = false;
+        if (productPriceInput) {
+            productPriceInput.value = productPrice;
         }
 
-        if (salePrice.value !== '' && parseFloat(salePrice.value) < 0) {
-            showError(salePrice, 'Giá khuyến mãi không hợp lệ');
-            isValid = false;
+        if (productStockInput) {
+            productStockInput.value = totalStock;
         }
 
-        if (stock.value.trim() === '' || parseInt(stock.value) < 0) {
-            showError(stock, 'Số lượng không hợp lệ');
-            isValid = false;
-        }
+            const formData = new FormData();
+        const form = document.querySelector('form');
+        const formElements = form.querySelectorAll('input, select, textarea');
 
-        if (!color.value) {
-            showError(color, 'Vui lòng chọn màu');
-            isValid = false;
-        }
+        formElements.forEach(element => {
+            if (element.name && element.type !== 'file') {
+                formData.append(element.name, element.value);
+            }
+        });
 
-        if (!size.value) {
-            showError(size, 'Vui lòng chọn kích cỡ');
-            isValid = false;
-        }
-    });
-
-    if (!isValid) {
-        event.preventDefault();
-        alert('Vui lòng điền đầy đủ và hợp lệ tất cả các trường của biến thể.');
-        return;
-    }
-
-    const formData = new FormData();
-    const form = document.querySelector('form');
-    const formElements = form.querySelectorAll('input, select, textarea');
-
-    formElements.forEach(element => {
-        if (element.name && element.type !== 'file') {
-            formData.append(element.name, element.value);
-        }
-    });
-
-    const imageInput = document.querySelector('input[name="product_images[]"]');
-    const files = imageInput.files;
-
-    if (files.length === 0) {
-        alert('Vui lòng chọn ảnh sản phẩm');
-        return; // Dừng việc gửi dữ liệu nếu không có ảnh
-    }
-
-    for (let i = 0; i < files.length; i++) {
-        formData.append('product_images[]', files[i]);
-    }
-
-    // Thêm file ảnh thủ công
-    document.querySelectorAll('.variant').forEach((variant, index) => {
-        const imageInput = variant.querySelector('.variant-image-input');
+        // Ảnh sản phẩm chính
+        const imageInput = document.querySelector('input[name="product_images[]"]');
         const files = imageInput.files;
 
+        if (files.length === 0) {
+            alert('Vui lòng chọn ảnh sản phẩm');
+            event.preventDefault();
+            return; // Dừng việc gửi dữ liệu nếu không có ảnh
+        }
+
         for (let i = 0; i < files.length; i++) {
-            formData.append(`variant_images_${index}[]`, files[i]);
+            formData.append('product_images[]', files[i]);
         }
+
+        // Ảnh từng biến thể
+        variants.forEach((variant, index) => {
+            const imageInput = variant.querySelector('.variant-image-input');
+            const files = imageInput.files;
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append(`variant_images_${index}[]`, files[i]);
+            }
+        });
+
+        fetch('/admin/products', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể gửi yêu cầu');
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Dữ liệu trả về không phải JSON');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dữ liệu đã được gửi thành công:', data);
+
+                const successMessage = data.success || 'Sản phẩm đã được tạo thành công!';
+
+                localStorage.setItem('success_message', successMessage);
+
+                window.location.href = data.redirect_url;
+
+            })
+            .catch(error => {
+                console.error('Lỗi chi tiết:', error);
+
+                if (error.response && error.response.data) {
+                    const errors = error.response.data.errors;
+
+                    if (errors && errors.image_format) {
+                        alert(errors.image_format);
+                    } else {
+                        alert('Lỗi xảy ra khi gửi yêu cầu!');
+                    }
+                } else {
+                    alert('Lỗi xảy ra khi gửi yêu cầu!');
+                }
+            });
+
+        event.preventDefault();
     });
-
-    // Gửi dữ liệu qua Ajax (bạn có thể gửi formData qua một API hoặc đến server)
-    fetch('/admin/products', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Không thể gửi yêu cầu');
-        }
-
-        // Kiểm tra kiểu dữ liệu trả về từ server
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Dữ liệu trả về không phải JSON');
-        }
-
-        return response.json();
-    })
-    .then(data => {
-        console.log('Dữ liệu đã được gửi thành công:', data);
-           // Hiển thị thông báo thành công
-        const successMessage = data.success || 'Sản phẩm đã được tạo thành công!';
-
-        // Lưu thông báo vào localStorage
-        localStorage.setItem('success_message', successMessage);
-
-        // Chuyển hướng về trang index
-        window.location.href = data.redirect_url;
-
-    })
-    .catch(error => {
-    console.error('Lỗi chi tiết:', error); // Debug lỗi chi tiết
-
-    if (error.response && error.response.data) {
-        // Lỗi từ backend
-        const errors = error.response.data.errors;
-        
-        if (errors && errors.image_format) {
-            alert(errors.image_format); // Hiển thị lỗi từ backend
-        } else {
-            alert('Lỗi xảy ra khi gửi yêu cầu!'); // Lỗi chung
-        }
-    } else {
-        alert('Lỗi xảy ra khi gửi yêu cầu!');
-    }
-});
-
-    // Ngừng gửi form mặc định (chỉ gửi qua Ajax)
-    event.preventDefault();
-});
 
 
 
@@ -539,6 +588,37 @@ if (document.getElementById('error-messages')) {
             document.getElementById('error-messages').style.display = 'none';
         }, 5000); // 5000ms = 5 giây
     }
+function handleFiles(event) {
+    const files = event.target.files;
+    const preview = document.getElementById('preview');
+
+    // Xóa hết nội dung cũ
+    preview.innerHTML = '';
+
+    if (files.length === 0) {
+        return; // Không có file nào được chọn
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        if (!file.type.startsWith('image/')) {
+            continue; // Bỏ qua file không phải ảnh
+        }
+
+        const img = document.createElement('img');
+        img.classList.add('h-24', 'w-24', 'object-cover', 'rounded');
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            preview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
 
 </script>
 

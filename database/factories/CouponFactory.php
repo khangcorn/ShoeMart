@@ -24,4 +24,3 @@ class CouponFactory extends Factory
         ];
     }
 }
-

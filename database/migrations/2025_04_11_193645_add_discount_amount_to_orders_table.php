@@ -15,12 +15,11 @@ return new class extends Migration
             $table->decimal('discount_amount', 10, 2)->default(0)->after('shipping_fee');
         });
     }
-    
+
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn('discount_amount');
         });
     }
-    
 };

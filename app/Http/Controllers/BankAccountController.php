@@ -4,8 +4,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\BankAccount;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BankAccountController extends Controller
@@ -25,7 +25,7 @@ class BankAccountController extends Controller
         ]);
 
         // Tạo liên kết ngân hàng cho người dùng
-        $bankAccount = new BankAccount();
+        $bankAccount = new BankAccount;
         $bankAccount->user_id = Auth::id();
         $bankAccount->bank_name = $request->bank_name;
         $bankAccount->account_number = $request->account_number;

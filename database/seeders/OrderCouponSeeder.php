@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\OrderCoupon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class OrderCouponSeeder extends Seeder
@@ -13,6 +12,6 @@ class OrderCouponSeeder extends Seeder
      */
     public function run()
     {
-        OrderCoupon::factory(10)->create(); 
+        OrderCoupon::factory(10)->create();
     }
 }

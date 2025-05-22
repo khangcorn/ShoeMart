@@ -18,7 +18,7 @@
     <script src="{{ asset('js/darkmode.js') }}" defer></script>
     <script src="{{ asset('js/layout.js') }}" defer></script>
 </head>
-@stack('scripts')
+
 <body class="bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
 
     <!-- Nội dung của bạn ở đây -->
@@ -37,5 +37,6 @@
 
     <!-- Bootstrap Script -->
     {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
+    @stack('scripts')
 </body>
 </html>

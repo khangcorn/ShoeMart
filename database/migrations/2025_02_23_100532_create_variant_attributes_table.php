@@ -4,8 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up() {
+return new class extends Migration
+{
+    public function up()
+    {
         Schema::create('variant_attributes', function (Blueprint $table) {
             $table->id('attribute_id');
             // $table->unsignedBigInteger('variant_id'); // Thêm cột variant_id trước khi đặt khóa ngoại
@@ -17,7 +19,8 @@ return new class extends Migration {
         });
     }
 
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('variant_attributes');
     }
 };

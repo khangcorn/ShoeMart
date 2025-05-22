@@ -2,8 +2,11 @@
 
 @section('content')
 <div class="py-4 px-4">
+
     <div class="flex items-center justify-between">
+         @if(auth()->user()->hasPermission('create_categories'))
         <a class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden" href="{{ route('categories.create') }}">Add Category</a>
+        @endif
     </div>
 
     <div class="py-2"></div>
@@ -38,10 +41,16 @@
                             echo '</td>';
 
                             echo '<td class="px-2 py-5 border border-gray-300 text-center">';
-                            echo '<a href="'.route('categories.edit', $category->category_id).'" class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-yellow-100 text-yellow-600">Edit</a> ';
-                            echo '<form action="'.route('categories.destroy', $category->category_id).'" method="POST" style="display:inline;">'.csrf_field().method_field('DELETE');
-                            echo '<button type="submit" class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-[#FEF3F2] text-[#D93948]" onclick="return confirm(\'Are you sure you want to delete this category?\')">Delete</button>';
-                            echo '</form>';
+                            if (auth()->user()->hasPermission('edit_categories')) {
+                                echo '<a href="'.route('categories.edit', $category->category_id).'" class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-yellow-100 text-yellow-600">Edit</a> ';
+                            }
+                            if (auth()->user()->hasPermission('delete_categories')) {
+                                echo '<form action="'.route('categories.destroy', $category->category_id).'" method="POST" style="display:inline;">'
+                                    .csrf_field()
+                                    .method_field('DELETE');
+                                echo '<button type="submit" class="cursor-pointer text-sm px-2 font-semibold rounded-full bg-[#FEF3F2] text-[#D93948]" onclick="return confirm(\'Are you sure you want to delete this category?\')">Delete</button>';
+                                echo '</form>';
+                            }
                             echo '</td>';
                             echo '</tr>';
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->tinyInteger('rating'); // 1–5 sao
             $table->text('comment');
+            $table->boolean('is_hidden')->default(false);
             $table->json('media_paths')->nullable(); // Lưu đường dẫn hình ảnh hoặc video
             $table->unsignedBigInteger('order_detail_id'); // Cột order_detail_id
             $table->unsignedBigInteger('product_id'); // Thêm cột product_id

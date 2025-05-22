@@ -57,9 +57,32 @@
                 <p class="font-semibold text-orange-600">Sustainable Materials </p>
                 <p class="text-lg font-semibold text-gray-900">{{ $product->name }}</p>
                 <p class="text-gray-400 font-semibold">{{ $product->category->name }}</p>
+               @php
+                    $hasVariants = $product->variants && $product->variants->count() > 0;
+
+                    if ($hasVariants) {
+                        $lowestVariant = $product->variants->sortBy(function ($variant) {
+                            return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
+                        })->first();
+
+                        $originalPrice = $lowestVariant->price;
+                        $salePrice = $lowestVariant->price_sale;
+                    } else {
+                        $originalPrice = $product->price;
+                        $salePrice = $product->price_sale;
+                    }
+                @endphp
+
                 <p class="font-semibold py-2" id="product-price">
-                    {{ number_format((int) $product->price, 0, ',', '.') }} <span class="font-normal text-sm underline">đ</span>
+                    @if ($salePrice && $salePrice > 0)
+                        <span class="line-through text-gray-500">{{ number_format($originalPrice, 0, ',', '.') }}</span>
+                        / {{ number_format($salePrice, 0, ',', '.') }}
+                    @else
+                        {{ number_format($originalPrice, 0, ',', '.') }}
+                    @endif
+                    <span class="font-normal text-sm underline">đ</span>
                 </p>
+
                 
                 
                 
@@ -72,10 +95,14 @@
                             $colorAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute;
                             $sizeAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'))->variantAttribute;
                             $variantImage = optional($variant->images->first())->image_url;
+
+                            $originalPrice = $variant->price;
+                            $salePrice = $variant->price_sale;
                         @endphp
                         data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
                         data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $variant->price }}"
+                        data-price="{{ $originalPrice }}"
+                        data-price-sale="{{ $salePrice }}"
                         data-stock="{{ $variant->stock }}"
                         data-images="{{ json_encode($variant->images) }}">
                 
@@ -382,20 +409,20 @@
         }
     });
 });
-function updateCartCount() {
-    fetch(`/cart/count?timestamp=${new Date().getTime()}`, { cache: "no-store" })
-        .then(response => response.json())
-        .then(data => {
-            console.log("🔥 API trả về số lượng:", data.count);
+// function updateCartCount() {
+//     fetch(`/cart/count?timestamp=${new Date().getTime()}`, { cache: "no-store" })
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log("🔥 API trả về số lượng:", data.count);
 
-            let cartCountElement = document.getElementById("cart-count");
-            if (cartCountElement) {
-                cartCountElement.innerText = data.count;
-                cartCountElement.style.display = data.count > 0 ? "flex" : "none";
-            }
-        })
-        .catch(error => console.error("Lỗi khi cập nhật số lượng giỏ hàng:", error));
-}
+//             let cartCountElement = document.getElementById("cart-count");
+//             if (cartCountElement) {
+//                 cartCountElement.innerText = data.count;
+//                 cartCountElement.style.display = data.count > 0 ? "flex" : "none";
+//             }
+//         })
+//         .catch(error => console.error("Lỗi khi cập nhật số lượng giỏ hàng:", error));
+// }
 
 
 
@@ -407,21 +434,44 @@ function addToCart() {
 
     fetch("/cart/add", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
             "Content-Type": "application/json",
+            "Accept": "application/json",   // Quan trọng để nhận JSON lỗi 401
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
         body: JSON.stringify({ 
             product_id: productId, 
             variant_id: variantId, 
-            quantity: quantity 
+            quantity: quantity,
+            current_url: window.location.href
         })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(async response => {
+        if (!response.ok) {
+         if (response.status === 401) {
+                const data = await response.json();
+                if (data.redirect) {
+                    // Thêm param redirect vào URL login
+                    const loginUrl = new URL(data.redirect, window.location.origin);
+                    loginUrl.searchParams.set('redirect', window.location.href);
+                    window.location.href = loginUrl.toString();
+                } else {
+                    window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
+                }
+                return;
+            }
+            } else {
+                const data = await response.json();
+                alert(data.message || "Lỗi khi thêm sản phẩm.");
+                return;
+            }
+        
+
+        const data = await response.json();
         if (data.success) {
             alert("Thêm vào giỏ hàng thành công!");
-            updateCartCount(); // ⚡ Gọi lại updateCartCount để cập nhật từ API
+            updateCartCount();
         } else {
             alert(data.message);
         }
@@ -432,7 +482,7 @@ function addToCart() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", updateCartCount);
+
 
 
 
@@ -458,7 +508,8 @@ function updateProductDetails(element) {
     const variant = element.closest('.variant-item');
     const color = variant.getAttribute('data-color');
     const size = variant.getAttribute('data-size');
-    const price = variant.getAttribute('data-price');
+    const price = parseInt(variant.getAttribute('data-price'));
+    const priceSale = parseInt(variant.getAttribute('data-price-sale'));
     const stock = parseInt(variant.getAttribute('data-stock')); 
     const imagesData = variant.getAttribute('data-images');
     const variantId = variant.getAttribute("data-variant");
@@ -476,8 +527,17 @@ function updateProductDetails(element) {
     }
 
     document.getElementById('main-product-image').src = images.length > 0 ? `/storage/${images[0].image_url}` : '/storage/default-image.jpg';
-    const formattedPrice = new Intl.NumberFormat('vi-VN').format(price);
-document.getElementById('product-price').innerHTML = `${formattedPrice} <span class="font-normal underline">đ</span>`;
+    const formatCurrency = value => value.toLocaleString('vi-VN');
+
+    let formattedPrice = '';
+    if (priceSale && priceSale > 0) {
+        formattedPrice = `<span class="line-through text-gray-500">${formatCurrency(price)}</span> / ${formatCurrency(priceSale)}`;
+    } else {
+        formattedPrice = `${formatCurrency(price)}`;
+    }
+
+    // Cập nhật vào DOM
+    document.getElementById('product-price').innerHTML = `${formattedPrice} <span class="font-normal underline">đ</span>`;
 
     document.getElementById('selected-color').innerText = color;
     document.getElementById('selected-size').innerText = `EU ${size}`;

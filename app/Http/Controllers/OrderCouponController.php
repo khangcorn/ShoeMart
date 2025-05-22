@@ -9,6 +9,7 @@ class OrderCouponController extends Controller
     public function index()
     {
         $orderCoupons = OrderCoupon::with(['order', 'coupon'])->get();
+
         return view('admin.order_coupons.index', compact('orderCoupons'));
     }
 

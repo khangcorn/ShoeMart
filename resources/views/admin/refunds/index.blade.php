@@ -92,7 +92,12 @@
   <tbody>
     @foreach($refundRequests as $refund)
     <tr >
-      <td class="border px-4 py-2 text-center">{{ $refund->order->order_code ?? 'N/A' }}</td>
+       <td class="border px-4 py-2 text-center">
+                            <a href="{{ route('order.show', $refund->order_id) }}" class="text-blue-600 hover:underline" target="_blank">
+                                {{ $refund->order->order_code ?? 'N/A'}}
+                            </a>
+                        </td>
+     
       <td class="border px-4 py-2 text-center">{{ $refund->user->username ?? 'N/A' }}</td>
       <td class="border px-4 py-2 max-w-xs break-words">{{ $refund->reason }}</td>
       <td class="border px-4 py-2 text-right">{{ number_format($refund->amount, 0, ',', '.') }} đ</td>
@@ -140,14 +145,18 @@
       </td>
       <td class="border px-4 py-2 text-center flex justify-center gap-2">
         @if ($refund->status === 'pending')
+         @if(auth()->user()->hasPermission('process_refund'))
           <form action="{{ route('admin.refunds.approve', $refund->refund_id) }}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc muốn duyệt yêu cầu này?')">
             @csrf
             <button type="submit" class="btn-approve">Duyệt</button>
           </form>
+          @endif
+           @if(auth()->user()->hasPermission('reject_refund'))
           <form action="{{ route('admin.refunds.reject', $refund->refund_id) }}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc muốn từ chối yêu cầu này?')">
             @csrf
             <button type="submit" class="btn-reject">Từ chối</button>
           </form>
+          @endif
         @else
           <span class="text-gray-500 italic">Đã xử lý</span>
         @endif

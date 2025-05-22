@@ -12,8 +12,8 @@ class PermissionFactory extends Factory
     public function definition()
     {
         return [
-           'name' => fake()->unique()->word(), // Đảm bảo giá trị không bị trùng
-           'description' => fake()->sentence(),
+            'name' => fake()->unique()->word(), // Đảm bảo giá trị không bị trùng
+            'description' => fake()->sentence(),
             'created_at' => now(),
             'updated_at' => now(),
         ];

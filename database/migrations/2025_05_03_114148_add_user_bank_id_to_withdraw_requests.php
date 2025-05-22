@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreign('user_bank_id')->references('id')->on('user_banks')->onDelete('cascade'); // Thay 'id' bằng khóa chính của bảng user_banks nếu cần
         });
     }
-    
+
     public function down()
     {
         Schema::table('withdraw_requests', function (Blueprint $table) {
@@ -24,5 +24,4 @@ return new class extends Migration
             $table->dropColumn('user_bank_id');
         });
     }
-    
 };

@@ -22,14 +22,13 @@ return new class extends Migration
             $table->unsignedBigInteger('approved_by')->nullable(); // admin duyệt
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
-    
+
             $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('approved_by')->references('user_id')->on('users')->onDelete('set null');
-            
+
         });
     }
-    
 
     /**
      * Reverse the migrations.

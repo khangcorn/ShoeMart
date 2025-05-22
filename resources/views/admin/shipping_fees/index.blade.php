@@ -6,9 +6,11 @@
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
         <h4 class="text-lg font-semibold">Shipping-fees</h4>
+         @if(auth()->user()->hasPermission('create_shipping_fees'))
         <a href="{{ route('shipping-fees.create') }}" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 shadow">
             + Add Shipping-fees
         </a>
+        @endif
     </div>
 
     <div class="p-6">
@@ -45,15 +47,20 @@
                         <td class="px-4 py-3 text-gray-700">{{ number_format($fee->fee, 0, ',', '.') }}</td>
                         <td class="px-4 py-3">
                             <div class="flex justify-center space-x-2">
+                                 @if(auth()->user()->hasPermission('edit_shipping_fees'))
                                 <a href="{{ route('shipping-fees.edit', $fee->shipping_id) }}" class="inline-flex items-center px-3 py-1.5 bg-yellow-500 text-black text-xs font-medium rounded-md hover:bg-yellow-600 shadow">
                                     ✏️ Edit
                                 </a>
+                                @endif
+                                 @if(auth()->user()->hasPermission('delete_shipping_fees'))
                                 <form action="{{ route('shipping-fees.destroy', $fee->shipping_id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-md hover:bg-red-600 shadow">
                                         🗑️ Delete
-                                    </button>                                </form>
+                                    </button>                                
+                                </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

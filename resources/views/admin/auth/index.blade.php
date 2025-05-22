@@ -34,17 +34,13 @@
                              alt="Avatar">
                     </td>
                        <td class="px-4 py-3 border text-center">
+                         @if(auth()->user()->hasPermission('lock_user'))
                             <button 
                                 class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold transition"
-                                @if (!auth()->user()->hasPermission('lock_user')) 
-                                    onclick="alert('Bạn không có quyền khóa tài khoản!');" 
-                                    disabled 
-                                @else
-                                    onclick="lockAccountFunction()"
-                                @endif
                             >
                                 Khóa tài khoản
                             </button>
+                            @endif
                         </td>
 
 

@@ -10,7 +10,9 @@ class ShippingFee extends Model
     use HasFactory;
 
     protected $table = 'shipping_fees';
+
     protected $primaryKey = 'shipping_id';
+
     public $timestamps = true;
 
     protected $fillable = ['province', 'district', 'ward', 'fee'];

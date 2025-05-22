@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Order;
 use App\Models\Coupon;
+use App\Models\Order;
 use App\Models\OrderCoupon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,7 +15,7 @@ class OrderCouponFactory extends Factory
     {
         $coupon = Coupon::inRandomOrder()->first();
         $order = Order::inRandomOrder()->first();
-        
+
         $appliedAmount = $this->calculateDiscount($order->total, $coupon);
 
         return [
@@ -31,9 +31,9 @@ class OrderCouponFactory extends Factory
         if ($coupon->discount_type === 'fixed') {
             return min($coupon->discount_value, $total);
         }
-        
+
         $discount = ($total * $coupon->discount_value) / 100;
-        
+
         return $coupon->max_discount_value ? min($discount, $coupon->max_discount_value) : $discount;
     }
 }

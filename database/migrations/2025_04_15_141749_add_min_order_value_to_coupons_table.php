@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('coupons', function (Blueprint $table) {
             $table->unsignedBigInteger('min_order_value')->default(0); // tính bằng VNĐ
         });
-        
+
     }
 
     /**

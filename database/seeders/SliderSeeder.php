@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Slider;
+use Illuminate\Database\Seeder;
 
 class SliderSeeder extends Seeder
 {

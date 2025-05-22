@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('account_number'); // Số tài khoản ngân hàng
             $table->string('account_holder_name'); // Tên chủ tài khoản
             $table->timestamps();
-    
+
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
-    
+
     public function down()
     {
         Schema::dropIfExists('bank_accounts');

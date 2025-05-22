@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Cart;
+use App\Models\CartDetail;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\CartDetail;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CartDetailFactory extends Factory
@@ -17,7 +17,7 @@ class CartDetailFactory extends Factory
         $cart = Cart::inRandomOrder()->first();
         $product = Product::inRandomOrder()->first();
         $variant = ProductVariant::where('product_id', $product->product_id)->inRandomOrder()->first();
-        
+
         return [
             'cart_id' => $cart->cart_id,
             'product_id' => $product->product_id,

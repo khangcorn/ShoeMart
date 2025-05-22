@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model {
+class Product extends Model
+{
     use HasFactory;
 
     // Tên bảng nếu không phải bảng mặc định (products)
@@ -13,7 +14,9 @@ class Product extends Model {
 
     // Chỉ định khóa chính
     protected $primaryKey = 'product_id';
+
     public $incrementing = true; // Xác định rằng khóa chính là tự động tăng
+
     protected $keyType = 'int'; // Kiểu dữ liệu khóa chính là integer
 
     // Các cột có thể điền vào (fillable)
@@ -57,23 +60,27 @@ class Product extends Model {
     {
         return $this->hasManyThrough(VariantAttribute::class, ProductVariant::class, 'product_id', 'variant_id', 'product_id', 'variant_id');
     }
+
     /**
- * Lấy ảnh chính của sản phẩm (loại 'main')
- */
-public function mainImage()
-{
-    return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('type', 'main');
-}
-public function orderDetails()
-{
-    return $this->hasMany(OrderDetail::class, 'product_id', 'product_id');
-}
-public function orderReviews()
-{
-    return $this->hasManyThrough(OrderReview::class, OrderDetail::class, 'product_id', 'order_detail_id', 'product_id', 'order_detail_id');
-}
+     * Lấy ảnh chính của sản phẩm (loại 'main')
+     */
+    public function mainImage()
+    {
+        return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('type', 'main');
+    }
 
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id', 'product_id');
+    }
 
-
+    public function orderReviews()
+    {
+        return $this->hasManyThrough(OrderReview::class, OrderDetail::class, 'product_id', 'order_detail_id', 'product_id', 'order_detail_id');
+    }
+    public function reviews()
+    {
+        return $this->hasMany(OrderReview::class, 'product_id', 'product_id');
+    }
 
 }

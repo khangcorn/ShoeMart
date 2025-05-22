@@ -10,22 +10,26 @@ class Order extends Model
     use HasFactory;
 
     protected $primaryKey = 'order_id';
+
     protected $table = 'orders';
 
     protected $fillable = [
-        'user_id',
-        'address_id',
-        'status_id',
-        'shipping_id',
-        'order_code',
-        'total',
-        'shipping_fee',
-        'shipping_discount',
-        'discount_amount',
-        'total_price',
-        'payment_method',
-        'delivered_at',
-    ];
+    'user_id',
+    'address_id',
+    'status_id',
+    'shipping_id',
+    'order_code',
+    'total',
+    'shipping_fee',
+    'shipping_discount',
+    'discount_amount',
+    'total_price',
+    'payment_method',
+    'payment_status',
+    'delivered_at',
+    'cancel_reason', // thêm dòng này
+];
+
 
     public function user()
     {
@@ -41,7 +45,6 @@ class Order extends Model
     {
         return $this->belongsTo(ShippingFee::class, 'shipping_id', 'shipping_id');
     }
-
 
     // public function coupon()
     // {
@@ -67,10 +70,9 @@ class Order extends Model
     {
         return $this->hasOne(RefundRequest::class, 'order_id', 'order_id');
     }
+
     public function review()
-{
-    return $this->hasOne(OrderReview::class, 'order_id');
+    {
+        return $this->hasOne(OrderReview::class, 'order_id');
+    }
 }
-
-}
-

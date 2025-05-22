@@ -10,6 +10,7 @@ class SliderController extends Controller
     public function index()
     {
         $sliders = Slider::all();
+
         return view('admin.sliders.index', compact('sliders'));
     }
 
@@ -26,17 +27,17 @@ class SliderController extends Controller
             'link' => 'nullable|string|max:255',
             'position' => 'nullable|integer',
         ]);
-    
+
         // Lưu ảnh vào storage/app/public/slider
         $path = $request->file('image_url')->store('slider', 'public');
-    
+
         Slider::create([
-            'image_url' => 'storage/' . $path, // đường dẫn để dùng trên website
+            'image_url' => 'storage/'.$path, // đường dẫn để dùng trên website
             'caption' => $request->caption,
             'link' => $request->link,
             'position' => $request->position ?? 0,
         ]);
-    
+
         return redirect()->route('sliders.index')->with('success', 'Slider created successfully.');
     }
 

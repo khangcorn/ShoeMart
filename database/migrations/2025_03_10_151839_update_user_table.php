@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::table('users', function (Blueprint $table ){
-          $table->renameColumn('password_hash', 'password');
-      });
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('password_hash', 'password');
+        });
     }
 
     /**

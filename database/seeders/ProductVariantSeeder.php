@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ProductVariant;
+use Illuminate\Database\Seeder;
 
 class ProductVariantSeeder extends Seeder
 {

@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\Order;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderDetailFactory extends Factory
 {
@@ -31,5 +31,4 @@ class OrderDetailFactory extends Factory
             'updated_at' => now(),
         ];
     }
-    
 }

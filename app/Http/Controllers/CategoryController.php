@@ -14,6 +14,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
+
         return view('admin.category.index', compact('categories'));
     }
 
@@ -24,6 +25,7 @@ class CategoryController extends Controller
     {
         // Lấy danh sách danh mục cha để hiển thị trong dropdown
         $categories = Category::all();
+
         return view('admin.category.create', compact('categories'));
     }
 
@@ -44,12 +46,12 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:1000', // Thêm validate cho mô tả
             'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Xác thực ảnh
         ]);
-    
+
         // Xử lý tải ảnh lên nếu có
-        $imagePath = $request->hasFile('image_url') 
-            ? $request->file('image_url')->store('categories', 'public') 
+        $imagePath = $request->hasFile('image_url')
+            ? $request->file('image_url')->store('categories', 'public')
             : null;
-    
+
         // Tạo danh mục mới
         Category::create([
             'name' => $request->name,
@@ -57,12 +59,10 @@ class CategoryController extends Controller
             'parent_id' => $request->parent_id ?? null,
             'image_url' => $imagePath,
         ]);
-    
+
         return redirect()->route('categories.index')
             ->with('success', 'Category created successfully');
     }
-    
-    
 
     /**
      * Hiển thị chi tiết một danh mục.
@@ -70,6 +70,7 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = Category::findOrFail($id);
+
         return response()->json($category);
     }
 
@@ -77,14 +78,12 @@ class CategoryController extends Controller
      * Hiển thị form chỉnh sửa danh mục.
      */
     public function edit($id)
-{
-    $category = Category::findOrFail($id);
-    $categories = Category::whereNull('parent_id')->get(); 
+    {
+        $category = Category::findOrFail($id);
+        $categories = Category::whereNull('parent_id')->get();
 
-    return view('admin.category.edit', compact('category', 'categories'));
-}
-
-    
+        return view('admin.category.edit', compact('category', 'categories'));
+    }
 
     /**
      * Cập nhật danh mục.
@@ -97,19 +96,19 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:1000', // Thêm validate cho mô tả
             'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         $category = Category::findOrFail($id);
-    
+
         // Xử lý tải ảnh lên nếu có
         if ($request->hasFile('image_url')) {
             if ($category->image_url) {
-                Storage::delete('public/' . $category->image_url);
+                Storage::delete('public/'.$category->image_url);
             }
             $imagePath = $request->file('image_url')->store('categories', 'public');
         } else {
             $imagePath = $category->image_url;
         }
-    
+
         // Cập nhật danh mục
         $category->update([
             'name' => $validated['name'],
@@ -117,10 +116,9 @@ class CategoryController extends Controller
             'parent_id' => $request->parent_id ?? null,
             'image_url' => $imagePath,
         ]);
-    
+
         return redirect()->route('categories.index')->with('success', 'Category updated successfully');
     }
-    
 
     /**
      * Xóa danh mục.
@@ -131,7 +129,7 @@ class CategoryController extends Controller
 
         // Xóa ảnh nếu có
         if ($category->image_url) {
-            Storage::delete('public/' . $category->image_url); // Xóa ảnh
+            Storage::delete('public/'.$category->image_url); // Xóa ảnh
         }
 
         // Xóa danh mục

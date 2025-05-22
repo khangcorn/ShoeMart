@@ -13,13 +13,15 @@ class CreateOrdersTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('status_id');
             $table->unsignedBigInteger('shipping_id');
-            
+
             $table->string('order_code', 50)->unique(); // Mã đơn hàng duy nhất
             $table->decimal('total', 10, 2)->default(0);
             $table->decimal('shipping_fee', 10, 2)->default(0);
             $table->decimal('discount_amount', 10, 2)->default(0); // Lưu số tiền giảm giá từ coupon
             $table->decimal('total_price', 10, 2)->default(0); // Tổng tiền sau giảm giá
-            $table->enum('payment_method', ['cod', 'bank_transfer', 'credit_card', 'paypal']);
+            $table->enum('payment_method', ['cod', 'wallet', 'vnpay', 'momo'])->default('cod');
+            $table->enum('payment_status', ['pending', 'success', 'failed'])->default('pending');
+            $table->text('cancel_reason')->nullable();
             $table->timestamp('delivered_at')->nullable(); // ✅ Thêm cột này để lưu thời gian giao hàng
             $table->timestamps();
 

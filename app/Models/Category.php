@@ -10,10 +10,9 @@ class Category extends Model
     use HasFactory;
 
     protected $primaryKey = 'category_id';
-    
-    // Thêm image_url vào mảng $fillable
-    protected $fillable = ['name', 'description','description', 'parent_id', 'image_url'];
 
+    // Thêm image_url vào mảng $fillable
+    protected $fillable = ['name', 'description', 'description', 'parent_id', 'image_url'];
 
     public function parent()
     {

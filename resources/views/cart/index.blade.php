@@ -37,11 +37,54 @@
                                onclick="toggleCartDetailId({{ $item->cart_detail_id }})">
                     </td>
                     
-                    <td class="px-4 py-2 border border-gray-300">
-                        <a href="{{ route('products.detail', $item->product->product_id) }}" class="text-blue-500 hover:underline">
-                            {{ $item->product->name }}
-                        </a>
-                    </td>
+                   <td class="px-4 py-2 border border-gray-300 align-top">
+                    <div class="flex items-start space-x-4">
+                        {{-- Ảnh sản phẩm --}}
+                        
+                        @if ($item->product->images->isNotEmpty())
+@php
+    $image = null;
+
+    if ($item->variant) {
+        // Ưu tiên ảnh có variant_id trùng khớp
+        $image = $item->product->images->firstWhere('variant_id', $item->variant->variant_id);
+    }
+
+    // Nếu không có ảnh của biến thể, dùng ảnh chính (main)
+    if (!$image) {
+        $image = $item->product->images->firstWhere('type', 'main');
+    }
+@endphp
+
+
+                <a href="{{ route('products.detail', $item->product->product_id) }}" target="_blank">
+              <img src="{{ asset('storage/' . $image->image_url) }}"
+     alt="{{ $item->product->name }}"
+     class="w-16 h-16 object-cover rounded-md border transition-transform duration-200 hover:scale-105 hover:shadow-md">
+
+                </a>
+
+        @else
+            <div class="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-500 rounded-md border text-xs text-center">
+                Không có ảnh
+            </div>
+        @endif
+
+        {{-- Thông tin sản phẩm --}}
+        <div class="flex-1">
+            <p class="font-semibold text-gray-800">{{ $item->product->name }}</p>
+
+            @if ($item->variant)
+                <p class="text-sm text-gray-600 mt-1">
+                    @foreach ($item->variant->attributes as $attribute)
+                        <span class="block">- {{ $attribute->variantAttribute->attribute_name }}: {{ $attribute->variantAttribute->attribute_value }}</span>
+                    @endforeach
+                </p>
+            @endif
+        </div>
+    </div>
+</td>
+
                     
                     <td class="px-4 py-2 border border-gray-300">{{ number_format($price, 0, ',', '.') }} đ</td>
                     <td class="px-4 py-2 border border-gray-300">
@@ -116,9 +159,18 @@
             if (newQuantity > stock) {
                 alert(`Chỉ còn ${stock} sản phẩm trong kho!`);
                 this.value = stock;
-                return;
-            }
+                newQuantity = stock; // cập nhật lại biến số lượng
 
+                // Tính tổng tiền và cập nhật hiển thị
+                let row = this.closest("tr");
+                let price = parseFloat(row.querySelector("td:nth-child(3)").innerText.replace(/[^0-9]/g, "")) || 0;
+                let totalCell = row.querySelector(".total-price");
+                let total = price * newQuantity;
+                totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
+
+                updateTotalPrice(); // Cập nhật tổng tiền giỏ hàng tổng
+
+            }
             fetch(`/cart/${cartDetailId}`, {
                 method: "PUT",
                 headers: {
@@ -128,14 +180,22 @@
                 body: JSON.stringify({ quantity: newQuantity })
             })
             .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    let totalCell = row.querySelector(".total-price");
-                    let total = price * newQuantity;
-                    totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
-                    updateTotalPrice(); // 🔥 Cập nhật ngay sau khi thay đổi số lượng
-                }
-            })
+           .then(data => {
+    if (data.message) {
+        // Cập nhật lại số lượng input theo backend trả về
+        if (data.quantity !== undefined) {
+            input.value = data.quantity;
+            newQuantity = data.quantity; // cập nhật lại biến số lượng
+        }
+
+        let totalCell = row.querySelector(".total-price");
+        let total = price * newQuantity;
+        totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
+
+        updateTotalPrice(); // Cập nhật tổng tiền giỏ hàng tổng
+    }
+})
+
             .catch(error => console.error("Có lỗi xảy ra khi cập nhật số lượng", error));
         });
     });

@@ -10,7 +10,7 @@ class OrderReview extends Model
     use HasFactory;
 
     // Cập nhật `$fillable` để bao gồm `product_id` và `variant_id`
-    protected $fillable = ['order_id', 'user_id', 'rating', 'comment', 'media_paths', 'order_detail_id', 'product_id', 'variant_id'];
+    protected $fillable = ['order_id', 'user_id', 'rating', 'comment', 'media_paths', 'order_detail_id', 'product_id', 'variant_id','is_hidden'];
 
     // Cập nhật phần cast cho media_paths
     protected $casts = [
