@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Coupon extends Model
+{
+    use HasFactory;
+
+    protected $table = 'coupons';
+
+    protected $primaryKey = 'coupon_id';
+
+    public $timestamps = true;
+
+    protected $fillable = [
+        'code',
+        'apply_to',
+        'discount_type',
+        'discount_value',
+        'max_discount_value',
+        'expiration_date',
+        'usage_limit',
+        'min_order_value',
+        'usage_count',
+        'status',
+    ];
+
+    protected $casts = [
+        'discount_value' => 'decimal:2',
+        'max_discount_value' => 'decimal:2',
+        'min_order_value' => 'decimal:2',
+        'expiration_date' => 'datetime',  // Dùng 'datetime' để lưu cả ngày và giờ
+        'usage_count' => 'integer',
+        'usage_limit' => 'integer',
+        'status' => 'string',
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($coupon) {
+            // Đảm bảo rằng expiration_date được lưu với múi giờ 'Asia/Ho_Chi_Minh'
+            if ($coupon->expiration_date) {
+                $coupon->expiration_date = Carbon::parse($coupon->expiration_date)->setTimezone('Asia/Ho_Chi_Minh');
+            }
+        });
+    }
+
+    // Phương thức accessor để định dạng expiration_date
+    public function getExpirationDateFormattedAttribute()
+    {
+        return Carbon::parse($this->expiration_date)
+            ->setTimezone('Asia/Ho_Chi_Minh')
+            ->format('Y-m-d H:i');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(OrderCoupon::class, 'coupon_id');
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiration_date && Carbon::now()->gt($this->expiration_date);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active' && ! $this->isExpired();
+    }
+}

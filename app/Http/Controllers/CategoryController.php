@@ -13,13 +13,23 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
+<<<<<<< HEAD
         return view('category.index', compact('categories'));
+=======
+
+        return view('admin.category.index', compact('categories'));
+>>>>>>> 1bbab0a (Full code DATN)
     }
     public function create()
     {
         $categories = Category::all();
+<<<<<<< HEAD
         return view('category.create ', compact('categories'));
         
+=======
+
+        return view('admin.category.create', compact('categories'));
+>>>>>>> 1bbab0a (Full code DATN)
     }
 
     /**
@@ -32,7 +42,17 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
         ]);
 
+<<<<<<< HEAD
         $category = Category::create([
+=======
+        // Xử lý tải ảnh lên nếu có
+        $imagePath = $request->hasFile('image_url')
+            ? $request->file('image_url')->store('categories', 'public')
+            : null;
+
+        // Tạo danh mục mới
+        Category::create([
+>>>>>>> 1bbab0a (Full code DATN)
             'name' => $request->name,
             'parent_id' => $request->parent_id,
         ]);
@@ -47,10 +67,25 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = Category::findOrFail($id);
+
         return response()->json($category);
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Hiển thị form chỉnh sửa danh mục.
+     */
+    public function edit($id)
+    {
+        $category = Category::findOrFail($id);
+        $categories = Category::whereNull('parent_id')->get();
+
+        return view('admin.category.edit', compact('category', 'categories'));
+    }
+
+    /**
+>>>>>>> 1bbab0a (Full code DATN)
      * Cập nhật danh mục.
      */
     public function edit($id)
@@ -73,6 +108,7 @@ class CategoryController extends Controller
             // Add any other validation rules here
         ]);
 
+<<<<<<< HEAD
         // Find the category by ID
         $category = Category::find($id);
 
@@ -86,12 +122,47 @@ class CategoryController extends Controller
         // Redirect to the categories index or show a success message
         return redirect()->route('categories.index')->with('success', 'Category updated successfully');
     }
+=======
+        $category = Category::findOrFail($id);
+
+        // Xử lý tải ảnh lên nếu có
+        if ($request->hasFile('image_url')) {
+            if ($category->image_url) {
+                Storage::delete('public/'.$category->image_url);
+            }
+            $imagePath = $request->file('image_url')->store('categories', 'public');
+        } else {
+            $imagePath = $category->image_url;
+        }
+
+        // Cập nhật danh mục
+        $category->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'], // Cập nhật mô tả
+            'parent_id' => $request->parent_id ?? null,
+            'image_url' => $imagePath,
+        ]);
+
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully');
+    }
+
+>>>>>>> 1bbab0a (Full code DATN)
     /**
      * Xóa danh mục.
      */
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
+<<<<<<< HEAD
+=======
+
+        // Xóa ảnh nếu có
+        if ($category->image_url) {
+            Storage::delete('public/'.$category->image_url); // Xóa ảnh
+        }
+
+        // Xóa danh mục
+>>>>>>> 1bbab0a (Full code DATN)
         $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'Product deleted successfully.');

@@ -24,11 +24,20 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+<<<<<<< HEAD
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+=======
+            'username' => $this->faker->userName,
+            'password' => Hash::make('password'),
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+84'.$this->faker->numerify('#########'),
+            'created_at' => now(),
+            'updated_at' => now(),
+>>>>>>> 1bbab0a (Full code DATN)
         ];
     }
 

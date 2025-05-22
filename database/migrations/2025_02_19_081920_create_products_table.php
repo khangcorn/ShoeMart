@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->unsignedBigInteger('category_id');  // Cột này tham chiếu tới 'id' trong bảng 'categories'
             $table->timestamps();
-    
+
             // Khóa ngoại tham chiếu đến cột 'id' trong bảng categories
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
@@ -35,6 +35,11 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products');
+        Schema::table('product_images', function (Blueprint $table) {
+            $table->dropForeign(['product_id']); // Xóa khóa ngoại
+        });
+
+        Schema::dropIfExists('product_images'); // Xóa bảng product_images
+        Schema::dropIfExists('products'); // Xóa bảng products
     }
 };

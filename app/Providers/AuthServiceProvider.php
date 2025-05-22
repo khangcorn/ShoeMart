@@ -3,7 +3,12 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+<<<<<<< HEAD
+=======
+use Illuminate\Support\Facades\Gate;
+>>>>>>> 1bbab0a (Full code DATN)
 
 class AuthServiceProvider extends ServiceProvider
 {

@@ -9,6 +9,7 @@ class Category extends Model
 {
     use HasFactory;
 
+<<<<<<< HEAD
     // Chỉ định tên bảng (không bắt buộc nếu Laravel có thể tự động xác định)
     protected $table = 'categories';
 
@@ -17,6 +18,12 @@ class Category extends Model
         'name',
         'parent_id'
     ];
+=======
+    protected $primaryKey = 'category_id';
+
+    // Thêm image_url vào mảng $fillable
+    protected $fillable = ['name', 'description', 'description', 'parent_id', 'image_url'];
+>>>>>>> 1bbab0a (Full code DATN)
 
     /**
      * Một danh mục có thể có nhiều danh mục con (quan hệ đệ quy).
