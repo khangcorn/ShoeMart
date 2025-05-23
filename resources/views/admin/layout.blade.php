@@ -15,21 +15,20 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
     <!-- Dark Mode Script -->
-    <script src="{{ asset('js/darkmode.js') }}" defer></script>
     <script src="{{ asset('js/layout.js') }}" defer></script>
 </head>
 
-<body class="bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
+<body class="bg-white text-black   transition-colors duration-300">
 
     <!-- Nội dung của bạn ở đây -->
-    <div class="flex min-h-screen bg-white dark:bg-gray-800">
+    <div class="flex min-h-screen bg-white ">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-1/5 bg-white dark:bg-gray-800 dark:text-white border-r border-gray-300 dark:border-gray-700">
+        <aside id="sidebar" class="w-1/5 bg-white   border-r border-gray-300 ">
             @include('components.admin.sidebar')
         </aside>
 
         <!-- Main Content -->
-        <main  id="mainContent" class="w-4/5 bg-white dark:bg-gray-800 dark:text-white">
+        <main  id="mainContent" class="w-4/5 bg-white  border-b border-gray-300 ">
             @include('components.admin.header')
             @yield('content')
         </main>
