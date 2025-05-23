@@ -185,7 +185,7 @@ public function store(Request $request)
                 $variant = ProductVariant::lockForUpdate()->find($item->variant->variant_id);
                 if (!$variant || $variant->stock < $item->quantity) {
                     DB::rollBack();
-                    return back()->with('error', "Biến thể '{$variant->name}' không đủ tồn kho. Còn lại: {$variant->stock}");
+                    return back()->with('error', "Biến thể không đủ tồn kho. Còn lại: {$variant->stock}");
                 }
             } else {
                 $product = Product::lockForUpdate()->find($item->product->product_id);

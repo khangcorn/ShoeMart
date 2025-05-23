@@ -33,15 +33,28 @@
                              class="w-12 h-12 rounded-full mx-auto object-cover border shadow-sm"
                              alt="Avatar">
                     </td>
-                       <td class="px-4 py-3 border text-center">
-                         @if(auth()->user()->hasPermission('lock_user'))
-                            <button 
-                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold transition"
-                            >
-                                Khóa tài khoản
-                            </button>
-                            @endif
-                        </td>
+                    <td class="px-4 py-3 border text-center">
+    @if(auth()->user()->hasPermission('lock_user'))
+        @if($user['is_blocked'])
+            <button 
+                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold transition unlock-user-btn"
+                data-user-id="{{ $user['id'] }}"
+            >
+                Mở khóa
+            </button>
+        @else
+            <button 
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold transition lock-user-btn"
+                data-user-id="{{ $user['id']  }}"
+            >
+                Khóa tài khoản
+            </button>
+        @endif
+    @endif
+</td>
+
+
+
 
 
 
@@ -56,4 +69,47 @@
         </div>
     </div>
 </div>
+<script>
+   function sendBlockRequest(userId, action) {
+    if (!confirm(`Bạn có chắc chắn muốn ${action === 'block' ? 'khóa' : 'mở khóa'} tài khoản này không?`)) {
+        return;
+    }
+
+    fetch(`/admin/users/${userId}/${action}`, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || 'Thao tác thành công!');
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error("Lỗi:", error);
+        alert('Có lỗi xảy ra, vui lòng thử lại.');
+    });
+}
+
+document.querySelectorAll(".lock-user-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const userId = button.dataset.userId;
+        sendBlockRequest(userId, 'block');
+    });
+});
+
+document.querySelectorAll(".unlock-user-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const userId = button.dataset.userId;
+        sendBlockRequest(userId, 'unblock');
+    });
+});
+
+
+</script>
 @endsection

@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\VariantAttribute;
 use App\Models\VariantAttributeValue;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -201,23 +202,29 @@ class ProductController extends Controller
 
 
     public function show($id)
-    {
-        $product = Product::with([
-            'category',
-            'variants.variantAttributeValues.variantAttribute',
-            'images',
-        ])->findOrFail($id);
+{
+    $product = Product::with([
+        'category',
+        'variants.variantAttributeValues.variantAttribute',
+        'images',
+    ])->findOrFail($id);
 
-        $variants = $product->variants->groupBy(function ($variant) {
-            // Lấy giá trị attribute_value của màu sắc (color), bảo vệ từng bước truy vấn
-            $color = optional(optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'color'))->variantAttribute)->attribute_value;
+    $variants = $product->variants->groupBy(function ($variant) {
+        $color = optional(optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'color'))->variantAttribute)->attribute_value;
+        return $color ?? 'Không có màu';
+    });
 
-            // Nếu không có màu, trả về 'Không có màu'
-            return $color ?? 'Không có màu';
-        });
-
-        return view('admin.product.show', compact('product', 'variants'));
+    // Lấy danh sách product_id đã yêu thích của user đang đăng nhập
+    $wishlistedProductIds = [];
+    if (auth()->check()) {
+        $wishlistedProductIds = Wishlist::where('user_id', auth()->id())
+            ->pluck('product_id')
+            ->toArray();
     }
+
+    return view('admin.product.show', compact('product', 'variants', 'wishlistedProductIds'));
+}
+
 
     public function edit($id)
     {

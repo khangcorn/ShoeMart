@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     // Giỏ hàng
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+
     Route::put('/cart/{cartDetailId}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cartDetailId}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist', [WishlistController::class, 'delete'])->name('wishlist.delete');
+
 
     // Đơn hàng
     Route::get('/checkout', [OrderController::class, 'create'])->name('cart.checkout');
@@ -124,8 +125,8 @@ Route::get('/products', [HomeController::class, 'getall'])->name('products.all')
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
 Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
-Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
-
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/admin-users', [App\Http\Controllers\Admin\AdminAccessController::class, 'index'])
         ->name('admin.users.index');
@@ -202,6 +203,9 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
     Route::resource('shipping-fees', ShippingFeeController::class)->middleware('check_permission:view_shipping_fees');
     Route::resource('coupons', CouponController::class)->middleware('check_permission:view_coupons');
     Route::resource('users', AdminUserController::class)->middleware('check_permission:view_users');
+Route::post('/users/{user}/block', [AdminUserController::class, 'blockUser']);
+Route::post('/users/{user}/unblock', [AdminUserController::class, 'unblockUser']);
+
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('check_permission:view_orders')->name('admin.orders.index');

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WishlistController extends Controller
 {
@@ -20,58 +22,91 @@ class WishlistController extends Controller
         return view('client.wishlist.index', ['wishlist' => $wishlist]);
     }
 
-    public function store(Request $request)
-    {
-        if (auth()->check()) {
-            $userId = auth()->user()->user_id;
-            $wishlist = Wishlist::where('user_id', $userId)->where('product_id', $request->product_id)->count();
 
-            if ($wishlist < 1) {
-                $wishlist = new Wishlist;
-                $wishlist->user_id = $userId;
-                $wishlist->product_id = $request->product_id;
-                $wishlist->save();
 
-                return [
-                    'success' => 'success',
-                    'message' => 'Sản phẩm đã được thêm vào yêu thích',
-                ];
-            } else {
-                return [
-                    'success' => 'warning',
-                    'message' => 'Sản phẩm đã có trong danh sách yêu thích',
-                ];
-            }
-        } else {
-            return [
-                'success' => 'warning',
-                'message' => 'Đăng nhập để sử dụng chức năng này',
-            ];
-        }
+  public function delete(Request $request)
+{
+    if (!auth()->check()) {
+        return redirect()->back()->with([
+            'message' => 'Bạn cần đăng nhập để thực hiện thao tác này',
+            'type' => 'error',
+        ]);
+    }
+    $id = $request->product_id;
+    if (empty($id)) {
+        return redirect()->back()->with([
+            'message' => 'ID sản phẩm không hợp lệ',
+            'type' => 'error',
+        ]);
     }
 
-    public function delete(Request $request)
-    {
-        if (! auth()->check()) {
-            return redirect()->back()->with(noti('Bạn cần đăng nhập để thực hiện thao tác này', 'error'));
-        }
-        $id = $request->id;
-        if (empty($id)) {
-            return redirect()->back()->with(noti('ID sản phẩm không hợp lệ', 'error'));
-        }
+    $wishlistItem = auth()->user()->wishlist()->where('product_id', $id)->first();
 
-        $wishlistItem = auth()->user()->wishlist()->where('product_id', $id)->first();
-
-        if (! $wishlistItem) {
-            return redirect()->back()->with(noti('Không tìm thấy sản phẩm trong danh sách yêu thích', 'error'));
-        }
-
-        try {
-            $wishlistItem->delete();
-
-            return redirect()->back()->with(noti('Sản phẩm đã được xoá khỏi yêu thích', 'success'));
-        } catch (\Throwable $th) {
-            return redirect()->back()->with(noti('Đã xảy ra lỗi khi xoá sản phẩm', 'error'));
-        }
+    if (!$wishlistItem) {
+        return redirect()->back()->with([
+            'message' => 'Không tìm thấy sản phẩm trong danh sách yêu thích',
+            'type' => 'error',
+        ]);
     }
+
+    try {
+        $wishlistItem->delete();
+
+        return redirect()->back()->with([
+            'message' => 'Sản phẩm đã được xoá khỏi yêu thích',
+            'type' => 'success',
+        ]);
+    } catch (\Throwable $th) {
+        return redirect()->back()->with([
+            'message' => 'Đã xảy ra lỗi khi xoá sản phẩm',
+            'type' => 'error',
+        ]);
+    }
+}
+public function toggle(Request $request)
+{
+if (!auth()->check()) {
+    $currentUrl = url()->previous();
+    Log::info('url()->previous() trong toggle:', ['url' => $currentUrl]);
+    
+    session()->put('favorite.intended', $currentUrl);
+    session()->put('favorite.intended_time', now()->timestamp); // ➕ Lưu thời gian tạo
+
+    Log::info('Session favorite.intended hiện tại:', ['url' => session('favorite.intended')]);
+    Log::info('Thời gian lưu:', ['time' => session('favorite.intended_time')]);
+    return redirect()->route('login');
+}
+
+
+    $userId = auth()->id();
+    $productId = $request->product_id;
+
+    // Kiểm tra sản phẩm đã có trong wishlist chưa
+    $wishlistItem = Wishlist::where('user_id', $userId)
+        ->where('product_id', $productId)
+        ->first();
+
+    if ($wishlistItem) {
+        // Nếu có rồi thì xóa
+        $wishlistItem->delete();
+
+        return redirect()->back()->with([
+            'message' => 'Sản phẩm đã được xoá khỏi yêu thích',
+            'type' => 'success',
+        ]);
+    } else {
+        // Nếu chưa có thì thêm mới
+        Wishlist::create([
+            'user_id' => $userId,
+            'product_id' => $productId,
+        ]);
+
+        return redirect()->back()->with([
+            'message' => 'Sản phẩm đã được thêm vào yêu thích',
+            'type' => 'success',
+        ]);
+    }
+}
+
+
 }

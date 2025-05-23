@@ -29,6 +29,7 @@ class UserController extends Controller
                 'contact' => $user->username.' | '.$user->phone,
                 'avatar' => $user->avatar,
                 'balance' => $user->wallet?->balance ?? 0,
+                'is_blocked' => $user->is_blocked,
             ];
         });
 
@@ -369,4 +370,25 @@ for ($i = 29; $i >= 0; $i--) {
 
         return response()->json(['message' => 'Hủy quyền truy cập thành công.']);
     }
+  public function blockUser(User $user)
+{
+    if (auth()->id() === $user->user_id) {
+        return response()->json(['success' => false, 'message' => 'Bạn không thể tự khóa tài khoản của mình.']);
+    }
+
+    $user->is_blocked = true;
+    $user->save();
+
+    return response()->json(['success' => true, 'message' => 'Tài khoản đã bị khóa.']);
+}
+
+public function unblockUser(User $user)
+{
+    $user->is_blocked = false;
+    $user->save();
+
+    return response()->json(['success' => true, 'message' => 'Tài khoản đã được mở khóa.']);
+}
+
+
 }
