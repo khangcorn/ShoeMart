@@ -62,8 +62,8 @@
 <div class="p-6">
     <h1 class="text-2xl font-semibold mb-6">Danh sách yêu cầu rút tiền</h1>
 
-   <table class="w-full text-sm text-center border-collapse border border-gray-200 rounded-lg shadow-sm">
-                <thead class="bg-gray-100 text-gray-700">
+   <table class="w-full ">
+                <thead class=" text-gray-700">
                     <tr class="border-b border-gray-300">
                 <th class="border px-4 py-3">#</th>
                 <th class="border px-4 py-3">Người dùng</th>
