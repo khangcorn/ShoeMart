@@ -1,11 +1,89 @@
 @extends('admin.layout')
 
+
+
 @section('content')
+<div class="bg-gray-100">
+<div class="p-4">
+   <form action="{{ route('admin.dashboard') }}" method="GET" class="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:flex items-end gap-4 bg-white p-6 rounded-lg shadow-sm">
+    <div class="flex flex-col">
+        <label for="from_date" class="text-sm font-semibold text-gray-700 mb-1">Từ ngày</label>
+        <input type="date" name="from_date" id="from_date" value="{{ request('from_date') }}"
+            class="border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+    </div>
+    <div class="flex flex-col">
+        <label for="to_date" class="text-sm font-semibold text-gray-700 mb-1">Đến ngày</label>
+        <input type="date" name="to_date" id="to_date" value="{{ request('to_date') }}"
+            class="border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+    </div>
+    <div class="flex">
+        <button type="submit"
+            class="mt-auto bg-blue-600 text-white font-semibold px-10 py-2 rounded-md hover:bg-blue-700 transition-all duration-200">
+            Lọc
+        </button>
+    </div>
+</form>
+
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+        <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <h3 class="text-xl font-bold text-green-600">{{ number_format($totalRevenue) }} đ</h3>
+            <p class="text-gray-600 mt-1">Tổng doanh thu</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <h3 class="text-xl font-bold text-blue-600">{{ $todayOrders }}</h3>
+            <p class="text-gray-600 mt-1">Đơn hàng</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <h3 class="text-xl font-bold text-purple-600">{{ $totalUsers }}</h3>
+            <p class="text-gray-600 mt-1">Tổng người dùng</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <h3 class="text-xl font-bold text-orange-600">{{ $totalProducts }}</h3>
+            <p class="text-gray-600 mt-1">Tổng sản phẩm</p>
+        </div>
+    </div>
+    
+    <div class="bg-white  p-5 rounded-lg shadow-sm mb-4">
+        <h2 class="text-black text-lg font-semibold py-4 px-4 ">Thống kê doanh thu</h2>
+        <canvas id="revenueChart"></canvas>
+    </div>
+    
+    <div class="bg-white p-5 rounded-lg shadow-sm mb-4">
+        <h2 class="text-black  text-lg font-semibold py-4 px-4">Tỷ lệ trạng thái đơn hàng</h2>
+        <canvas id="orderStatusChart"></canvas>
+    </div>
+    
+    <div class="bg-white p-5 rounded-lg shadow-sm mb-4">
+        <h2 class="text-black text-lg font-semibold py-4 px-4">Số lượng đơn hàng mỗi ngày</h2>
+        <canvas id="dailyOrdersChart"></canvas>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+        <div class="bg-white p-5 rounded-lg shadow-sm">
+            <h2 class="text-black text-lg font-semibold py-4 px-4">Tổng số đơn hàng theo phương thức thanh toán</h2>
+            <canvas id="ordersByPaymentMethodChart"></canvas>
+        </div>
+    
+        <div class="bg-white p-5 rounded-lg shadow-sm">
+            <h2 class="text-black text-lg font-semibold py-4 px-4">Thống kê mã giảm giá</h2>
+            <canvas id="couponStatsChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="bg-white p-5 rounded-lg shadow-sm">
+        <h2 class="text-black text-lg font-semibold py-4 px-4">Top sản phẩm bán chạy</h2>
+        <canvas id="topSellingProductsChart"></canvas>
+    </div>
+</div>
+</div>
+@endsection
+
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #1e1e2f;
-        color: #f1f1f1;
+        color: black;
         margin: 0;
         padding: 0 20px 40px;
     }
@@ -19,11 +97,11 @@
 
 .dashboard .card {
     flex: 1 1 200px; /* mỗi card ít nhất 200px, co dãn */
-    background: #fff;
+    background: black;
     padding: 20px;
     border-radius: 8px;
     text-align: center;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    box-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.1);
 }
 
 .section-title {
@@ -60,10 +138,10 @@ canvas {
 
 .flex-two-columns > div {
     flex: 1 1 400px;
-    background: #fff;
+    background: black;
     border-radius: 8px;
     padding: 15px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    box-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.1);
 }
 
 /* Biểu đồ top sản phẩm rộng hơn 1 chút */
@@ -71,9 +149,9 @@ canvas {
     max-width: 900px;
     margin: 0 auto 30px auto;
     padding: 15px;
-    background: #fff;
+    background: black;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    box-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.1);
 }
 
 /* Responsive */
@@ -96,20 +174,20 @@ canvas {
         background: #2b2b3d;
         border-radius: 12px;
         padding: 24px 20px;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.6);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow-sm: 0 6px 14px rgba(0,0,0,0.6);
+        transition: transform 0.3s ease, box-shadow-sm 0.3s ease;
         cursor: default;
     }
 
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        box-shadow-sm: 0 8px 20px rgba(0,0,0,0.8);
     }
 
     .card h3 {
         font-size: 30px;
         margin: 0;
-        color: #fff;
+        color: black;
         font-weight: 700;
         letter-spacing: 0.5px;
     }
@@ -117,13 +195,13 @@ canvas {
     .card p {
         margin-top: 10px;
         font-size: 16px;
-        color: #bbb;
+        color: black;
     }
 
     .section-title {
         font-size: 24px;
         font-weight: 700;
-        color: #e0e0e0;
+        color: black;
         margin-top: 48px;
         margin-bottom: 24px;
         border-left: 6px solid #3498db;
@@ -145,14 +223,14 @@ canvas {
         background: #3a3a52;
         margin-bottom: 12px;
         border-radius: 8px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.6);
-        color: #ddd;
+        box-shadow-sm: 0 3px 8px rgba(0,0,0,0.6);
+        color: black;
         font-weight: 500;
         transition: background-color 0.3s ease;
     }
 
     ul.list li strong {
-        color: #fff;
+        color: black;
     }
 
     ul.list li:hover {
@@ -173,68 +251,7 @@ canvas {
         }
     }
 </style>
-<form action="{{ route('admin.dashboard') }}" method="GET" class="filter-form" style="margin-bottom: 20px;">
-    <label for="from_date">Từ ngày:</label>
-    <input type="date" name="from_date" id="from_date" value="{{ request('from_date') }}">
-    
-    <label for="to_date">Đến ngày:</label>
-    <input type="date" name="to_date" id="to_date" value="{{ request('to_date') }}">
 
-    <button type="submit">Lọc</button>
-</form>
-<div class="dashboard">
-    <div class="card">
-        <h3>{{ number_format($totalRevenue) }} đ</h3>
-        <p>Tổng doanh thu</p>
-    </div>
-    <div class="card">
-        <h3>{{ $todayOrders }}</h3>
-        <p>Đơn hàng</p>
-    </div>
-    <div class="card">
-        <h3>{{ $totalUsers }}</h3>
-        <p>Tổng người dùng</p>
-    </div>
-    <div class="card">
-        <h3>{{ $totalProducts }}</h3>
-        <p>Tổng sản phẩm</p>
-    </div>
-</div>
-
-<div class="chart-container">
-    <div class="section-title">Thống kê doanh thu </div>
-    <canvas id="revenueChart"></canvas>
-</div>
-
-<div class="chart-container">
-    <div class="section-title">Tỷ lệ trạng thái đơn hàng</div>
-    <canvas id="orderStatusChart"></canvas>
-</div>
-
-<div class="chart-container">
-    <div class="section-title">Số lượng đơn hàng mỗi ngày</div>
-    <canvas id="dailyOrdersChart"></canvas>
-</div>
-
-<div class="flex-two-columns">
-    <div>
-        <div class="section-title">Tổng số đơn hàng theo phương thức thanh toán</div>
-        <canvas id="ordersByPaymentMethodChart"></canvas>
-    </div>
-
-    <div>
-        <div class="section-title">Thống kê mã giảm giá</div>
-        <canvas id="couponStatsChart"></canvas>
-    </div>
-</div>
-
-<div class="top-products-chart">
-    <div class="section-title">Top sản phẩm bán chạy</div>
-    <canvas id="topSellingProductsChart"></canvas>
-</div>
-
-
-@endsection
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -243,24 +260,24 @@ canvas {
             responsive: true,
             plugins: {
                 legend: {
-                    labels: { color: '#fff' }
+                    labels: { color: 'black' }
                 },
                 tooltip: {
                     enabled: true,
                     backgroundColor: '#333',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
+                    titleColor: 'black',
+                    bodyColor: 'black',
                 }
             },
             scales: {
                 x: {
-                    ticks: { color: '#eee', font: { size: 13 } },
-                    title: { color: '#ddd', display: true, font: { size: 14, weight: '600' } },
+                    ticks: { color: 'black', font: { size: 13 } },
+                    title: { color: 'black', display: true, font: { size: 14, weight: '600' } },
                     grid: { color: '#444' }
                 },
                 y: {
-                    ticks: { color: '#eee', font: { size: 13 } },
-                    title: { display: true, color: '#ddd', font: { size: 14, weight: '600' } },
+                    ticks: { color: 'black', font: { size: 13 } },
+                    title: { display: true, color: 'black', font: { size: 14, weight: '600' } },
                     grid: { color: '#444' }
                 }
             }
@@ -318,7 +335,7 @@ canvas {
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#fff', font: { size: 14 } } },
+                    legend: { position: 'bottom', labels: { color: 'black', font: { size: 14 } } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -345,7 +362,7 @@ canvas {
                     fill: false,
                     borderColor: 'rgba(255, 99, 132, 0.9)',
                     tension: 0.3,
-                    pointBackgroundColor: '#fff',
+                    pointBackgroundColor: 'black',
                     pointBorderColor: 'rgba(255, 99, 132, 1)',
                     pointRadius: 5,
                     borderWidth: 3,
@@ -494,14 +511,14 @@ new Chart(topSellingProductsCtx, {
                     minRotation: 30,
                     autoSkip: false,
                     font: { size: 10 },
-                    color: '#eee'
+                    color: 'black'
                 },
                 title: { ...commonOptions.scales.x.title, text: 'Sản phẩm' }
             },
             y: {
                 ...commonOptions.scales.y,
                 beginAtZero: true,
-                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: '#eee' },
+                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: 'black' },
                 title: { ...commonOptions.scales.y.title, text: 'Số lượng bán' }
             }
         }
