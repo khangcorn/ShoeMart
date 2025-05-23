@@ -122,7 +122,7 @@
             @enderror
         </div>
     
-        {{-- <div>
+        <div>
             <label for="price" class="block text-sm font-medium text-gray-700">Giá</label>
             <input type="number" id="price" name="price"
                 class="text-black w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('price') border-red-500 @enderror"
@@ -140,9 +140,9 @@
             @error('price_sale')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-        </div> --}}
+        </div>
     
-        {{-- <div id="product_stock_input" class="hidden">
+        <div id="product_stock_input" class="hidden">
             <label for="total_stock_input" class="block text-sm font-medium text-gray-700">Số Lượng</label>
             <input type="number" name="stock" id="total_stock_input"
                 class="text-black w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 @error('stock') border-red-500 @enderror"
@@ -151,7 +151,7 @@
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
-     --}}
+    
      <input type="hidden" id="product_price" name="price" value="">
      <input type="hidden" id="product_stock_input" name="stock" value="">
         <div>

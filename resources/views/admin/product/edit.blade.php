@@ -107,7 +107,7 @@
                             class="text-black w-full p-2 border rounded-lg @error('stock') border-red-500 @enderror"
                             value="{{ old('stock', $product->stock) }}">
                         @error('stock')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            {{-- <p class="text-red-500 text-sm mt-1">{{ $message }}</p> --}}
                         @enderror
                     </div>
                 @endif
