@@ -3,8 +3,8 @@
 @section('title', 'Edit Shipping Fee')
 
 @section('content')
-<div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Edit Shipping Fee</h2>
+<div class="px-4 py-4">
+    <h2 class="text-3xl font-bold mb-6">Chỉnh sửa phí vận chuyển</h2>
 
     <form method="POST" action="{{ route('shipping-fees.update', $shippingFee->shipping_id) }}">
         @csrf
@@ -12,7 +12,7 @@
 
         {{-- Province --}}
         <div class="mb-5">
-            <label class="block text-sm font-medium text-gray-600">Province</label>
+            <label class="block text-sm font-medium text-gray-600">Tỉnh / Thành phố</label>
             <select name="province" id="province" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('province') border-red-500 @enderror">
                 <option value="">-- Chọn Tỉnh / Thành phố --</option>
                 {{-- Options will be populated by JS --}}
@@ -24,7 +24,7 @@
 
         {{-- District --}}
         <div class="mb-5">
-            <label class="block text-sm font-medium text-gray-600">District (optional)</label>
+            <label class="block text-sm font-medium text-gray-600">Quận / Huyện</label>
             <select name="district" id="district" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('district') border-red-500 @enderror">
                 <option value="">-- Chọn Quận / Huyện --</option>
             </select>
@@ -35,7 +35,7 @@
 
         {{-- Ward --}}
         <div class="mb-5">
-            <label class="block text-sm font-medium text-gray-600">Ward (optional)</label>
+            <label class="block text-sm font-medium text-gray-600">Phường / Xã</label>
             <select name="ward" id="ward" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('ward') border-red-500 @enderror">
                 <option value="">-- Chọn Phường / Xã --</option>
             </select>
@@ -46,7 +46,7 @@
 
         {{-- Fee --}}
         <div class="mb-5">
-            <label class="block text-sm font-medium text-gray-600">Fee (VNĐ)</label>
+            <label class="block text-sm font-medium text-gray-600">Phí vận chuyển (VNĐ)</label>
             <input type="number" step="0.01" name="fee" value="{{ old('fee', $shippingFee->fee) }}" class="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent @error('fee') border-red-500 @enderror" >
             @error('fee')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -54,8 +54,8 @@
         </div>
 
         <div class="flex justify-between items-center mt-6">
-            <a href="{{ route('shipping-fees.index') }}" class="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition-all">Back</a>
-            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all">Save Changes</button>
+            <a href="{{ route('shipping-fees.index') }}"  class="inline-flex items-center bg-gray-500 text-white font-semibold text-sm px-6 py-2 rounded-md hover:bg-gray-600 shadow-md transition">Quay lại</a>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg  transition-all">Lưu thay đổi</button>
         </div>
     </form>
 </div>
