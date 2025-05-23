@@ -64,7 +64,7 @@
 
 
 
-    <div class="container mx-auto p-6">
+    <div class="px-4 py-4">
         <h1 class="text-3xl font-bold mb-6">Chỉnh Sửa Sản Phẩm</h1>
 
         <form id="product_form" action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data"
@@ -91,7 +91,7 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-                {{-- <div>
+                <div>
                     <label for="price" class="block text-sm font-medium">Giá</label>
                     <input type="number" id="price" name="price"
                         class="  text-black w-full p-2 border rounded-lg @error('price') border-red-500 @enderror"
@@ -99,7 +99,7 @@
                     @error('price')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                </div> --}}
+                </div>
                 @if($product->variants->isEmpty())
                     <div>
                         <label for="stock" class="block text-sm font-medium">Số Lượng  </label>
@@ -112,7 +112,7 @@
                     </div>
                 @endif
 
-                {{-- <div>
+                <div>
                     <label for="price_sale" class="block text-sm font-medium">Giá Khuyến Mãi</label>
                     <input type="number" id="price_sale" name="price_sale"
                         class="  text-black w-full p-2 border rounded-lg @error('price_sale') border-red-500 @enderror"
@@ -120,7 +120,7 @@
                     @error('price_sale')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
-                </div> --}}
+                </div>
 <input type="hidden" id="product_price" name="product_price" value="{{ old('product_price', $product->price ?? '') }}">
 <input type="hidden" id="product_stock_input" name="product_stock" value="{{ old('product_stock', $product->stock ?? '') }}">
 
