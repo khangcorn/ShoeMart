@@ -9,7 +9,7 @@
 
             <div class="mb-4">
                 <label class="block text-gray-600 font-medium">Giá trị kích cỡ</label>
-                <input type="number" id="attribute_value" name="attribute_value" required
+                <input type="number" placeholder="Nhập giá trị kích cỡ" id="attribute_value" name="attribute_value" required
                     class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 
                 <!-- Hiển thị lỗi nếu có -->
@@ -23,12 +23,12 @@
             </div>
 
             <div class="flex justify-between">
-                <a href="{{ route('sizes.index') }}" class="text-blue-500 hover:underline">
+                <a href="{{ route('sizes.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded ">
                     Quay lại 
                 </a>
                 <button type="submit"
                     class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
-                    Create
+                    Tạo mới
                 </button>
             </div>
         </form>

@@ -1,9 +1,8 @@
 @extends('admin.layout')
 
 @section('content')
-    <div class="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-6 mt-10">
-        <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Edit Size</h3>
-
+    <div class="py-4 px-4">
+        <h2 class="text-3xl font-bold mb-6">Chỉnh sửa kích thước</h3>
         <form action="{{ route('sizes.update', $size->attribute_id) }}" method="POST" class="space-y-4" onsubmit="return validateSize()">
             @csrf
             @method('PUT')
@@ -24,14 +23,13 @@
             </div>
 
             <div class="flex justify-between">
-                <a href="{{ route('sizes.index') }}"
-                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-                    Back to List
+                <a href="{{ route('sizes.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded ">
+                    Quay lại 
                 </a>
 
                 <button type="submit"
                     class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                    Update
+                    Cập nhật
                 </button>
             </div>
         </form>
