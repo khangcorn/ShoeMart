@@ -1,12 +1,10 @@
 @extends('admin.layout')
 
 @section('content')
-<div class="py-6 px-4">
+<div class="py-4 px-4">
 
     {{-- Header --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <h2 class="text-xl font-bold text-gray-800">Danh sách người dùng</h2>
-    </div>
 
     {{-- User Table --}}
     <div class="overflow-x-auto bg-white shadow-lg rounded-xl">

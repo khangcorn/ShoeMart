@@ -114,7 +114,7 @@
     </style>
 
     <div class="py-4 px-4">
-
+        <h2 class="text-3xl font-bold mb-6">Danh sách sản phẩm </h2> 
         <div class="flex  items-center justify-between">
             @if (auth()->user()->hasPermission('create_products'))
                 <a href="{{ route('products.create') }}"

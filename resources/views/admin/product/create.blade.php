@@ -96,7 +96,7 @@
 
 
 <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Thêm Sản Phẩm Mới và Biến Thể</h1>
+    <h1 class="text-3xl font-bold mb-6">Thêm sản phẩm và biến thể sản phẩm</h1>
 
     <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
