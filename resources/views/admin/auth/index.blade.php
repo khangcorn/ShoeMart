@@ -4,18 +4,18 @@
 <div class="py-4 px-4">
 
     {{-- Header --}}
-        <h2 class="text-xl font-bold text-gray-800">Danh sách người dùng</h2>
+    <h2 class="text-3xl font-bold mb-6">Danh sách người dùng </h2> 
 
     {{-- User Table --}}
-    <div class="overflow-x-auto bg-white shadow-lg rounded-xl">
-        <table class="w-full table-auto text-sm text-gray-700">
-            <thead class="bg-gray-100 text-gray-800 uppercase text-xs">
+    <div class="overflow-x-auto bg-white ">
+        <table class="w-full ">
+            <thead class=" text-gray-800 uppercase text-xs">
                 <tr>
                     <th class="px-4 py-3 border text-center">#</th>
                     <th class="px-4 py-3 border text-left">Email</th>
-                    <th class="px-4 py-3 border text-left">Contact</th>
+                    <th class="px-4 py-3 border text-left">Liên hệ</th>
                     <th class="px-4 py-3 border text-center">Số dư ví</th>
-                    <th class="px-4 py-3 border text-center">Avatar</th>
+                    <th class="px-4 py-3 border text-center">Ảnh đại diện</th>
                     <th class="px-4 py-3 border text-center">Hành động</th>
                 </tr>
             </thead>
