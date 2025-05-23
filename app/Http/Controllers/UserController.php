@@ -21,27 +21,23 @@ class UserController extends Controller
     }
 
     // Hiển thị form đăng nhập
-    public function showLoginForm(Request $request)
-    {
-        $redirectUrl = $request->query('redirect', url('/')); // lấy từ param 'redirect' hoặc mặc định trang chủ
-    session(['url.intended' => $redirectUrl]);
-
-    Log::info('Intended URL nhận được khi vào login form:', ['url' => $redirectUrl]);
-    Log::info('URL intended lưu vào session:', ['url' => session('url.intended')]);
-
-        return view('client.auth.login');
+public function showLoginForm(Request $request)
+{
+    if ($request->has('redirect')) {
+        session()->put('_intended', $request->input('redirect'));
+        Log::info('Lưu redirect param vào session cart_intended: ' . $request->input('redirect'));
     }
 
-    protected function authenticated(Request $request, $user)
-    {
-        // Kiểm tra xem có URL đã lưu trong session không
-        if (session()->has('url.intended')) {
-            return redirect()->to(session('url.intended'));  // Quay lại trang trước
-        }
+    return view('client.auth.login');
+}
 
-        // Nếu không có URL trước đó, chuyển hướng về trang chủ hoặc trang nào đó
-        return redirect()->route('home');
-    }
+
+protected function authenticated(Request $request, $user)
+{
+
+    return redirect()->route('profile');
+}
+
 
     // Xử lý đăng ký
     public function register(Request $request)
@@ -73,7 +69,7 @@ class UserController extends Controller
         return redirect()->route('login')->with('success', 'User registered successfully');
     }
 
-   public function login(Request $request)
+public function login(Request $request)
 {
     $request->validate([
         'email' => 'required|email',
@@ -81,32 +77,60 @@ class UserController extends Controller
     ]);
 
     if (Auth::attempt($request->only('email', 'password'))) {
-        // Xử lý cart từ session như bạn đang làm
-        $cartItems = session('cart.items');
-        if ($cartItems) {
-            // Thêm các sản phẩm vào giỏ hàng
-            $user = Auth::user();
-            $cart = Cart::firstOrCreate(['user_id' => $user->user_id]);
-            foreach ($cartItems as $item) {
-                CartDetail::firstOrCreate([
-                    'cart_id' => $cart->cart_id,
-                    'product_id' => $item['product_id'],
-                    'variant_id' => $item['variant_id'],
-                ], [
-                    'quantity' => $item['quantity'],
-                    'price' => $this->getProductPrice($item['product_id'], $item['variant_id']),
-                ]);
-            }
-            session()->forget('cart.items');
+
+        $now = now()->timestamp;
+        $redirectTo = null;
+
+        $cartUrl = session('cart.intended');
+        $cartTime = session('cart.intended_time');
+        $favUrl = session('favorite.intended');
+        $favTime = session('favorite.intended_time');
+
+        Log::info('Session trước khi xử lý redirect:', [
+            'cart.intended' => $cartUrl,
+            'cart.intended_time' => $cartTime,
+            'favorite.intended' => $favUrl,
+            'favorite.intended_time' => $favTime,
+        ]);
+
+        // Mảng chứa url và thời gian tương ứng nếu tồn tại
+        $urls = [];
+
+        if ($cartUrl && $cartTime && ($now - $cartTime) <= 300) {
+            $urls['cart'] = ['url' => $cartUrl, 'time' => $cartTime];
+        }
+        if ($favUrl && $favTime && ($now - $favTime) <= 300) {
+            $urls['favorite'] = ['url' => $favUrl, 'time' => $favTime];
         }
 
-        return redirect()->intended(route('profile'));
+        if (!empty($urls)) {
+            // Lấy phần tử có thời gian lớn nhất (gần nhất)
+            $latest = collect($urls)->sortByDesc('time')->first();
+            $redirectTo = $latest['url'];
+
+            // Xóa hết các session liên quan
+            session()->forget(['cart.intended', 'cart.intended_time', 'favorite.intended', 'favorite.intended_time', '_intended']);
+            Log::info('Redirect chọn URL gần nhất, đã xóa session redirect.');
+        } else {
+            // Fallback về _intended hoặc profile
+            $redirectTo = session()->pull('_intended', route('profile'));
+            Log::info('Redirect dùng fallback _intended hoặc profile.');
+        }
+
+        Log::info('Redirect sau login về:', ['url' => $redirectTo]);
+
+        return redirect()->to($redirectTo);
     }
 
     return back()->withErrors([
-        'email' => 'Email hoặc mật khẩu không chính xác.',
+        'error' => 'Thông tin đăng nhập không chính xác.',
     ]);
 }
+
+
+
+
+
 
 
     // Xử lý đăng xuất

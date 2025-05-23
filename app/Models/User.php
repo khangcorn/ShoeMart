@@ -87,10 +87,11 @@ class User extends Authenticatable
         return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
     }
 
-    public function wishlist()
-    {
-        return $this->hasMany(Wishlist::class);
-    }
+   public function wishlist()
+{
+    return $this->hasMany(Wishlist::class, 'user_id', 'user_id');
+}
+
 
 
  public function permissions()

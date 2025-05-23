@@ -66,7 +66,7 @@ public function show($productId)
         $review->admin_response = $request->response;
         $review->save();
 
-        return redirect()->route('admin.reviews.index')->with('success', 'Đã gửi phản hồi thành công.');
+        return redirect()->route('admin.reviews.productReviews', ['productId' => $review->product_id])->with('success', 'Đã gửi phản hồi thành công.');
     }
         public function toggleHidden(OrderReview $review)
         {

@@ -88,7 +88,7 @@
                     
                     <td class="px-4 py-2 border border-gray-300">{{ number_format($price, 0, ',', '.') }} đ</td>
                     <td class="px-4 py-2 border border-gray-300">
-                        <input type="number" value="{{ $item->quantity }}" min="1"
+                        <input type="number" value="{{ $item->quantity }}"
                                class="quantity-input px-2 py-1 border border-gray-300 rounded-md w-16"
                                data-cart-detail-id="{{ $item->cart_detail_id }}"
                                data-stock="{{ $item->variant ? $item->variant->stock : $item->product->stock }}">
@@ -142,63 +142,110 @@
         document.getElementById("selected-total-price").innerText = `${total.toLocaleString('vi-VN')} đ`;
     }
 
-    document.querySelectorAll(".quantity-input").forEach(input => {
-        input.addEventListener("change", function () {
-            let row = this.closest("tr");
-            let cartDetailId = this.dataset.cartDetailId;
-            let newQuantity = parseInt(this.value);
-            let stock = parseInt(this.dataset.stock);
-            let price = parseFloat(row.querySelector("td:nth-child(3)").innerText.replace(/[^0-9]/g, "")) || 0;
+document.querySelectorAll(".quantity-input").forEach(input => {
 
-            if (newQuantity < 1) {
-                alert("Số lượng phải lớn hơn 0");
-                this.value = 1;
-                return;
+    input.addEventListener("change", function () {
+        let row = this.closest("tr");
+        let cartDetailId = this.dataset.cartDetailId;
+        let stock = parseInt(this.dataset.stock);
+        let price = parseFloat(row.querySelector("td:nth-child(3)").innerText.replace(/[^0-9]/g, "")) || 0;
+
+        let newQuantity = parseInt(this.value);
+
+       if (isNaN(newQuantity) || newQuantity === 0) {
+    if (confirm("Bạn có muốn xóa sản phẩm khỏi giỏ hàng không?")) {
+        // Gọi API xóa sản phẩm
+        fetch(`/cart/${cartDetailId}`, {
+            method: "DELETE",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || "Sản phẩm đã được xóa khỏi giỏ hàng!");
+            if (data.success) {
+                row.remove();
+                updateCartIcon(data.count);
+                updateTotalPrice();
             }
+        })
+        .catch(error => console.error("Lỗi khi xóa sản phẩm", error));
+    } else {
+        // Nếu không xóa thì đặt lại số lượng về 1
+        this.value = 1;
 
-            if (newQuantity > stock) {
-                alert(`Chỉ còn ${stock} sản phẩm trong kho!`);
-                this.value = stock;
-                newQuantity = stock; // cập nhật lại biến số lượng
-
-                // Tính tổng tiền và cập nhật hiển thị
-                let row = this.closest("tr");
-                let price = parseFloat(row.querySelector("td:nth-child(3)").innerText.replace(/[^0-9]/g, "")) || 0;
+        // Gửi cập nhật số lượng = 1 lên backend
+        fetch(`/cart/${cartDetailId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                updateCartIcon(data.count);
+                // Cập nhật tổng tiền theo số lượng 1
+                let total = price * 1;
                 let totalCell = row.querySelector(".total-price");
-                let total = price * newQuantity;
                 totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
-
-                updateTotalPrice(); // Cập nhật tổng tiền giỏ hàng tổng
-
+                updateTotalPrice();
             }
-            fetch(`/cart/${cartDetailId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ quantity: newQuantity })
-            })
-            .then(response => response.json())
-           .then(data => {
-    if (data.message) {
-        // Cập nhật lại số lượng input theo backend trả về
-        if (data.quantity !== undefined) {
-            input.value = data.quantity;
-            newQuantity = data.quantity; // cập nhật lại biến số lượng
+        })
+        .catch(error => console.error("Lỗi khi cập nhật số lượng về 1", error));
+    }
+    return;
+}
+
+        // Nếu số lượng nhỏ hơn 1 thì đặt lại 1
+        if (newQuantity < 1) {
+            alert("Số lượng phải là số dương.");
+            this.value = 1;
+            newQuantity = 1;
         }
 
+        // Nếu số lượng vượt stock thì giới hạn lại
+        if (newQuantity > stock) {
+            alert(`Chỉ còn ${stock} sản phẩm trong kho!`);
+            this.value = stock;
+            newQuantity = stock;
+        }
+
+        // Cập nhật tổng tiền
         let totalCell = row.querySelector(".total-price");
         let total = price * newQuantity;
         totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
 
-        updateTotalPrice(); // Cập nhật tổng tiền giỏ hàng tổng
-    }
-})
+        updateTotalPrice();
 
-            .catch(error => console.error("Có lỗi xảy ra khi cập nhật số lượng", error));
-        });
+        // Gửi cập nhật số lượng lên backend
+        fetch(`/cart/${cartDetailId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ quantity: newQuantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                if (data.count !== undefined) {
+                    updateCartIcon(data.count);
+                }
+                // Cập nhật lại tổng tiền nếu backend thay đổi
+                let total = price * input.value;
+                totalCell.innerText = `${total.toLocaleString('vi-VN')} đ`;
+                updateTotalPrice();
+            }
+        })
+        .catch(error => console.error("Có lỗi xảy ra khi cập nhật số lượng", error));
     });
+});
+
 
     // Lắng nghe sự kiện cho checkbox chọn sản phẩm
     document.querySelectorAll(".select-product").forEach(checkbox => {
@@ -220,23 +267,18 @@
         updateTotalPrice();
     });
 
-    // Cập nhật số lượng giỏ hàng
-    function updateCartCount() {
-        fetch("/cart/count")
-            .then(response => response.json())
-            .then(data => {
-                let cartCountElement = document.getElementById("cart-count");
-                if (cartCountElement) {
-                    if (data.count > 0) {
-                        cartCountElement.innerText = data.count;
-                        cartCountElement.style.display = "flex"; // Hiện số lượng nếu > 0
-                    } else {
-                        cartCountElement.style.display = "none"; // Ẩn nếu giỏ hàng trống
-                    }
-                }
-            })
-            .catch(error => console.error("Lỗi khi cập nhật số lượng giỏ hàng:", error));
+
+function updateCartIcon(count) {
+    const cartCountElement = document.getElementById("cart-count");
+    if (cartCountElement) {
+        const countNumber = Number(count);  // Chuyển thành số
+        cartCountElement.innerText = countNumber;
+        cartCountElement.style.display = countNumber > 0 ? "flex" : "none";
+        console.log("Cập nhật icon thành công với số lượng:", countNumber); // Debug
     }
+}
+
+
 
     // Lắng nghe sự kiện xóa sản phẩm
     document.querySelectorAll(".delete-item").forEach(button => {
@@ -266,7 +308,7 @@
                         document.getElementById("checkout-selected").style.display = "none";
                         document.querySelector(".text-lg").innerText = "Giỏ hàng của bạn đang trống.";
                     }
-                    updateCartCount(); // 🔥 Cập nhật số lượng trên icon giỏ hàng
+                    updateCartIcon(data.count);
                 } else {
                     alert("⚠️ " + data.message);
                 }
@@ -302,7 +344,7 @@
                 let container = document.querySelector(".container");
                 container.innerHTML += "<p class='text-lg'>Giỏ hàng của bạn đang trống.</p>";
 
-                updateCartCount(); // 🔥 Cập nhật lại số lượng giỏ hàng về 0
+                updateCartIcon(data.count); // 🔥 Cập nhật lại số lượng giỏ hàng về 0
             } else {
                 alert("⚠️ " + data.message);
             }
@@ -312,7 +354,7 @@
         });
     });
 
-    document.addEventListener("DOMContentLoaded", updateCartCount);
+    document.addEventListener("DOMContentLoaded", updateCartIcon);
 
     // Lắng nghe sự kiện thanh toán sản phẩm đã chọn
     document.getElementById("checkout-selected").addEventListener("click", function () {

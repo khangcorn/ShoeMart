@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
-
+use Illuminate\Auth\AuthenticationException;
 class Handler extends ExceptionHandler
 {
     /**
@@ -27,4 +27,15 @@ class Handler extends ExceptionHandler
             //
         });
     }
+    protected function unauthenticated($request, AuthenticationException $exception)
+{
+    if ($request->expectsJson()) {
+        return response()->json([
+            'message' => 'Bạn cần đăng nhập để thực hiện hành động này.',
+            'redirect' => route('login')
+        ], 401);
+    }
+
+    return redirect()->guest(route('login'));
+}
 }

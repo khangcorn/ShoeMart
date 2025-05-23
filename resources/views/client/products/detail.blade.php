@@ -1,6 +1,57 @@
 @extends('client.layout')
 
 @section('content')
+<style>
+    <style>
+    .alert {
+  padding: 15px 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  opacity: 1;
+}
+
+/* Màu nền và chữ theo type thông báo */
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+</style>
+@if(session('message'))
+    <div id="alert-message" class="alert alert-{{ session('type') }}">
+        {{ session('message') }}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('alert-message');
+            if (alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000); // 5000 ms = 5 giây
+    </script>
+@endif
+
+
+
     <div class="container mx-auto p-4 max-w-screen-lg mt-16">
         <div class="flex flex-wrap md:flex-nowrap">
             <!-- Hình ảnh sản phẩm chính -->
@@ -224,17 +275,33 @@
                     Add to Bag
                 </button>
                 
-                    <button
-                        class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
-                        Add to Favourite
-                        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px"
-                            height="24px" fill="none">
-                            <path stroke="currentColor" stroke-width="1.5"
-                                d="M16.794 3.75c1.324 0 2.568.516 3.504 1.451a4.96 4.96 0 010 7.008L12 20.508l-8.299-8.299a4.96 4.96 0 010-7.007A4.923 4.923 0 017.205 3.75c1.324 0 2.568.516 3.504 1.451l.76.76.531.531.53-.531.76-.76a4.926 4.926 0 013.504-1.451">
-                            </path>
-                            <title>non-filled</title>
-                        </svg>
-                    </button>
+                        <form action="{{ route('wishlist.toggle') }}" method="POST" class="w-full">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                            <button type="submit"
+                                class="bg-white hover:border-black transition ease-in-out duration-200 cursor-pointer font-semibold border-[1px] border-gray-400 text-black py-4 w-full rounded-full flex gap-2 items-center justify-center">
+                                
+                                @if(in_array($product->product_id, $wishlistedProductIds))
+                                    <!-- Trái tim đầy khi đã yêu thích -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+                                                4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 
+                                                14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+                                                6.86-8.55 11.54L12 21.35z" />
+                                    </svg>
+                                @else
+                                    <!-- Trái tim rỗng khi chưa yêu thích -->
+                                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
+                                        <path stroke="currentColor" stroke-width="1.5"
+                                            d="M16.794 3.75c1.324 0 2.568.516 3.504 1.451a4.96 4.96 0 010 7.008L12 20.508l-8.299-8.299a4.96 4.96 0 010-7.007A4.923 4.923 0 017.205 3.75c1.324 0 2.568.516 3.504 1.451l.76.76.531.531.53-.531.76-.76a4.926 4.926 0 013.504-1.451">
+                                        </path>
+                                        <title>non-filled</title>
+                                    </svg>
+                                @endif
+                            </button>
+                        </form>
+
+
                 </div>
                 <div class="py-8">
                     <p class="">Maximum cushioning in the Vomero provides a comfortable ride for everyday runs. Our softest, most cushioned ride has lightweight ZoomX foam stacked on top of responsive ReactX foam in the midsole. Plus, a redesigned traction pattern offers a smooth heel-to-toe transition.
@@ -408,22 +475,16 @@
             this.value = maxQuantity;
         }
     });
+    updateCartIcon(data.count);
 });
-// function updateCartCount() {
-//     fetch(`/cart/count?timestamp=${new Date().getTime()}`, { cache: "no-store" })
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log("🔥 API trả về số lượng:", data.count);
 
-//             let cartCountElement = document.getElementById("cart-count");
-//             if (cartCountElement) {
-//                 cartCountElement.innerText = data.count;
-//                 cartCountElement.style.display = data.count > 0 ? "flex" : "none";
-//             }
-//         })
-//         .catch(error => console.error("Lỗi khi cập nhật số lượng giỏ hàng:", error));
-// }
-
+function updateCartIcon(count) {
+    const cartCountElement = document.getElementById("cart-count");
+    if (cartCountElement) {
+        cartCountElement.innerText = count;
+        cartCountElement.style.display = count > 0 ? "flex" : "none";
+    }
+}
 
 
 function addToCart() {
@@ -437,7 +498,7 @@ function addToCart() {
         credentials: "same-origin",
         headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json",   // Quan trọng để nhận JSON lỗi 401
+            "Accept": "application/json",
             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         },
         body: JSON.stringify({ 
@@ -448,32 +509,24 @@ function addToCart() {
         })
     })
     .then(async response => {
-        if (!response.ok) {
-         if (response.status === 401) {
-                const data = await response.json();
-                if (data.redirect) {
-                    // Thêm param redirect vào URL login
-                    const loginUrl = new URL(data.redirect, window.location.origin);
-                    loginUrl.searchParams.set('redirect', window.location.href);
-                    window.location.href = loginUrl.toString();
-                } else {
-                    window.location.href = "/login?redirect=" + encodeURIComponent(window.location.href);
-                }
-                return;
-            }
-            } else {
-                const data = await response.json();
-                alert(data.message || "Lỗi khi thêm sản phẩm.");
-                return;
-            }
-        
+        const data = await response.json(); // ✅ Chỉ gọi 1 lần duy nhất
 
-        const data = await response.json();
+        if (!response.ok) {
+            if (response.status === 401 && data.redirect) {
+                const loginUrl = new URL(data.redirect, window.location.origin);
+                loginUrl.searchParams.set('redirect', window.location.href);
+                window.location.href = loginUrl.toString();
+            } else {
+                alert(data.message || "Lỗi khi thêm sản phẩm.");
+            }
+            return;
+        }
+
         if (data.success) {
             alert("Thêm vào giỏ hàng thành công!");
-            updateCartCount();
+            updateCartIcon(data.count);
         } else {
-            alert(data.message);
+            alert(data.message || "Không thể thêm vào giỏ hàng.");
         }
     })
     .catch(error => {
@@ -481,6 +534,7 @@ function addToCart() {
         alert("Lỗi khi thêm vào giỏ hàng!");
     });
 }
+
 
 
 
