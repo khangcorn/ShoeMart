@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 
 class ShippingFeeController extends Controller
 {
-    public function index()
-    {
-        $shippingFees = ShippingFee::orderByDesc('created_at')->get();
+  public function index()
+{
+    $shippingFees = ShippingFee::orderByDesc('created_at')->paginate(5);
 
-        return view('admin.shipping_fees.index', compact('shippingFees'));
-    }
+    return view('admin.shipping_fees.index', compact('shippingFees'));
+}
+
 
     public function create()
     {

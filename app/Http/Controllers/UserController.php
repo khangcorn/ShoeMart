@@ -83,14 +83,25 @@ public function login(Request $request)
 
         $cartUrl = session('cart.intended');
         $cartTime = session('cart.intended_time');
+
         $favUrl = session('favorite.intended');
         $favTime = session('favorite.intended_time');
+
+        $wishlistUrl = session('wishlist.intended');
+        $wishlistTime = session('wishlist.intended_time');
+
+        $checkoutUrl = session('checkout.intended');
+        $checkoutTime = session('checkout.intended_time');
 
         Log::info('Session trước khi xử lý redirect:', [
             'cart.intended' => $cartUrl,
             'cart.intended_time' => $cartTime,
             'favorite.intended' => $favUrl,
             'favorite.intended_time' => $favTime,
+            'wishlist.intended' => $wishlistUrl,
+            'wishlist.intended_time' => $wishlistTime,
+            'checkout.intended' => $checkoutUrl,
+            'checkout.intended_time' => $checkoutTime,
         ]);
 
         // Mảng chứa url và thời gian tương ứng nếu tồn tại
@@ -102,6 +113,12 @@ public function login(Request $request)
         if ($favUrl && $favTime && ($now - $favTime) <= 300) {
             $urls['favorite'] = ['url' => $favUrl, 'time' => $favTime];
         }
+        if ($wishlistUrl && $wishlistTime && ($now - $wishlistTime) <= 300) {
+            $urls['wishlist'] = ['url' => $wishlistUrl, 'time' => $wishlistTime];
+        }
+        if ($checkoutUrl && $checkoutTime && ($now - $checkoutTime) <= 300) {
+            $urls['checkout'] = ['url' => $checkoutUrl, 'time' => $checkoutTime];
+        }
 
         if (!empty($urls)) {
             // Lấy phần tử có thời gian lớn nhất (gần nhất)
@@ -109,7 +126,14 @@ public function login(Request $request)
             $redirectTo = $latest['url'];
 
             // Xóa hết các session liên quan
-            session()->forget(['cart.intended', 'cart.intended_time', 'favorite.intended', 'favorite.intended_time', '_intended']);
+            session()->forget([
+                'cart.intended', 'cart.intended_time',
+                'favorite.intended', 'favorite.intended_time',
+                'wishlist.intended', 'wishlist.intended_time',
+                'checkout.intended', 'checkout.intended_time',
+                '_intended'
+            ]);
+
             Log::info('Redirect chọn URL gần nhất, đã xóa session redirect.');
         } else {
             // Fallback về _intended hoặc profile

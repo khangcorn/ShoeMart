@@ -10,10 +10,11 @@
             <p class="text-gray-600"><strong>Họ tên:</strong> {{ $order->userAddresses->recipient_name }}</p>
             <p class="text-gray-600"><strong>Số điện thoại:</strong> {{ $order->userAddresses->recipient_phone }}</p>
             <p class="text-gray-600"><strong>Địa chỉ:</strong>
-                <span class="block mt-1">
-                    <strong>{{ $order->userAddresses->address_name }}</strong> <br>
-                    {{ $order->userAddresses->street_address }}, {{ $order->userAddresses->ward }}, {{ $order->userAddresses->district }}, {{ $order->userAddresses->city }}
-                </span>
+               @if ($order->userAddresses)
+    {{ $order->userAddresses->street_address }}, {{ $order->userAddresses->ward }}, {{ $order->userAddresses->district }}, {{ $order->userAddresses->city }}<strong>({{ $order->userAddresses->address_name }})</strong> <br>
+@else
+    <p>Địa chỉ không tồn tại</p>
+@endif
             </p>
         @else
             <p class="text-red-500">Không có địa chỉ</p>

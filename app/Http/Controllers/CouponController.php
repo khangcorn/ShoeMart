@@ -10,17 +10,19 @@ use Illuminate\Support\Facades\Log;
 class CouponController extends Controller
 {
     // Hiển thị danh sách mã giảm giá
-    public function index()
-    {
-        $coupons = Coupon::all();
-        foreach ($coupons as $coupon) {
-            // Kiểm tra giá trị của expiration_date
-            $coupon->expiration_date = Carbon::parse($coupon->expiration_date)
-                ->setTimezone('Asia/Ho_Chi_Minh');
-        }
+   public function index()
+{
+    $coupons = Coupon::orderByDesc('created_at')->paginate(5);
 
-        return view('admin.coupons.index', compact('coupons'));
-    }
+    // Chuyển timezone cho từng coupon trong collection phân trang
+    $coupons->getCollection()->transform(function ($coupon) {
+        $coupon->expiration_date = Carbon::parse($coupon->expiration_date)
+            ->setTimezone('Asia/Ho_Chi_Minh');
+        return $coupon;
+    });
+
+    return view('admin.coupons.index', compact('coupons'));
+}
 
     // Hiển thị form tạo mới mã giảm giá
     public function create()

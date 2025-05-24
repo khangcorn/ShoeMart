@@ -9,18 +9,30 @@ use Illuminate\Support\Facades\Log;
 
 class WishlistController extends Controller
 {
-    public function index()
-    {
-        if (! auth()->check()) {
-            return redirect()->back()->with(noti('Vui lòng đăng nhập để sử dụng chức năng này', 'warning'));
-        }
-        $wishlist = Wishlist::where('user_id', auth()->user()->user_id)
-            ->with(['product', 'product.mainImage'])
-            ->orderBy('created_at', 'desc')->get();
+ public function index()
+{
+    if (!auth()->check()) {
+        $currentUrl = url()->current(); // hoặc url()->full()
 
-        // dd($wishlist);
-        return view('client.wishlist.index', ['wishlist' => $wishlist]);
+        session()->put('wishlist.intended', $currentUrl);
+        session()->put('wishlist.intended_time', now()->timestamp);
+
+        Log::info('Đã lưu session wishlist.intended:', [
+            'url' => $currentUrl,
+            'time' => session('wishlist.intended_time')
+        ]);
+
+        return redirect()->route('login');
     }
+
+    $wishlist = Wishlist::where('user_id', auth()->user()->user_id)
+    ->with(['product', 'product.mainImage'])
+    ->whereHas('product') // chỉ lấy các mục còn sản phẩm
+    ->orderBy('created_at', 'desc')
+    ->get();
+    
+    return view('client.wishlist.index', ['wishlist' => $wishlist]);
+}
 
 
 

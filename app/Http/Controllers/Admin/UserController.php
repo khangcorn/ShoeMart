@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('wallet')->paginate(15)->through(function ($user) {
+        $users = User::with('wallet')->paginate(10)->through(function ($user) {
             return [
                 'id' => $user->user_id,
                 'email' => $user->email,

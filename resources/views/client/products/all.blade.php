@@ -365,15 +365,25 @@
     }
 @endphp
 
-<p class="text-black font-semibold mb-2 relative">
+<p class="text-black font-semibold mb-2 space-x-1">
     @if ($salePrice && $salePrice > 0)
-        <span class="line-through text-gray-500">{{ number_format($originalPrice, 0, ',', '.') }}</span>
-        /
-        {{ number_format($salePrice, 0, ',', '.') }}
+        <span class="text-gray-500 line-through">
+            {{ number_format($originalPrice, 0, ',', '.') }}
+           
+        </span>
+ <span class="text-xs underline font-thin align-top">đ</span>
+        <span>/</span>
+
+        <span>
+            {{ number_format($salePrice, 0, ',', '.') }}
+            <span class="text-xs underline font-thin align-top">đ</span>
+        </span>
     @else
-        {{ number_format($originalPrice, 0, ',', '.') }}
+        <span>
+            {{ number_format($originalPrice, 0, ',', '.') }}
+            <span class="text-xs underline font-thin align-top">đ</span>
+        </span>
     @endif
-    <span class="text-xs underline font-thin absolute top-0.5 -left-4">đ</span>
 </p>
 
                               

@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminAccessController extends Controller
 {
-    public function index()
-    {
-        $users = User::where('created_by', auth()->id())->get();
-        $permissions = Permission::all();
-        return view('admin.users.index', compact('users', 'permissions'));
-    }
+   public function index()
+{
+    $users = User::where('created_by', auth()->id())->paginate(10);
+    $permissions = Permission::all();
+    return view('admin.users.index', compact('users', 'permissions'));
+}
+
 
     public function create()
     {

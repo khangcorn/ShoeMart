@@ -81,5 +81,8 @@
     
   
 </div>
+ <div class="mt-6 flex justify-center">
+        {{ $shippingFees->links('pagination::tailwind') }}
+    </div>
 
 @endsection

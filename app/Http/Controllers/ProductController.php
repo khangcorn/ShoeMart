@@ -40,7 +40,7 @@ class ProductController extends Controller
             $query->orderBy('price', 'desc');
         }
 
-        $products = $query->paginate(10);
+        $products = $query->paginate(5);
         $categories = Category::all();
 
         return view('admin.product.index', compact('products', 'categories'));

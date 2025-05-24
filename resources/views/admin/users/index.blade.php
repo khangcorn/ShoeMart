@@ -93,7 +93,9 @@
         </form>
     </div>
 </div>
-
+ <div class="mt-6">
+        {{ $users->links('pagination::tailwind') }}
+    </div>
 <script>
     const modal = document.getElementById('permission-modal');
     const form = document.getElementById('permission-form');
