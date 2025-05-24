@@ -18,10 +18,10 @@
 </style>
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
-        <h4 class="text-lg font-semibold">Coupons</h4>
+        <h4 class="text-lg font-semibold">Mã giảm giá</h4>
          @if(auth()->user()->hasPermission('create_coupons'))
         <a href="{{ route('coupons.create') }}" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 shadow">
-            + Add Coupon
+            + Thêm mã giảm giá
         </a>
         @endif
     </div>
@@ -42,17 +42,17 @@
                 <thead class="bg-gray-100 text-gray-700">
                     <tr class="border-b border-gray-300">
                         <th class="border px-4 py-3">#</th>
-                        <th class="border px-4 py-3">Code</th>
-                        <th class="border px-4 py-3">Apply</th>
-                        <th class="border px-4 py-3">Type</th>
-                        <th class="border px-4 py-3">Value</th>
-                        <th class="border px-4 py-3">Max Discount</th>
-                        <th class="border px-4 py-3">Usage Limit</th>
-                        <th class="border px-4 py-3">Usage count</th>
-                        <th class="border px-4 py-3">Min order</th>
-                        <th class="border px-4 py-3">Expiration</th>
-                        <th class="border px-4 py-3">Status</th>
-                        <th class="border px-4 py-3">Actions</th>
+                        <th class="border px-4 py-3">Tên</th>
+                        <th class="border px-4 py-3">Áp dụng cho</th>
+                        <th class="border px-4 py-3">Loại</th>
+                        <th class="border px-4 py-3">Mức giảm</th>
+                        <th class="border px-4 py-3">Mức giảm tối đa</th>
+                        <th class="border px-4 py-3">Tổng lượt sử dụng tối đa</th>
+                        <th class="border px-4 py-3">Đã dùng</th>
+                        <th class="border px-4 py-3">Giá trị đơn tối thiểu</th>
+                        <th class="border px-4 py-3">Thời hạn sử dụng</th>
+                        <th class="border px-4 py-3">Trạng thái</th>
+                        <th class="border px-4 py-3">Hành động</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
@@ -91,7 +91,7 @@
                                 <div class="flex justify-center space-x-2">
                                      @if(auth()->user()->hasPermission('edit_coupons'))
                                     <a href="{{ route('coupons.edit', $coupon->coupon_id) }}" class="inline-flex items-center px-3 py-1.5 bg-yellow-500 text-black text-xs font-medium rounded-md hover:bg-yellow-600 shadow">
-                                        ✏️ Edit
+                                        ✏️ Sửa
                                     </a>
                                     @endif
                                      @if(auth()->user()->hasPermission('delete_coupons'))
@@ -99,7 +99,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-md hover:bg-red-600 shadow">
-                                            🗑️ Delete
+                                            🗑️ Xóa
                                         </button>                               
                                     </form>
                                     @endif

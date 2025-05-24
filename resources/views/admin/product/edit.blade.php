@@ -364,39 +364,50 @@
                 let sizeOptions = sizes.map(s => `<option value="${s.attribute_value}">${s.attribute_value}</option>`).join('');
         
                 newVariant.innerHTML = `
-                    <div class="form-group">
-                        <label>Giá</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price]">
-                    </div>
-                    <div class="form-group">
-                        <label>Giá Khuyến Mãi</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][price_sale]">
-                    </div>
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" class="form-control" name="variants[${variantIndex}][stock]">
-                    </div>
-                    <div class="form-group">
-                        <label>Màu sắc</label>
-                        <select class="form-control variant-color" name="variants[${variantIndex}][color]">
-                            <option value="">Chọn màu</option>
-                            ${colorOptions}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kích cỡ</label>
-                        <select class="form-control variant-size" name="variants[${variantIndex}][size]">
-                            <option value="">Chọn kích cỡ</option>
-                            ${sizeOptions}
-                        </select>
-                        <p class="text-red size-error-msg" style="display: none;"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="variant_images_${variantIndex}">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
-                        <input type="file" class="form-control" id="variant_images_${variantIndex}" name="variants[${variantIndex}][images][]" multiple accept="image/*">
-                        <div class="image-preview" id="image_preview_${variantIndex}"></div>
-                    </div>
-                    <button type="button" class="btn btn-danger remove-variant">Xóa Biến Thể</button>
+                     <div class="form-group mb-4">
+    <label for="variant-price-${variantIndex}" class="text-gray-700 font-semibold">Giá</label>
+    <input id="variant-price-${variantIndex}" type="number" class="form-control variant-price border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black" name="variants[${variantIndex}][price]" value="">
+</div>
+
+<div class="form-group mb-4">
+    <label for="variant-sale-price-${variantIndex}" class="text-gray-700 font-semibold">Giá Khuyến Mãi</label>
+    <input id="variant-sale-price-${variantIndex}" type="number" class="form-control variant-sale-price border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black" name="variants[${variantIndex}][price_sale]" value="">
+</div>
+
+<div class="form-group mb-4">
+    <label for="variant-stock-${variantIndex}" class="text-gray-700 font-semibold">Số lượng</label>
+    <input id="variant-stock-${variantIndex}" type="number" class="form-control variant-stock border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black" name="variants[${variantIndex}][stock]" value="0">
+</div>
+
+<div class="form-group mb-4">
+    <label for="variant-color-${variantIndex}" class="text-gray-700 font-semibold">Màu sắc</label>
+    <select id="variant-color-${variantIndex}" class="form-control variant-color border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black" name="variants[${variantIndex}][color]">
+        <option value="">Chọn màu</option>
+        @foreach($colors as $color)
+            <option value="{{ $color->attribute_value }}">{{ $color->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="form-group mb-4">
+    <label for="variant-size-${variantIndex}" class="text-gray-700 font-semibold">Kích cỡ</label>
+    <select id="variant-size-${variantIndex}" class="form-control variant-size border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-black" name="variants[${variantIndex}][size]">
+        <option value="">Chọn kích cỡ</option>
+        @foreach($sizes as $size)
+            <option value="{{ $size->attribute_value }}">{{ $size->attribute_value }}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="form-group mb-4">
+    <label for="variant-images-${variantIndex}" class="text-gray-700 font-semibold">Hình Ảnh Biến Thể (Tối đa 5 ảnh)</label>
+    <input type="file" class="form-control variant-image-input border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500" id="variant-images-${variantIndex}" name="variant_images_${variantIndex}[]" multiple accept="image/*">
+    <div class="image-preview mt-2" id="image-preview-${variantIndex}"></div>
+</div>
+
+<p class="text-danger error-message text-red-500 d-none" style="display: none;">⚠️ Biến thể với Màu và Size này đã tồn tại!</p>
+
+<button type="button" class="btn btn-danger mt-4 bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 focus:outline-none remove-variant">Xóa Biến Thể</button>
                 `;
         
                 variantFieldsContainer.appendChild(newVariant);
