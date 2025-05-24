@@ -35,21 +35,23 @@
     </div>
 
     <script>
-        function validateColor() {
-            let colorInput = document.getElementById("attribute_value").value.trim().toLowerCase();
-            let errorDiv = document.getElementById("colorError");
+       function validateColor() {
+    let colorInput = document.getElementById("attribute_value").value.trim().toLowerCase();
+    let errorDiv = document.getElementById("colorError");
 
-            // Danh sách các màu hợp lệ (bạn có thể cập nhật danh sách này)
-            let validColors = ["red", "blue", "green", "yellow", "black", "white", "orange", "pink", "purple", "brown", "gray"];
+    // Chuyển tất cả màu hợp lệ về chữ thường
+    let validColors = ["Đỏ", "Xanh dương", "Xanh lá", "Vàng", "Đen", "Trắng", "Cam", "Hồng", "Tím", "Nâu", "Xám"];
+    let validColorsLower = validColors.map(c => c.toLowerCase());
 
-            if (!validColors.includes(colorInput)) {
-                errorDiv.textContent = "Chỉ được nhập các màu hợp lệ: " + validColors.join(", ");
-                errorDiv.classList.remove("hidden");
-                return false; // Ngăn form gửi đi
-            } else {
-                errorDiv.classList.add("hidden");
-                return true; // Cho phép gửi form
-            }
-        }
+    if (!validColorsLower.includes(colorInput)) {
+        errorDiv.textContent = "Chỉ được nhập các màu hợp lệ: " + validColors.join(", ");
+        errorDiv.classList.remove("hidden");
+        return false; // Ngăn form gửi đi
+    } else {
+        errorDiv.classList.add("hidden");
+        return true; // Cho phép gửi form
+    }
+}
+
     </script>
 @endsection

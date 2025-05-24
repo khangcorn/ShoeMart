@@ -80,7 +80,7 @@
                 @foreach ($orders as $order)
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-gray-700">
-                            <a href="{{ route('order.show', $order->order_id) }}" class="text-blue-600 hover:underline" target="_blank">
+                            <a  class="text-blue-600 hover:underline" >
                                 {{ $order->order_code }}
                             </a>
                         </td>

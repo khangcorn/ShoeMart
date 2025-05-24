@@ -49,10 +49,12 @@
                                 </button>
                                 <form action="{{ route('admin.users.block', $user) }}" method="POST" style="display:inline-block;">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm {{ $user->is_blocked ? 'btn-success' : 'btn-danger' }}"
-                                        onclick="return confirm('Bạn có chắc muốn {{ $user->is_blocked ? 'mở khóa' : 'khóa' }} tài khoản này?')">
-                                        {{ $user->is_blocked ? 'Mở khóa' : 'Khóa' }}
-                                    </button>
+                                   <button type="submit"
+                                    class="{{ $user->is_blocked ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' }} text-white px-2 py-1 rounded text-sm"
+                                    onclick="return confirm('Bạn có chắc muốn {{ $user->is_blocked ? 'mở khóa' : 'khóa' }} tài khoản này?')">
+                                    {{ $user->is_blocked ? 'Mở khóa' : 'Khóa' }}
+                                </button>
+
                                 </form>
 
 
@@ -91,7 +93,9 @@
         </form>
     </div>
 </div>
-
+ <div class="mt-6">
+        {{ $users->links('pagination::tailwind') }}
+    </div>
 <script>
     const modal = document.getElementById('permission-modal');
     const form = document.getElementById('permission-form');

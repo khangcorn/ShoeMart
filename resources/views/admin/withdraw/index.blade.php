@@ -129,8 +129,9 @@
         </tbody>
     </table>
 
-    <div class="mt-6">
-        {{ $withdrawRequests->links() }}
+
+        <div class="mt-6 flex justify-center">
+        {{ $withdrawRequests->links('pagination::tailwind') }}
     </div>
 </div>
 

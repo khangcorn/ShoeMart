@@ -32,7 +32,7 @@ public function show($productId)
             $query->where('is_hidden', false);
         })
         ->latest()
-        ->paginate(10);
+        ->paginate(5);
 
     return view('admin.reviews.product_reviews', compact('product', 'reviews'));
 }

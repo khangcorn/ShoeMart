@@ -37,7 +37,7 @@ class SizeController extends Controller
 
         // Nếu không trùng, tiến hành tạo mới
         VariantAttribute::create([
-            'attribute_name' => 'size',
+            'attribute_name' => 'Size',
             'attribute_value' => $request->attribute_value,
         ]);
 

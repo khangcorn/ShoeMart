@@ -36,7 +36,7 @@ class ColorController extends Controller
 
         // Nếu không trùng, tiến hành tạo mới
         VariantAttribute::create([
-            'attribute_name' => 'color',
+            'attribute_name' => 'Color',
             'attribute_value' => $request->attribute_value,
         ]);
 

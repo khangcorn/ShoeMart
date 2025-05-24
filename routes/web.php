@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::middleware('auth')->group(function () {
     // Giỏ hàng
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
 
     Route::put('/cart/{cartDetailId}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cartDetailId}', [CartController::class, 'destroy'])->name('cart.destroy');
@@ -80,7 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/wallet/link-bank', [WalletController::class, 'linkBank'])->name('wallet.link-bank');
     Route::delete('/wallet/unlink-bank/{bank}', [WalletController::class, 'unlinkBank'])->name('wallet.unlink-bank');
     Route::post('wallet/withdraw', [WithdrawRequestController::class, 'store'])->name('wallet.withdraw');
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+
     Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist', [WishlistController::class, 'delete'])->name('wishlist.delete');
 
@@ -119,14 +119,17 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Route::get('/', [HomeController::class, 'home'])->name('home');
-Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
-Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
-Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
-Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
-Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
+    Route::get('/', [HomeController::class, 'home'])->name('home');
+    Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
+    Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
+    Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+    Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+    Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    
 Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/admin-users', [App\Http\Controllers\Admin\AdminAccessController::class, 'index'])
         ->name('admin.users.index');

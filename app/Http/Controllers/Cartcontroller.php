@@ -18,39 +18,41 @@ class CartController extends Controller
     /**
      * Lấy danh sách sản phẩm trong giỏ hàng
      */
-    public function index()
-    {
-        $user = Auth::user();
-        if (! $user) {
-            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để xem giỏ hàng.');
-        }
+   public function index()
+{
+    if (!auth()->check()) {
+        $currentUrl = url()->current(); // hoặc url()->full()
 
-        // Lấy danh sách sản phẩm trong giỏ hàng
-        $cartItems = CartDetail::whereHas('cart', function ($query) use ($user) {
-            $query->where('user_id', $user->user_id);
-        })->with(['product.images', 'variant.attributes.variantAttribute'])->get();
+        session()->put('checkout.intended', $currentUrl);
+        session()->put('checkout.intended_time', now()->timestamp);
 
-        // Tính tổng tiền (ưu tiên giá khuyến mãi nếu có)
-        $total = $cartItems->sum(function ($item) {
-            // Lấy giá của sản phẩm hoặc biến thể
-            if ($item->variant) {
-                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-            } else {
-                $price = $item->product->price_sale ?? $item->product->price;
-            }
+        Log::info('Đã lưu session checkout.intended:', [
+            'url' => $currentUrl,
+            'time' => session('checkout.intended_time')
+        ]);
 
-            return $price * $item->quantity;
-        });
-
-        // Tính số lượng sản phẩm đã có trong giỏ hàng
-        $cartQuantity = [];
-        foreach ($cartItems as $item) {
-            $cartQuantity[$item->product_id] = $item->quantity;
-        }
-
-        return view('cart.index', compact('cartItems', 'total', 'cartQuantity'));
-
+        return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để xem giỏ hàng.');
     }
+
+    $user = auth()->user();
+
+    $cartItems = CartDetail::whereHas('cart', function ($query) use ($user) {
+        $query->where('user_id', $user->user_id);
+    })->with(['product.images', 'variant.attributes.variantAttribute'])->get();
+
+    $total = $cartItems->sum(function ($item) {
+        $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
+        return $price * $item->quantity;
+    });
+
+    $cartQuantity = [];
+    foreach ($cartItems as $item) {
+        $cartQuantity[$item->product_id] = $item->quantity;
+    }
+
+    return view('cart.index', compact('cartItems', 'total', 'cartQuantity'));
+}
+
 
     private function getProductPrice($productId, $variantId = null)
     {

@@ -62,9 +62,9 @@
         </table>
 
         {{-- Pagination --}}
-        <div class="p-4 border-t">
-            {{ $users->links() }}
-        </div>
+              <div class="mt-6 flex justify-center">
+        {{ $users->links('pagination::tailwind') }}
+    </div>
     </div>
 </div>
 <script>
