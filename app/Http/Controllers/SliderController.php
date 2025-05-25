@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class SliderController extends Controller
 {
+      public function __construct()
+    {
+        $this->middleware('check_permission:view_sliders')->only(['index', 'show']);
+        $this->middleware('check_permission:create_sliders')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_sliders')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_sliders')->only(['destroy']);
+    }
     public function index()
     {
         $sliders = Slider::all();

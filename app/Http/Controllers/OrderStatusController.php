@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class OrderStatusController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('check_permission:view_order_statuses')->only(['index', 'show']);
+        $this->middleware('check_permission:create_order_statuses')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_order_statuses')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_order_statuses')->only(['destroy']);
+    }
     public function index()
     {
         $statuses = OrderStatus::all();

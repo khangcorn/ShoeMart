@@ -93,7 +93,7 @@
              @endif
         </li>
         
-      @if(auth()->user()->hasPermission('view_order_statuses'))
+      @if(auth()->user()->hasPermission('view_shipping_fees'))
         <a href="{{ route('shipping-fees.index') }}"
            class="flex items-center p-2.5 rounded
     {{ request()->is('admin/shipping-fees*') ? 'bg-[#ECF3FF] text-black' : 'text-gray-500 hover:bg-gray-100' }}">

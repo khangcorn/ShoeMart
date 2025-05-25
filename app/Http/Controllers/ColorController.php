@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class ColorController extends Controller
 {
+      public function __construct()
+    {
+        $this->middleware('check_permission:view_colors')->only(['index', 'show']);
+        $this->middleware('check_permission:create_colors')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_colors')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_colors')->only(['destroy']);
+    }
     public function index()
     {
         $colors = VariantAttribute::where('attribute_name', 'color')->get();

@@ -132,6 +132,7 @@ Route::middleware('auth')->group(function () {
     
 Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/admin-users', [App\Http\Controllers\Admin\AdminAccessController::class, 'index'])
+        ->middleware('check_permission:admin_create')
         ->name('admin.users.index');
     Route::get('/admin-users/create', [App\Http\Controllers\Admin\AdminAccessController::class, 'create'])
         ->name('admin.users.create')
@@ -157,7 +158,9 @@ Route::post('/admin-users/{user}/permissions', [AdminAccessController::class, 'u
     Route::get('/requests', [App\Http\Controllers\Admin\UserController::class, 'viewRequests'])
         ->middleware('check_permission:access_request.view')
         ->name('admin.view-requests');
-Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggleHidden'])->name('admin.reviews.toggleHidden');
+Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggleHidden'])
+->middleware('check_permission:review_toggleHidden')
+->name('admin.reviews.toggleHidden');
 
     Route::post('/requests/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approveRequest'])
 
@@ -173,7 +176,7 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
     Route::get('admin/reviews/product/{productId}', [ReviewController::class, 'show'])->name('admin.reviews.productReviews');
 
     Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])
-
+->middleware('check_permission:review.delete')
         ->name('admin.reviews.destroy');
 
     Route::get('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])
@@ -188,33 +191,43 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
     Route::get('/refund-requests', [RefundRequestController::class, 'index'])
         ->middleware('check_permission:view_refunds')
         ->name('admin.refunds.index');
-    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])->name('admin.refunds.approve');
-    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])->name('admin.refunds.reject');
+    Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])
+    ->middleware('check_permission:process_refund')->name('admin.refunds.approve');
+    Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])
+    ->middleware('check_permission:reject_refund')->name('admin.refunds.reject');
 
     // Withdraw Requests
-    Route::get('withdraw', [WithdrawRequestController::class, 'index'])->name('admin.withdraw.index');
-    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])->name('admin.withdraw.update');
+    Route::get('withdraw', [WithdrawRequestController::class, 'index'])
+    ->middleware('check_permission:view_withdraw_requests')
+    ->name('admin.withdraw.index');
+    Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])
+    ->middleware('check_permission:approve_withdraw')
+    ->name('admin.withdraw.update');
 
     // Quản lý sản phẩm, danh mục, size, màu sắc, v.v...
-    Route::resource('products', ProductController::class)->middleware('check_permission:view_products');
-    Route::resource('categories', CategoryController::class)->middleware('check_permission:view_categories');
-    Route::resource('sizes', SizeController::class)->middleware('check_permission:view_sizes');
-    Route::resource('colors', ColorController::class)->middleware('check_permission:view_colors');
-    Route::resource('order-coupons', OrderCouponController::class)->middleware('check_permission:view_order_statuses');
-    Route::resource('order-statuses', OrderStatusController::class)->middleware('check_permission:view_order_statuses');
-    Route::resource('sliders', SliderController::class)->middleware('check_permission:view_sliders');
-    Route::resource('shipping-fees', ShippingFeeController::class)->middleware('check_permission:view_shipping_fees');
-    Route::resource('coupons', CouponController::class)->middleware('check_permission:view_coupons');
-    Route::resource('users', AdminUserController::class)->middleware('check_permission:view_users');
-Route::post('/users/{user}/block', [AdminUserController::class, 'blockUser']);
-Route::post('/users/{user}/unblock', [AdminUserController::class, 'unblockUser']);
+    Route::resource('products', ProductController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('sizes', SizeController::class);
+    Route::resource('colors', ColorController::class);
+    Route::resource('order-coupons', OrderCouponController::class);
+    Route::resource('order-statuses', OrderStatusController::class);
+    Route::resource('sliders', SliderController::class);
+    Route::resource('shipping-fees', ShippingFeeController::class);
+    Route::resource('coupons', CouponController::class);
+    Route::resource('users', AdminUserController::class);
+    Route::post('/users/{user}/block', [AdminUserController::class, 'blockUser']);
+    Route::post('/users/{user}/unblock', [AdminUserController::class, 'unblockUser']);
 
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('check_permission:view_orders')->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->middleware('check_permission:view_order_details')->name('admin.orders.show');
-    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
-    Route::put('/orders/{order}/details/{detail}/cancel', [AdminOrderController::class, 'cancelOrderDetail'])->name('admin.orders.details.cancel');
+    Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
+    ->middleware('check_permission:delete_order')
+    ->name('admin.orders.cancel');
+    Route::put('/orders/{order}/details/{detail}/cancel', [AdminOrderController::class, 'cancelOrderDetail'])
+    ->middleware('check_permission:delete_order_statuses')
+    ->name('admin.orders.details.cancel');
     Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])->middleware('check_permission:update_order_status')->name('admin.orders.ajaxUpdateStatus');
 
     // Xóa biến thể

@@ -37,8 +37,9 @@
         </tbody>
     </table>
 
+
+</div>
     <div class="mt-6 flex justify-center">
         {{ $productsWithReviewCount->links('pagination::tailwind') }}
     </div>
-</div>
 @endsection
