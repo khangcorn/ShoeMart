@@ -18,7 +18,12 @@
     @else
         <ul class="space-y-4">
             @foreach($orderCoupons as $coupon)
-                <li class="border p-4 rounded-md shadow-sm">
+            <li class="relative border p-4 rounded-md shadow-sm {{ 
+                ($coupon->status !== 'active' || $coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit) || \Carbon\Carbon::parse($coupon->expiration_date)->isPast()) 
+                ? 'expired' 
+                : '' 
+            }}">
+            
                     <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
                     <p class="text-sm">
                         Giảm giá
@@ -62,7 +67,12 @@
     @else
         <ul class="space-y-4">
             @foreach($shippingCoupons as $coupon)
-                <li class="border p-4 rounded-md shadow-sm">
+            <li class="relative border p-4 rounded-md shadow-sm {{ 
+                ($coupon->status !== 'active' || $coupon->usage_limit == 0 || ($coupon->usage_count >= $coupon->usage_limit) || \Carbon\Carbon::parse($coupon->expiration_date)->isPast()) 
+                ? 'expired' 
+                : '' 
+            }}">
+            
                     <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
                     <p class="text-sm">
                         Giảm giá:
@@ -102,12 +112,22 @@
             @endforeach
         </ul>
     @endif
-</div>
-<a href="{{ session('previous_url', url('/checkout')) }}"
-   class="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+    <a href="{{ session('previous_url', url('/checkout')) }}"
+   class="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700  mt-4 transition">
     ← Quay lại
 </a>
 
+</div>
+<style>
+    li.expired::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 0.375rem; /* rounded-md */
+}
+
+</style>
 
 
 @endsection

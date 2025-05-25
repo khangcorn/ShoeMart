@@ -251,7 +251,10 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <p class="text-lg font-medium">Số dư hiện tại:</p>
-            <p class="text-3xl text-green-600 font-bold">{{ number_format($wallet->balance, 0, ',', '.') }} ₫</p>
+            <p class="text-3xl text-green-600 font-bold">
+                {{ number_format($wallet?->balance ?? 0, 0, ',', '.') }}₫
+            </p>
+            
         </div>
         <div class="flex gap-4">
             <!-- Nạp tiền -->

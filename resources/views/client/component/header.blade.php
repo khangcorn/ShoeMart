@@ -1,6 +1,6 @@
 
 <div class=" bg-gray-100">
-    <div class="flex h-10 items-center justify-between mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-12 items-center justify-between mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div>
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" role="img" width="24px" height="24px"
                 fill="none">
@@ -13,16 +13,17 @@
         <div class="flex gap-4 items-center font-semibold text-sm">
             <p>Help</p> |
             <p>Find a Store</p> |
-            <div class="flex items-center gap-2 relative">
+            <div class="flex items-center gap-2 ">
                 @if (Auth::check())
                     <!-- Hiển thị link đến trang profile nếu đã đăng nhập -->
                     
             
-                    <div class="flex items-center gap-2 relative group">
-                        <a href="{{ route('profile') }}" class="text-black font-medium ">
+                    <div class="flex items-center  relative group">
+                        <a href="{{ route('profile') }}" class="text-black   font-medium  h-8 flex items-center mb-0 ">
                             Hello {{ Auth::user()->username }}
                         </a>
-                        <div class="dropdown-content absolute hidden bg-white shadow-md rounded-lg mt-2 p-4 w-48 ">
+                        
+                        <div class="dropdown-content absolute   hidden bg-white shadow-md rounded-lg mt-0  w-40 ">
                             <a href="{{ route('profile') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Thông tin cá nhân</a>
                             <a href="{{ route('order.index') }}" class="block text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-md">Đơn hàng của tôi</a>
                         </div>
@@ -106,17 +107,10 @@
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href=""> Women</a>
                     </li>
+                 
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
-                            href=""> Kids</a>
-                    </li>
-                    <li>
-                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
-                            href=""> Sale</a>
-                    </li>
-                    <li>
-                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
-                            href="{{ route('products.all') }}"> Products</a>
+                            href="{{ route('products.all') }}"> Shoes</a>
                     </li>
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"

@@ -16,6 +16,7 @@
 }
 
 </style>
+
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
         <h4 class="text-lg font-semibold">Mã giảm giá</h4>
@@ -24,9 +25,8 @@
             + Thêm mã giảm giá
         </a>
         @endif
-    </div>
-
-    <div class="p-6">
+  
+    <div class="mt-4">
         @if(session('success'))
             <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded relative" role="alert">
                 {{ session('success') }}
@@ -39,7 +39,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-center border-collapse border border-gray-200 rounded-lg shadow-sm">
-                <thead class="bg-gray-100 text-gray-700">
+                <thead class=" text-gray-700">
                     <tr class="border-b border-gray-300">
                         <th class="border px-4 py-3">#</th>
                         <th class="border px-4 py-3">Tên</th>
@@ -54,6 +54,7 @@
                         <th class="border px-4 py-3">Trạng thái</th>
                         <th class="border px-4 py-3">Hành động</th>
                     </tr>
+                    
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @forelse($coupons as $coupon)
