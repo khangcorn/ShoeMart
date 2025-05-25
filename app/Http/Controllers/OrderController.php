@@ -198,7 +198,10 @@ public function store(Request $request)
 
         $orderTotal = 0;
         foreach ($cartItems as $item) {
-            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
+           $price = $item->variant
+            ? ($item->variant->price_sale ?? $item->variant->price)
+            : $item->product->price;
+
             $orderTotal += $price * $item->quantity;
         }
 
@@ -242,17 +245,7 @@ public function store(Request $request)
                 'discount_amount' => $orderDiscount + $shippingDiscount,
                 'subtotal' => $subtotal,
                 'total_price' => $subtotal,
-                'product_name' => $item->product->name,
-                'variant_name' => $item->variant
-                    ? $item->variant->variantAttributes->pluck('attribute_name')->implode(', ')
-                    : null,
 
-                'attributes' => $item->variant
-                    ? $item->variant->variantAttributes->pluck('attribute_value')->implode(', ')
-                    : null,
-
-                'original_price' => $item->variant->price_sale ?? $item->product->price_sale,
-                'final_price' => $subtotal,
             ]);
 
             // Trừ kho
@@ -323,7 +316,7 @@ public function store(Request $request)
         if ($e->getCode() === '22003' || str_contains($e->getMessage(), 'Out of range value')) {
             return redirect()->back()->withInput()->withErrors(['total' => 'Tổng tiền đơn hàng quá lớn, vui lòng kiểm tra lại.']);
         }
-        return redirect()->back()->withInput()->withErrors(['error' => 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.']);
+        return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi cụ thể: ' . $e->getMessage()]);
     } catch (\Exception $e) {
         DB::rollBack();
         return redirect()->back()->withInput()->withErrors(['error' => 'Có lỗi xảy ra khi tạo đơn hàng: ' . $e->getMessage()]);

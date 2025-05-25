@@ -142,7 +142,7 @@
         </table>
     </div>
 
-    <div class="mt-6">
+ <div class="mt-6 flex justify-center">
         {{ $orders->links('pagination::tailwind') }}
     </div>
 </div>

@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class CouponController extends Controller
 {
+      public function __construct()
+    {
+        $this->middleware('check_permission:view_coupons')->only(['index', 'show']);
+        $this->middleware('check_permission:create_coupons')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_coupons')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_coupons')->only(['destroy']);
+    }
     // Hiển thị danh sách mã giảm giá
    public function index()
 {

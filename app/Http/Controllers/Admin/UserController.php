@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+      public function __construct()
+    {
+        $this->middleware('check_permission:view_users')->only(['index', 'show']);
+
+    }
     /**
      * Display a listing of the resource.
      */

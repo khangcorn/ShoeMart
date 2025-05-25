@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class SizeController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('check_permission:view_sizes')->only(['index', 'show']);
+        $this->middleware('check_permission:create_sizes')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_sizes')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_sizes')->only(['destroy']);
+    }
     public function index()
     {
         $sizes = VariantAttribute::where('attribute_name', 'size')->get();

@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('check_permission:view_categories')->only(['index', 'show']);
+        $this->middleware('check_permission:create_categories')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_categories')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_categories')->only(['destroy']);
+    }
     /**
      * Hiển thị danh sách danh mục.
      */

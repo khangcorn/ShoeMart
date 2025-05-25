@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class ShippingFeeController extends Controller
 {
+      public function __construct()
+    {
+        $this->middleware('check_permission:view_shipping_fees')->only(['index', 'show']);
+        $this->middleware('check_permission:create_shipping_fees')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_shipping_fees')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_shipping_fees')->only(['destroy']);
+    }
   public function index()
 {
     $shippingFees = ShippingFee::orderByDesc('created_at')->paginate(5);

@@ -78,12 +78,17 @@
         <form id="permission-form" method="POST" action="">
             @csrf
             <div class="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-        @foreach($permissions as $permission)
-            <label class="flex items-center gap-2 text-gray-900 font-semibold">
-                <input type="checkbox" name="permissions[]" value="{{ $permission->permission_id }}" class="permission-checkbox">
-                {{ $permission->name }}
-            </label>
-        @endforeach
+      @foreach($permissions as $permission)
+    @if($permission->permission_id == 36)
+        @continue
+    @endif
+
+    <label class="flex items-center gap-2 text-gray-900 font-semibold">
+        <input type="checkbox" name="permissions[]" value="{{ $permission->permission_id }}" class="permission-checkbox">
+        {{ $permission->name }}
+    </label>
+@endforeach
+
     </div>
 
             <div class="flex justify-end gap-2 mt-4">
@@ -93,7 +98,7 @@
         </form>
     </div>
 </div>
- <div class="mt-6">
+ <div class="mt-6 flex justify-center">
         {{ $users->links('pagination::tailwind') }}
     </div>
 <script>

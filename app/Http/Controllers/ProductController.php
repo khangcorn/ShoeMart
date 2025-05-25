@@ -18,6 +18,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('check_permission:view_products')->only(['index', 'show']);
+        $this->middleware('check_permission:create_products')->only(['create', 'store']);
+        $this->middleware('check_permission:edit_products')->only(['edit', 'update']);
+        $this->middleware('check_permission:delete_products')->only(['destroy']);
+    }
     public function index(Request $request)
     {
         $sort = $request->input('sort');
