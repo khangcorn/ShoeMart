@@ -53,7 +53,7 @@
 
 
     <div class="container mx-auto p-4 max-w-screen-lg mt-16">
-        <div class="flex flex-wrap md:flex-nowrap">
+        <div class="flex flex-wrap gap-10 md:flex-nowrap">
             <!-- Hình ảnh sản phẩm chính -->
             <div class="w-full md:w-1/2">
                 <div class="swiper mySwiper">
@@ -272,7 +272,7 @@
                     @if($product->variants->isNotEmpty())
                         data-variant="{{ $product->variants->first()->variant_id }}" 
                     @endif>
-                    Add to Bag
+                    Thêm vào giỏ hàng
                 </button>
                 
                         <form action="{{ route('wishlist.toggle') }}" method="POST" class="w-full">
@@ -298,6 +298,7 @@
                                         <title>non-filled</title>
                                     </svg>
                                 @endif
+                                Yêu thích
                             </button>
                         </form>
 
@@ -319,28 +320,8 @@
                     </p></li>
                     <li class="">Style: HM6803-101</li>
                     <li class="">Country/Region of Origin: Vietnam</li>
-                    <p class="font-semibold underline py-4">View Product Details</p>
                 </div>
-                <div x-data="{ isOpen: false }" class="w-full max-w-md mx-auto">
-                    <!-- Header -->
-                    <div class="flex py-4 p-2 border-b border-gray-200 items-center justify-between cursor-pointer" @click="isOpen=!isOpen">
-                        <p class="font-semibold text-lg">Free Delivery and Returns</p>
-                        <svg width="20px" height="20px"  viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" transform="rotate(270)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools --> <title>ic_fluent_ios_arrow_left_24_filled</title> <desc>Created with Sketch.</desc> <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="ic_fluent_ios_arrow_left_24_filled" fill="#212121" fill-rule="nonzero"> <path d="M12.7270006,3.68663679 C13.1062197,3.28512543 13.0881482,2.6522184 12.6866368,2.27299937 C12.2851254,1.89378034 11.6522184,1.91185185 11.2729994,2.31336321 L2.77268886,11.3133632 C2.40871099,11.6987375 2.4086868,12.3011749 2.77263373,12.6865784 L11.2729442,21.6880264 C11.652131,22.0895682 12.2850366,22.1076905 12.6865784,21.7285038 C13.0881202,21.349317 13.1062426,20.7164114 12.7270558,20.3148696 L4.87515196,12.0000552 L12.7270006,3.68663679 Z" id="🎨-Color"> </path> </g> </g> </g></svg>
-                    </div>
-                 
-                
-                    <!-- Dropdown Content -->
-                    <div x-show="isOpen" x-transition class="overflow-hidden rounded-md text-sm text-gray-600">
-                        <p>
-                            Your order of <span class="font-bold">5,000,000₫</span> or more gets free standard delivery.
-                        </p>
-                        <br />
-                        <strong>Standard:</strong> delivered in 4-5 Business Days <br />
-                        <strong>Express:</strong> delivered in 2-4 Business Days <br /><br />
-                        Orders are processed and delivered Monday-Friday (excluding public holidays).<br /><br />
-                        <span class="font-bold">Nike Members enjoy free returns.</span>
-                    </div>
-                </div>
+            
                 
 
 
@@ -348,99 +329,99 @@
             </div>
 
         </div>
-
+        <div class="mt-5">
+            <style>
+                .review {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s;
+        }
+        
+        .review:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info strong {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .review-time {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .rating .star {
+            font-size: 18px;
+            color: #ccc;
+            margin-right: 2px;
+        }
+        
+        .rating .star.filled {
+            color: #fbc02d;
+        }
+        
+        .review-product-info {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .review-product-info .badge {
+            font-size: 12px;
+            background-color: #6c757d;
+            color: #fff;
+            margin-right: 4px;
+        }
+        
+        .review-body {
+            margin-top: 12px;
+        }
+        
+        .review-comment {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+        }
+        
+        .review-media {
+            margin-top: 10px;
+        }
+        
+        .review-media img {
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            transition: transform 0.2s ease;
+        }
+        
+        .review-media img:hover {
+            transform: scale(1.05);
+        }
+        .review .star {
+            font-size: 18px;
+            color: #ccc;
+        }
+        .review .star.filled {
+            color: #ffc107; /* Bootstrap warning color */
+        }
+        
+            </style>
+                <h4>Đánh giá từ người mua</h4>
+        
+                 @include('client.products.product_reviews', ['reviews' => $reviews])
+            </div>
     </div>
- <div class="mt-5">
-    <style>
-        .review {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    transition: box-shadow 0.3s;
-}
 
-.review:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.user-info strong {
-    font-size: 16px;
-    color: #333;
-}
-
-.review-time {
-    font-size: 13px;
-    color: #888;
-}
-
-.rating .star {
-    font-size: 18px;
-    color: #ccc;
-    margin-right: 2px;
-}
-
-.rating .star.filled {
-    color: #fbc02d;
-}
-
-.review-product-info {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #555;
-}
-
-.review-product-info .badge {
-    font-size: 12px;
-    background-color: #6c757d;
-    color: #fff;
-    margin-right: 4px;
-}
-
-.review-body {
-    margin-top: 12px;
-}
-
-.review-comment {
-    font-size: 14px;
-    line-height: 1.5;
-    color: #444;
-}
-
-.review-media {
-    margin-top: 10px;
-}
-
-.review-media img {
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    transition: transform 0.2s ease;
-}
-
-.review-media img:hover {
-    transform: scale(1.05);
-}
-.review .star {
-    font-size: 18px;
-    color: #ccc;
-}
-.review .star.filled {
-    color: #ffc107; /* Bootstrap warning color */
-}
-
-    </style>
-        <h4>Đánh giá từ người mua</h4>
-        {{-- Phần này bạn sẽ xử lý tiếp --}}
-         @include('client.products.product_reviews', ['reviews' => $reviews])
-    </div>
 
 
 

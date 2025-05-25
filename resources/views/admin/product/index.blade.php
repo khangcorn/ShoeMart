@@ -343,7 +343,8 @@
                         <td class="border border-gray-300   px-2 py-4 items-center text-center">
                             {{ $product->category->name ?? 'Không có danh mục' }}</td>
                         <td
-                            class="border border-gray-300   px-2 py-4 text-center  justify-center gap-2">
+                            class="border border-gray-300   px-2 py-4 text-center items-center   justify-center gap-2">
+                            <div class="flex items-center justify-center gap-2">
                             @if (auth()->user()->hasPermission('edit_products'))
                             <a
                             class="cursor-pointer text-sm p-1.5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"
@@ -384,6 +385,7 @@
                             </svg>
                           </a>
 
+                          </div>
                         </td>
                     </tr>
                 @endforeach
