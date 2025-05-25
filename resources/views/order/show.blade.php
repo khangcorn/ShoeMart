@@ -130,8 +130,9 @@
     @endif
 
     <p class="font-bold text-2xl mt-4 text-gray-900">
-        Tổng thanh toán: {{ number_format($finalTotal, 0, ',', '.') }} đ
+        Tổng thanh toán: {{ number_format(max($finalTotal, 0), 0, ',', '.') }} đ
     </p>
+
     @if ($isCancelled)
     <p class="text-sm text-red-500 italic">Đơn hàng đã bị huỷ — đây là tổng tiền ban đầu trước khi huỷ.</p>
 @endif

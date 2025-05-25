@@ -4,14 +4,15 @@
 
 @section('content')
 <div class="px-4 py-4">
-   
-        <h4 class="text-3xl font-bold mb-6">Phí vận chuyển</h4>
+    <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
+        <h4 class="text-lg font-semibold">Phí vận chuyển</h4>
          @if(auth()->user()->hasPermission('create_shipping_fees'))
-        <a href="{{ route('shipping-fees.create') }}" class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
-            Thêm mới phí vận chuyển
+        <a href="{{ route('shipping-fees.create') }}" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 shadow">
+           + Thêm mới phí vận chuyển
         </a>
         @endif
-   
+    </div>
+
 
 
         {{-- @if(session('success'))

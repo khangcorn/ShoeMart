@@ -93,7 +93,7 @@
     @foreach($refundRequests as $refund)
     <tr >
        <td class="border px-4 py-2 text-center">
-                            <a href="{{ route('order.show', $refund->order_id) }}" class="text-blue-600 hover:underline" target="_blank">
+                            <a href="{{ route('admin.orders.show', $refund->order_id) }}" class="text-blue-600 hover:underline" target="_blank">
                                 {{ $refund->order->order_code ?? 'N/A'}}
                             </a>
                         </td>
