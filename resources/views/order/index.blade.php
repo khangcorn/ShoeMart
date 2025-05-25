@@ -275,7 +275,7 @@ button[type="submit"]:hover {
     }, 5000); // 5 giây
 </script>
 
-
+<div class="container mx-auto p-6">
 <h1 class="text-2xl font-semibold mb-4">Danh sách đơn hàng của bạn</h1>
 
 <table>
@@ -508,7 +508,7 @@ button[type="submit"]:hover {
 <div class="pagination mt-4">
     {{ $orders->links() }}
 </div>
-
+</div>
 <script>
 function openReturnModal(orderId, amount) {
     document.getElementById('return_order_id').value = orderId;
