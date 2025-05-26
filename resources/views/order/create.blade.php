@@ -913,9 +913,7 @@ function confirmAddressSelection() {
     //     return true;
     // }
 
-    // Xử lý nút áp dụng mã giảm giá
-  document.addEventListener('DOMContentLoaded', () => {
-  // --- 1. Hàm dùng chung để gọi API và cập nhật UI ---
+document.addEventListener('DOMContentLoaded', () => {
   async function applyCoupons(codes) {
     const toNumber = str => parseInt((str||'0').replace(/\D/g,''), 10);
     const totalPriceEl = document.getElementById('totalPrice');
@@ -942,90 +940,93 @@ function confirmAddressSelection() {
       const resultEl = document.getElementById('couponResult');
 
       if (data.valid_coupons?.length) {
-        // reset trước
         document.querySelectorAll('.applied-coupon').forEach(el => el.remove());
 
         let msg = '', totalDisc = 0;
         let orderDisc = 0, shippingDisc = 0;
         let usedOrder = false, usedShip = false;
         const cartTotal = toNumber(document.getElementById('cartTotal')?.innerText);
+        const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
+        const shippingFee = parseInt(shippingFeeValue, 10) || 0;
 
         for (const item of data.valid_coupons) {
           if (item.usage_count >= item.usage_limit) {
             msg += `<span class="text-red-500">❌ ${item.code} đã hết lượt.</span><br>`;
             continue;
           }
-let disc = 0;
-const percentage = parseFloat(item.discount_value);
-const maxDiscount = parseFloat(item.max_discount_value ?? 0);
 
-  const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
-  const shippingFee = parseInt(shippingFeeValue, 10) || 0;
+          let disc = 0;
+          const percentage = parseFloat(item.discount_value);
+          const maxDiscount = parseFloat(item.max_discount_value ?? 0);
 
-// Nếu giảm theo phần trăm
-if (item.discount_type === 'percentage') {
-  if (item.apply_to === 'order') {
-    disc = (cartTotal * percentage) / 100;
-    console.log('Giảm % đơn hàng:', disc, 'max:', maxDiscount, 'cartTotal:', cartTotal, 'percentage:', percentage);
-    // Giới hạn giảm tối đa
-    if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
-      disc = maxDiscount;
-    }
+          if (item.discount_type === 'percentage') {
+            if (item.apply_to === 'order') {
+              disc = (cartTotal * percentage) / 100;
+              if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
+                disc = maxDiscount;
+              }
+              // Giới hạn không vượt quá tổng đơn
+              if (disc > cartTotal) {
+                disc = cartTotal;
+              }
 
-  } else if (item.apply_to === 'shipping') {
-    // Nếu phí ship chưa được chọn => bỏ qua mã này
-    if (shippingFee <= 0) {
-      msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
-      continue;
-    }
+            } else if (item.apply_to === 'shipping') {
+              if (shippingFee <= 0) {
+                msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
+                continue;
+              }
 
-    disc = (shippingFee * percentage) / 100;
-  console.log('Giảm % phí ship:', disc, 'max:', maxDiscount, 'shippingFee:', shippingFee, 'percentage:', percentage);
-    // Giới hạn giảm tối đa
-    if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
-      disc = maxDiscount;
-    }
-  }
+              disc = (shippingFee * percentage) / 100;
+              if (!isNaN(maxDiscount) && maxDiscount > 0 && disc > maxDiscount) {
+                disc = maxDiscount;
+              }
+              // Giới hạn không vượt quá phí ship
+              if (disc > shippingFee) {
+                disc = shippingFee;
+              }
+            }
 
-} else {
-  // Giảm cố định
-  disc = parseFloat(item.discount_value ?? 0);
+          } else {
+            disc = parseFloat(item.discount_value ?? 0);
 
-  // Không cho mã giảm phí ship vượt quá phí ship
-  if (item.apply_to === 'shipping') {
-    if (shippingFee <= 0) {
-      msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
-      continue;
-    }
+            if (item.apply_to === 'shipping') {
+              if (shippingFee <= 0) {
+                msg += `<span class="text-red-500">❌ Mã ${item.code}: vui lòng chọn địa chỉ để tính phí ship trước.</span><br>`;
+                continue;
+              }
+              if (disc > shippingFee) {
+                disc = shippingFee;
+              }
+            }
 
-    if (disc > shippingFee) {
-      disc = shippingFee;
-    }
-  }
-}
-
-
+            if (item.apply_to === 'order') {
+              if (disc > cartTotal) {
+                disc = cartTotal;
+              }
+            }
+          }
 
           if (item.apply_to === 'order') {
             if (usedOrder) {
               msg += `<span class="text-red-500">❌ Chỉ 1 mã đơn hàng.</span><br>`;
               continue;
             }
-            orderDisc = disc; usedOrder = true;
+            orderDisc = disc;
+            usedOrder = true;
             document.getElementById('orderCouponIdInput').value = item.coupon_id;
           } else {
             if (usedShip) {
               msg += `<span class="text-red-500">❌ Chỉ 1 mã vận chuyển.</span><br>`;
               continue;
             }
-            shippingDisc = disc; usedShip = true;
+            shippingDisc = disc;
+            usedShip = true;
             document.getElementById('shippingCouponIdInput').value = item.coupon_id;
           }
 
           msg += `✔️ ${item.code}: Giảm ${disc.toLocaleString('vi-VN')} đ<br>`;
           totalDisc += disc;
 
-          // thêm input ẩn gửi về form
           const h = document.createElement('input');
           h.type = 'hidden';
           h.name = 'coupons[]';
@@ -1034,23 +1035,22 @@ if (item.discount_type === 'percentage') {
           document.querySelector('form').appendChild(h);
         }
 
-        // cập nhật giá vào hidden & UI
-        document.getElementById('orderDiscountInput').value = Math.floor(orderDisc);
-        document.getElementById('shippingDiscountInput').value = shippingDisc;
-        document.getElementById('orderDiscount').innerText = `${orderDisc.toLocaleString('vi-VN')} đ`;
-        document.getElementById('shippingDiscount').innerText = `${shippingDisc.toLocaleString('vi-VN')} đ`;
+        // cập nhật giá trị input
+        document.getElementById('orderDiscountInput').value = isNaN(orderDisc) ? 0 : Math.floor(orderDisc);
+        document.getElementById('shippingDiscountInput').value = isNaN(shippingDisc) ? 0 : Math.floor(shippingDisc);
+        document.getElementById('orderDiscount').innerText = `${Math.floor(orderDisc).toLocaleString('vi-VN')} đ`;
+        document.getElementById('shippingDiscount').innerText = `${Math.floor(shippingDisc).toLocaleString('vi-VN')} đ`;
 
-        // cập nhật tổng
         updateTotalPrice();
 
         resultEl.innerHTML = `
           ${msg}
-          <strong>Giảm đơn: ${orderDisc.toLocaleString('vi-VN')} đ</strong><br>
-          <strong>Giảm ship: ${shippingDisc.toLocaleString('vi-VN')} đ</strong><br>
-          <strong>Tổng giảm: ${totalDisc.toLocaleString('vi-VN')} đ</strong>
+          <strong>Giảm đơn: ${Math.floor(orderDisc).toLocaleString('vi-VN')} đ</strong><br>
+          <strong>Giảm ship: ${Math.floor(shippingDisc).toLocaleString('vi-VN')} đ</strong><br>
+          <strong>Tổng giảm: ${Math.floor(totalDisc).toLocaleString('vi-VN')} đ</strong>
         `;
         setTimeout(() => {
-        resultEl.innerHTML = '';
+          resultEl.innerHTML = '';
         }, 5000);
       } else {
         let err = data.message || (data.errors||[]).join('<br>') || 'Mã không hợp lệ';
@@ -1062,7 +1062,6 @@ if (item.discount_type === 'percentage') {
     }
   }
 
-  // --- 2. Gắn listener cho nút nhập tay ---
   const applyBtnManual = document.createElement('button');
   applyBtnManual.type = 'button';
   applyBtnManual.textContent = 'Áp dụng';
@@ -1074,52 +1073,38 @@ if (item.discount_type === 'percentage') {
     applyCoupons(v);
   });
 
-  // --- 3. Gắn listener cho nút trong popup ---
   document.getElementById('btnApplyPopup').addEventListener('click', () => {
-    // lấy giá trị radio được chọn
     const orderCode = document.querySelector('input[name="orderCoupon"]:checked')?.value;
     const shipCode  = document.querySelector('input[name="shippingCoupon"]:checked')?.value;
-
-    // gộp thành chuỗi, cách nhau ,
     const codes = [orderCode, shipCode].filter(Boolean).join(',');
-    // tự động set vào input text để hiển thị
     document.getElementById('couponInput').value = codes;
-    // gọi chung
     applyCoupons(codes);
   });
 
-  // --- 4. Hàm cập nhật tổng tiền (giữ nguyên của bạn) ---
- function updateTotalPrice() {
-  const toNumber = str => parseInt((str||'0').replace(/\D/g,''), 10);
+  function updateTotalPrice() {
+    const toNumber = str => parseInt((str||'0').replace(/\D/g,''), 10);
 
-  // 1. Giá trị gốc trong giỏ hàng
-  const cartTotalText = document.getElementById('cartTotal')?.innerText || '0';
-  const cartTotal = toNumber(cartTotalText);
+    const cartTotalText = document.getElementById('cartTotal')?.innerText || '0';
+    const cartTotal = toNumber(cartTotalText);
 
-  // 2. Phí vận chuyển (input.value là số nguyên, không chứa dấu)
-  const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
-  const shippingFee = parseInt(shippingFeeValue, 10) || 0;
+    const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
+    const shippingFee = parseInt(shippingFeeValue, 10) || 0;
 
-  // 3. Giảm giá đơn hàng & phí vận chuyển (hidden inputs)
-  const orderDiscValue = document.getElementById('orderDiscountInput')?.value || '0';
-  const shippingDiscValue = document.getElementById('shippingDiscountInput')?.value || '0';
-  const orderDiscount = parseInt(orderDiscValue, 10) || 0;
-  const shippingDiscount = parseInt(shippingDiscValue, 10) || 0;
+    const orderDiscValue = document.getElementById('orderDiscountInput')?.value || '0';
+    const shippingDiscValue = document.getElementById('shippingDiscountInput')?.value || '0';
+    const orderDiscount = parseInt(orderDiscValue, 10) || 0;
+    const shippingDiscount = parseInt(shippingDiscValue, 10) || 0;
 
-  // DEBUG: log ra console để xem từng thành phần
-  console.log({ cartTotal, shippingFee, orderDiscount, shippingDiscount });
+    console.log({ cartTotal, shippingFee, orderDiscount, shippingDiscount });
 
-  // 4. Tính tổng
-  const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+    const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
 
-  // 5. Hiển thị lại
-  document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
-}
+    document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
+  }
 
-
-  // gọi 1 lần khi load
   updateTotalPrice();
 });
+
 
 
     document.addEventListener('DOMContentLoaded', function () {

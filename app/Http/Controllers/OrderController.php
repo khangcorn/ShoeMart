@@ -132,196 +132,202 @@ class OrderController extends Controller
     /**
      * Xử lý lưu đơn hàng
      */
-public function store(Request $request)
-{
-    $user = Auth::user();
+    public function store(Request $request)
+    {
+        $user = Auth::user();
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        $request->validate([
-            'payment_method' => 'required|in:cod,wallet,vnpay,momo',
-            'shipping_id' => 'required|exists:shipping_fees,shipping_id',
-        ]);
-
-        $cart = Cart::where('user_id', $user->user_id)->first();
-        $addressId = $request->address_id;
-
-        if (!$addressId && !$user->userAddresses->where('is_default', true)->first()) {
-            return redirect()->back()->withErrors(['address' => 'Bạn cần chọn một địa chỉ hợp lệ trước khi đặt hàng.']);
-        }
-
-        $address = UserAddresses::where('user_id', $user->user_id)
-            ->where('address_id', $addressId)
-            ->first();
-
-        if (!$address || empty($address->address_name) || empty($address->recipient_name) || empty($address->recipient_phone)) {
-            return redirect()->back()->withErrors([
-                'address' => 'Vui lòng cập nhật đầy đủ thông tin địa chỉ: tên địa chỉ, người nhận và số điện thoại.',
+        try {
+            $request->validate([
+                'payment_method' => 'required|in:cod,wallet,vnpay,momo',
+                'shipping_id' => 'required|exists:shipping_fees,shipping_id',
             ]);
-        }
 
-        if (!$cart) {
-            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
-        }
+            $cart = Cart::where('user_id', $user->user_id)->first();
+            $addressId = $request->address_id;
 
-        $selectedIds = $request->input('cart_detail_ids', []);
-        if (empty($selectedIds)) {
-            return redirect()->route('cart.index')->with('error', 'Không có sản phẩm nào được chọn để đặt hàng.');
-        }
+            if (!$addressId && !$user->userAddresses->where('is_default', true)->first()) {
+                return redirect()->back()->withErrors(['address' => 'Bạn cần chọn một địa chỉ hợp lệ trước khi đặt hàng.']);
+            }
 
-        $cartItems = $cart->details()
-            ->whereIn('cart_detail_id', $selectedIds)
-            ->with(['product', 'variant'])
-            ->get();
+            $address = UserAddresses::where('user_id', $user->user_id)
+                ->where('address_id', $addressId)
+                ->first();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống hoặc không hợp lệ.');
-        }
+            if (!$address || empty($address->address_name) || empty($address->recipient_name) || empty($address->recipient_phone)) {
+                return redirect()->back()->withErrors([
+                    'address' => 'Vui lòng cập nhật đầy đủ thông tin địa chỉ: tên địa chỉ, người nhận và số điện thoại.',
+                ]);
+            }
 
-        // Kiểm tra tồn kho
-        foreach ($cartItems as $item) {
-            if ($item->variant) {
-                $variant = ProductVariant::lockForUpdate()->find($item->variant->variant_id);
-                if (!$variant || $variant->stock < $item->quantity) {
-                    DB::rollBack();
-                    return back()->with('error', "Biến thể không đủ tồn kho. Còn lại: {$variant->stock}");
-                }
-            } else {
-                $product = Product::lockForUpdate()->find($item->product->product_id);
-                if (!$product || $product->stock < $item->quantity) {
-                    DB::rollBack();
-                    return back()->with('error', "Sản phẩm '{$product->name}' không đủ tồn kho. Còn lại: {$product->stock}");
+            if (!$cart) {
+                return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
+            }
+
+            $selectedIds = $request->input('cart_detail_ids', []);
+            if (empty($selectedIds)) {
+                return redirect()->route('cart.index')->with('error', 'Không có sản phẩm nào được chọn để đặt hàng.');
+            }
+
+            $cartItems = $cart->details()
+                ->whereIn('cart_detail_id', $selectedIds)
+                ->with(['product', 'variant'])
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống hoặc không hợp lệ.');
+            }
+
+            // Kiểm tra tồn kho
+            foreach ($cartItems as $item) {
+                if ($item->variant) {
+                    $variant = ProductVariant::lockForUpdate()->find($item->variant->variant_id);
+                    if (!$variant || $variant->stock < $item->quantity) {
+                        DB::rollBack();
+                        return back()->with('error', "Biến thể không đủ tồn kho. Còn lại: {$variant->stock}");
+                    }
+                } else {
+                    $product = Product::lockForUpdate()->find($item->product->product_id);
+                    if (!$product || $product->stock < $item->quantity) {
+                        DB::rollBack();
+                        return back()->with('error', "Sản phẩm '{$product->name}' không đủ tồn kho. Còn lại: {$product->stock}");
+                    }
                 }
             }
-        }
 
-        $orderTotal = 0;
-        foreach ($cartItems as $item) {
-           $price = $item->variant
-            ? ($item->variant->price_sale ?? $item->variant->price)
-            : $item->product->price;
+            $orderTotal = 0;
+            foreach ($cartItems as $item) {
+            $price = $item->variant
+                ? ($item->variant->price_sale ?? $item->variant->price)
+                : $item->product->price;
 
-            $orderTotal += $price * $item->quantity;
-        }
+                $orderTotal += $price * $item->quantity;
+            }
 
-        $province = strtolower(trim($address->city));
-        $shippingFee = ShippingFee::whereRaw('LOWER(province) = ?', [$province])->first();
+            $province = strtolower(trim($address->city));
+            $shippingFee = ShippingFee::whereRaw('LOWER(province) = ?', [$province])->first();
 
-        $orderDiscount = (int)$request->input('order_discount', 0);
-        $shippingDiscount = (int)$request->input('shipping_discount', 0);
-        $shippingFeeValue = max(0, (int)$request->input('shipping_fee', 0));
+            $orderDiscount = (int)$request->input('order_discount', 0);
+            $shippingDiscount = (int)$request->input('shipping_discount', 0);
+            $shippingFeeValue = max(0, (int)$request->input('shipping_fee', 0));
 
-        $finalTotal = max(0, $orderTotal - $orderDiscount - $shippingDiscount + $shippingFeeValue);
+            // Áp dụng giới hạn giảm giá
+            $appliedOrderDiscount = min($orderDiscount, $orderTotal);
+            $appliedShippingDiscount = min($shippingDiscount, $shippingFeeValue);
 
-        $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+            // Tính tổng tiền cuối cùng
+            $finalTotal = max(0, $orderTotal - $appliedOrderDiscount + ($shippingFeeValue - $appliedShippingDiscount));
 
-        $paymentMethod = $request->payment_method;
-        $statusId = $paymentMethod === 'vnpay' ? 9 : 1;
-        $paymentStatus = $paymentMethod === 'vnpay' ? 'pending' : 'success';
 
-        $order = Order::create([
-            'order_code' => $orderCode,
-            'user_id' => $user->user_id,
-            'address_id' => $address->address_id,
-            'total' => $finalTotal,
-            'status_id' => $statusId,
-            'shipping_fee' => $shippingFeeValue,
-            'payment_method' => $paymentMethod,
-            'shipping_id' => $request->shipping_id,
-            'discount_amount' => $orderDiscount + $shippingDiscount,
-            'payment_status' => $paymentStatus,
-        ]);
+            $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
-        foreach ($cartItems as $item) {
-            $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
-            $subtotal = $price * $item->quantity;
+            $paymentMethod = $request->payment_method;
+            $statusId = $paymentMethod === 'vnpay' ? 9 : 1;
+            $paymentStatus = $paymentMethod === 'vnpay' ? 'pending' : 'success';
 
-            $orderDetail = $order->orderDetails()->create([
-                'product_id' => $item->product->product_id,
-                'variant_id' => $item->variant->variant_id ?? null,
-                'quantity' => $item->quantity,
-                'price' => $price,
+            $order = Order::create([
+                'order_code' => $orderCode,
+                'user_id' => $user->user_id,
+                'address_id' => $address->address_id,
+                'total' => $finalTotal,
+                'status_id' => $statusId,
+                'shipping_fee' => $shippingFeeValue,
+                'payment_method' => $paymentMethod,
+                'shipping_id' => $request->shipping_id,
                 'discount_amount' => $orderDiscount + $shippingDiscount,
-                'subtotal' => $subtotal,
-                'total_price' => $subtotal,
-
+                'payment_status' => $paymentStatus,
             ]);
 
-            // Trừ kho
-            if ($orderDetail->variant_id) {
-                ProductVariant::where('variant_id', $orderDetail->variant_id)
-                    ->decrement('stock', $orderDetail->quantity);
-            } else {
-                Product::where('product_id', $orderDetail->product_id)
-                    ->decrement('stock', $orderDetail->quantity);
+            foreach ($cartItems as $item) {
+                $price = $item->variant->price_sale ?? $item->variant->price ?? $item->product->price;
+                $subtotal = $price * $item->quantity;
+
+                $orderDetail = $order->orderDetails()->create([
+                    'product_id' => $item->product->product_id,
+                    'variant_id' => $item->variant->variant_id ?? null,
+                    'quantity' => $item->quantity,
+                    'price' => $price,
+                    'discount_amount' => $orderDiscount + $shippingDiscount,
+                    'subtotal' => $subtotal,
+                    'total_price' => $subtotal,
+
+                ]);
+
+                // Trừ kho
+                if ($orderDetail->variant_id) {
+                    ProductVariant::where('variant_id', $orderDetail->variant_id)
+                        ->decrement('stock', $orderDetail->quantity);
+                } else {
+                    Product::where('product_id', $orderDetail->product_id)
+                        ->decrement('stock', $orderDetail->quantity);
+                }
             }
-        }
 
-        // Xóa sản phẩm khỏi giỏ hàng
-        $cart->details()->whereIn('cart_detail_id', $selectedIds)->delete();
+            // Xóa sản phẩm khỏi giỏ hàng
+            $cart->details()->whereIn('cart_detail_id', $selectedIds)->delete();
 
-        // Trừ tiền ví nếu cần
-        if ($paymentMethod === 'wallet') {
-            $wallet = $user->wallet;
+            // Trừ tiền ví nếu cần
+            if ($paymentMethod === 'wallet') {
+                $wallet = $user->wallet;
 
-            if (!$wallet || $wallet->balance < $finalTotal) {
-                $order->orderDetails()->delete();
-                $order->delete();
-                DB::rollBack();
-                return back()->with('error', 'Số dư ví không đủ để thanh toán đơn hàng.');
+                if (!$wallet || $wallet->balance < $finalTotal) {
+                    $order->orderDetails()->delete();
+                    $order->delete();
+                    DB::rollBack();
+                    return back()->with('error', 'Số dư ví không đủ để thanh toán đơn hàng.');
+                }
+
+                $wallet->decrement('balance', $finalTotal);
+                $wallet->transactions()->create([
+                    'type' => 'payment',
+                    'amount' => $finalTotal,
+                    'description' => 'Thanh toán đơn hàng qua ví',
+                    'status' => 'completed',
+                ]);
             }
 
-            $wallet->decrement('balance', $finalTotal);
-            $wallet->transactions()->create([
-                'type' => 'payment',
-                'amount' => $finalTotal,
-                'description' => 'Thanh toán đơn hàng qua ví',
-                'status' => 'completed',
-            ]);
+            // Áp dụng mã giảm giá nếu có
+            if ($request->order_coupon_id) {
+                OrderCoupon::create([
+                    'order_id' => $order->order_id,
+                    'coupon_id' => $request->order_coupon_id,
+                    'applied_amount' => $orderDiscount,
+                ]);
+                Coupon::where('coupon_id', $request->order_coupon_id)->increment('usage_count');
+            }
+
+            if ($request->shipping_coupon_id) {
+                OrderCoupon::create([
+                    'order_id' => $order->order_id,
+                    'coupon_id' => $request->shipping_coupon_id,
+                    'applied_amount' => $shippingDiscount,
+                ]);
+                Coupon::where('coupon_id', $request->shipping_coupon_id)->increment('usage_count');
+            }
+
+            DB::commit();
+
+            return $paymentMethod === 'vnpay'
+                ? redirect()->route('payment.vnpay.redirect', [
+                    'order_id' => $order->order_id,
+                    'amount' => $finalTotal,
+                ])
+                : redirect()->route('order.success')
+                    ->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)
+                    ->with('order', $order);
+
+        } catch (QueryException $e) {
+            DB::rollBack();
+            if ($e->getCode() === '22003' || str_contains($e->getMessage(), 'Out of range value')) {
+                return redirect()->back()->withInput()->withErrors(['total' => 'Tổng tiền đơn hàng quá lớn, vui lòng kiểm tra lại.']);
+            }
+            return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi cụ thể: ' . $e->getMessage()]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors(['error' => 'Có lỗi xảy ra khi tạo đơn hàng: ' . $e->getMessage()]);
         }
-
-        // Áp dụng mã giảm giá nếu có
-        if ($request->order_coupon_id) {
-            OrderCoupon::create([
-                'order_id' => $order->order_id,
-                'coupon_id' => $request->order_coupon_id,
-                'applied_amount' => $orderDiscount,
-            ]);
-            Coupon::where('coupon_id', $request->order_coupon_id)->increment('usage_count');
-        }
-
-        if ($request->shipping_coupon_id) {
-            OrderCoupon::create([
-                'order_id' => $order->order_id,
-                'coupon_id' => $request->shipping_coupon_id,
-                'applied_amount' => $shippingDiscount,
-            ]);
-            Coupon::where('coupon_id', $request->shipping_coupon_id)->increment('usage_count');
-        }
-
-        DB::commit();
-
-        return $paymentMethod === 'vnpay'
-            ? redirect()->route('payment.vnpay.redirect', [
-                'order_id' => $order->order_id,
-                'amount' => $finalTotal,
-            ])
-            : redirect()->route('order.success')
-                ->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)
-                ->with('order', $order);
-
-    } catch (QueryException $e) {
-        DB::rollBack();
-        if ($e->getCode() === '22003' || str_contains($e->getMessage(), 'Out of range value')) {
-            return redirect()->back()->withInput()->withErrors(['total' => 'Tổng tiền đơn hàng quá lớn, vui lòng kiểm tra lại.']);
-        }
-        return redirect()->back()->withInput()->withErrors(['error' => 'Lỗi cụ thể: ' . $e->getMessage()]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->withInput()->withErrors(['error' => 'Có lỗi xảy ra khi tạo đơn hàng: ' . $e->getMessage()]);
     }
-}
     /**
      * Xử lý thanh toán đơn hàng qua Stripe
      */
