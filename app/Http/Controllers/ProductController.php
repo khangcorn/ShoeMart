@@ -485,4 +485,16 @@ public function deleteVariant($productId, $variantId)
 
         return response()->json(['count' => $cartCount]);
     }
+public function toggleVisibility($id)
+{
+    $product = Product::findOrFail($id);
+    $product->is_hidden = !$product->is_hidden;  // Toggle giá trị true/false
+    $product->save();
+
+    $message = $product->is_hidden ? 'Sản phẩm đã được ẩn' : 'Sản phẩm đã được hiển thị lại';
+
+    return redirect()->back()->with('success', $message);
+}
+
+
 }

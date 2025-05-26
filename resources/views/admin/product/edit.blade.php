@@ -271,10 +271,10 @@
                     <p class="text-red-500 text-sm mt-1 image-error-msg" id="image_error_{{ $index }}" style="display: none;"></p> <!-- Phần tử hiển thị lỗi -->
                 </div>
 
-            
+{{--             
                     <!-- Xóa biến thể -->
                     <button type="button" class="btn btn-danger delete-variant" data-variant-id="{{ $variant->variant_id }}"
-                        data-product-id="{{ $product->product_id }}">Xóa Biến Thể</button>
+                        data-product-id="{{ $product->product_id }}">Xóa Biến Thể</button> --}}
                 </div>
                 @endforeach
             </div>

@@ -356,7 +356,7 @@
                           </a>
                       
                             @endif
-                            @if (auth()->user()->hasPermission('delete_products'))
+                            {{-- @if (auth()->user()->hasPermission('delete_products'))
                             <form
                             action="{{ route('products.destroy', $product->product_id) }}"
                             method="POST"
@@ -373,7 +373,7 @@
                               </svg>
                             </button>
                           </form>
-                            @endif
+                            @endif --}}
                             <a
                             class="cursor-pointer text-sm p-1.5 rounded-full bg-[#ECFDF3] text-[#03A27E] flex items-center justify-center"
                             href="{{ route('products.show', ['product' => $product->product_id]) }}"
@@ -384,6 +384,30 @@
                                   </g>
                             </svg>
                           </a>
+                          <form action="{{ route('products.toggleVisibility', $product->product_id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="cursor-pointer text-sm p-1.5 rounded-full 
+                                {{ $product->is_hidden ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-600' }} 
+                                flex items-center justify-center"
+                                title="{{ $product->is_hidden ? 'Hiện sản phẩm' : 'Ẩn sản phẩm' }}"
+                            >
+                                @if ($product->is_hidden)
+                                {{-- Icon hiện (mắt mở) --}}
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+                                    <circle cx="12" cy="12" r="2.5"/>
+                                </svg>
+                                @else
+                                {{-- Icon ẩn (mắt gạch) --}}
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 6.5c2.5 0 4.7 1.2 6.3 3.1l1.7-1.7C17.9 5.6 15.1 4 12 4 7 4 2.73 7.61 1 11.5c.73 1.64 1.84 3.11 3.17 4.3l1.41-1.41C4.38 13.3 3.5 12 3.5 12S6.7 6.5 12 6.5zM12 17.5c-2.5 0-4.7-1.2-6.3-3.1l-1.7 1.7C6.1 18.4 8.9 20 12 20c5 0 9.27-3.61 11-7.5-.73-1.64-1.84-3.11-3.17-4.3l-1.41 1.41C19.62 10.7 20.5 12 20.5 12s-3.2 5.5-8.5 5.5z"/>
+                                </svg>
+                                @endif
+                            </button>
+                        </form>
+
 
                           </div>
                         </td>

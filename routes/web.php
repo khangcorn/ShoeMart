@@ -122,6 +122,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'home'])->name('home');
     Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
     Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
+    Route::patch('/products/{product}/toggle-visibility', [ProductController::class, 'toggleVisibility'])
+    ->name('products.toggleVisibility')
+    ->middleware('check_permission:toggle_products_visibility');
+
+
     Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
     Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
     Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');

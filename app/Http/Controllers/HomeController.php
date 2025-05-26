@@ -13,7 +13,10 @@ class HomeController extends Controller
 {
     public function home()
     {
-        $products = Product::with('category', 'images')->paginate(10);
+        $products = Product::with('category', 'images')
+            ->where('is_hidden', false)
+            ->paginate(10);
+
         $user = Auth::user();
 
         return view('client.home', compact(['products', 'user']));
@@ -37,7 +40,9 @@ public function showDetail($productId)
         'variants.variantAttributeValues.variantAttribute',
         'images',
         'category',
-    ])->findOrFail($productId);
+    ])
+    ->where('is_hidden', false)
+    ->findOrFail($productId);
 
     // Lấy tất cả màu sắc và kích thước
     $colors = $product->variants->flatMap(function ($variant) {
@@ -56,7 +61,8 @@ public function showDetail($productId)
             'orderDetail.product',
             'orderDetail.variant.attributes.variantAttribute',
         ])->get();
-
+    $averageRating = round($reviews->avg('rating'), 1);
+    $totalRatings = $reviews->count();
     // Lấy danh sách product_id đã yêu thích của user hiện tại (nếu có)
     $wishlistedProductIds = [];
     if (auth()->check()) {
@@ -65,7 +71,16 @@ public function showDetail($productId)
             ->toArray();
     }
 
-    return view('client.products.detail', compact('product', 'colors', 'sizes', 'reviews', 'wishlistedProductIds'));
+    return view('client.products.detail', compact(
+    'product',
+    'colors',
+    'sizes',
+    'reviews',
+    'wishlistedProductIds',
+    'averageRating',
+    'totalRatings'
+));
+
 }
 
 
@@ -85,7 +100,10 @@ public function showDetail($productId)
     {
 
         // Lấy tất cả sản phẩm cùng với danh mục và hình ảnh
-        $products = Product::with('category', 'images')->get();
+       $products = Product::with('category', 'images')
+            ->where('is_hidden', false)
+            ->get();
+
 
         // Trả về view hiển thị tất cả sản phẩm
         return view('client.products.all', compact('products'));
