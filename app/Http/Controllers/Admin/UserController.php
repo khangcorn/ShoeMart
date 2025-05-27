@@ -154,17 +154,24 @@ foreach ($statuses as $status) {
     $orderStatusCountsForChart[] = $status->orders->count();
 }
 
-    $orderCounts = collect();
-for ($i = 29; $i >= 0; $i--) {
-    $date = Carbon::today()->subDays($i)->toDateString();
-    if ($date < $fromDate || $date > $toDate) continue;
+$orderCounts = collect();
 
-    $count = Order::whereDate('created_at', $date)->count();
+$start = Carbon::parse($fromDate)->startOfDay();
+$end = Carbon::parse($toDate)->endOfDay();
+
+while ($start->lte($end)) {
+    $dateString = $start->toDateString();
+
+    $count = Order::whereDate('created_at', $dateString)->count();
+
     $orderCounts->push([
-        'date' => $date,
+        'date' => $dateString,
         'count' => $count,
     ]);
+
+    $start->addDay();
 }
+
 
       $currentYear = Carbon::now()->year;
    $monthlyRevenue = Order::select(
