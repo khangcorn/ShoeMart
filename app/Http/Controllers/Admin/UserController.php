@@ -65,7 +65,7 @@ class UserController extends Controller
     }
 
     // 1. Tổng doanh thu từ các đơn hoàn thành (id trạng thái = 6)
-   $totalRevenue = Order::where('status_id', 6)
+   $totalRevenue = Order::where('status_id', [4, 6])
     ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
         $query->whereBetween('created_at', [
             Carbon::parse($fromDate)->startOfDay(),

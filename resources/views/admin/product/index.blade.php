@@ -114,12 +114,12 @@
     </style>
 
     <div class="py-4 px-4">
-        <h2 class="text-3xl font-bold mb-6">Danh sách sản phẩm </h2> 
+        <h2 class="text-3xl font-bold mb-6">Danh sách sản phẩm </h2>
         <div class="flex  items-center justify-between">
             @if (auth()->user()->hasPermission('create_products'))
                 <a href="{{ route('products.create') }}"
                     class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden">
-                   Thêm mới sản phẩm
+                    Thêm mới sản phẩm
                 </a>
             @endif
 
@@ -147,8 +147,8 @@
                             onchange="this.form.submit()">
                             <option value="">Sắp xếp theo danh mục</option>
                             @foreach ($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ request()->category == $category->id ? 'selected' : '' }}>
+                                <option value="{{ $category->category_id }}"
+                                    {{ request()->category == $category->category_id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -186,8 +186,7 @@
         <div class="py-2 flex items-center gap-2">
             @if (request()->search)
                 <div class="items-center flex gap-2">
-                    <p
-                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
+                    <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
                         Keyword: {{ request()->search }}
                         <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
                             fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -207,8 +206,7 @@
 
             @if (request()->category)
                 <div class="items-center flex gap-2">
-                    <p
-                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
+                    <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
                         Danh mục:
                         {{ $categories->find(request()->category)->name ?? '' }}
                         <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
@@ -229,8 +227,7 @@
 
             @if (request()->sort)
                 <div class="items-center flex gap-2">
-                    <p
-                        class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
+                    <p class="flex items-center gap-2 text-black px-2 py-1 border border-gray-300   rounded-full">
                         Giá:
                         {{ request()->sort == 'asc' ? 'Price Decrease' : 'Price Increase' }}
                         <svg class="w-5 h-5 p-1 cursor-pointer rounded-full border-red-500 border" viewBox="-0.5 0 25 25"
@@ -253,44 +250,35 @@
         <table class="w-full">
             <thead class="">
                 <tr>
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         #</th>
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         Tên sản phẩm</th>
-                    <th
-                        class="px-4 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-4 py-5 border border-gray-300  items-center text-center font-semibold">
                         <span class="text-gray-500">Giá gốc</span> / Giá giảm
                     </th>
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         Số lượng</th>
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         Ảnh </th>
                     {{-- <th class="px-2 py-4 border border-gray-300  items-center text-center font-semibold">Color</th> --}}
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         Danh mục</th>
-                    <th
-                        class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
+                    <th class="px-2 py-5 border border-gray-300  items-center text-center font-semibold">
                         Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($products as $product)
                     <tr>
-                        <td
-                            class="font-semibold border border-gray-300  px-2 py-5 items-center text-center">
+                        <td class="font-semibold border border-gray-300  px-2 py-5 items-center text-center">
                             {{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}
                         </td>
 
                         <td class="border border-gray-300  px-2 py-5 items-center text-center">
                             {{ $product->name }}
                         </td>
-                        <td
-                            class="border relative border-gray-300  px-4 py-5 items-center text-center">
+                        <td class="border relative border-gray-300  px-4 py-5 items-center text-center">
                             @php
                                 $hasVariants = $product->variants && $product->variants->count() > 0;
 
@@ -342,21 +330,25 @@
 
                         <td class="border border-gray-300   px-2 py-4 items-center text-center">
                             {{ $product->category->name ?? 'Không có danh mục' }}</td>
-                        <td
-                            class="border border-gray-300   px-2 py-4 text-center items-center   justify-center gap-2">
+                        <td class="border border-gray-300   px-2 py-4 text-center items-center   justify-center gap-2">
                             <div class="flex items-center justify-center gap-2">
-                            @if (auth()->user()->hasPermission('edit_products'))
-                            <a
-                            class="cursor-pointer text-sm p-1.5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"
-                            href="{{ route('products.edit', $product->product_id) }}"
-                          >
-                            <svg width="24px" height="24px" fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" d="M14.8024118,6.44526791 L8.69610276,12.549589 C8.29095108,12.9079238 8.04030835,13.4092335 8,13.8678295 L8,16.0029438 L10.0639829,16.004826 C10.5982069,15.9670062 11.0954869,15.7183782 11.4947932,15.2616227 L17.556693,9.19972295 L14.8024118,6.44526791 Z M16.2168556,5.0312846 L18.9709065,7.78550938 L19.8647941,6.89162181 C19.9513987,6.80501747 20.0000526,6.68755666 20.0000526,6.56507948 C20.0000526,6.4426023 19.9513987,6.32514149 19.8647932,6.23853626 L17.7611243,4.13485646 C17.6754884,4.04854589 17.5589355,4 17.43735,4 C17.3157645,4 17.1992116,4.04854589 17.1135757,4.13485646 L16.2168556,5.0312846 Z M22,13 L22,20 C22,21.1045695 21.1045695,22 20,22 L4,22 C2.8954305,22 2,21.1045695 2,20 L2,4 C2,2.8954305 2.8954305,2 4,2 L11,2 L11,4 L4,4 L4,20 L20,20 L20,13 L22,13 Z M17.43735,2 C18.0920882,2 18.7197259,2.26141978 19.1781068,2.7234227 L21.2790059,4.82432181 C21.7406843,5.28599904 22.0000526,5.91216845 22.0000526,6.56507948 C22.0000526,7.21799052 21.7406843,7.84415992 21.2790068,8.30583626 L12.9575072,16.6237545 C12.2590245,17.4294925 11.2689,17.9245308 10.1346,18.0023295 L6,18.0023295 L6,17.0023295 L6.00324765,13.7873015 C6.08843822,12.7328366 6.57866679,11.7523321 7.32649633,11.0934196 L15.6953877,2.72462818 C16.1563921,2.2608295 16.7833514,2 17.43735,2 Z"></path> </g>
-                            </svg>
-                          </a>
-                      
-                            @endif
-                            {{-- @if (auth()->user()->hasPermission('delete_products'))
+                                @if (auth()->user()->hasPermission('edit_products'))
+                                    <a class="cursor-pointer text-sm p-1.5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"
+                                        href="{{ route('products.edit', $product->product_id) }}">
+                                        <svg width="24px" height="24px" fill="#000000" viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                            </g>
+                                            <g id="SVGRepo_iconCarrier">
+                                                <path fill-rule="evenodd"
+                                                    d="M14.8024118,6.44526791 L8.69610276,12.549589 C8.29095108,12.9079238 8.04030835,13.4092335 8,13.8678295 L8,16.0029438 L10.0639829,16.004826 C10.5982069,15.9670062 11.0954869,15.7183782 11.4947932,15.2616227 L17.556693,9.19972295 L14.8024118,6.44526791 Z M16.2168556,5.0312846 L18.9709065,7.78550938 L19.8647941,6.89162181 C19.9513987,6.80501747 20.0000526,6.68755666 20.0000526,6.56507948 C20.0000526,6.4426023 19.9513987,6.32514149 19.8647932,6.23853626 L17.7611243,4.13485646 C17.6754884,4.04854589 17.5589355,4 17.43735,4 C17.3157645,4 17.1992116,4.04854589 17.1135757,4.13485646 L16.2168556,5.0312846 Z M22,13 L22,20 C22,21.1045695 21.1045695,22 20,22 L4,22 C2.8954305,22 2,21.1045695 2,20 L2,4 C2,2.8954305 2.8954305,2 4,2 L11,2 L11,4 L4,4 L4,20 L20,20 L20,13 L22,13 Z M17.43735,2 C18.0920882,2 18.7197259,2.26141978 19.1781068,2.7234227 L21.2790059,4.82432181 C21.7406843,5.28599904 22.0000526,5.91216845 22.0000526,6.56507948 C22.0000526,7.21799052 21.7406843,7.84415992 21.2790068,8.30583626 L12.9575072,16.6237545 C12.2590245,17.4294925 11.2689,17.9245308 10.1346,18.0023295 L6,18.0023295 L6,17.0023295 L6.00324765,13.7873015 C6.08843822,12.7328366 6.57866679,11.7523321 7.32649633,11.0934196 L15.6953877,2.72462818 C16.1563921,2.2608295 16.7833514,2 17.43735,2 Z">
+                                                </path>
+                                            </g>
+                                        </svg>
+                                    </a>
+                                @endif
+                                {{-- @if (auth()->user()->hasPermission('delete_products'))
                             <form
                             action="{{ route('products.destroy', $product->product_id) }}"
                             method="POST"
@@ -374,50 +366,52 @@
                             </button>
                           </form>
                             @endif --}}
-                            <a
-                            class="cursor-pointer text-sm p-1.5 rounded-full bg-[#ECFDF3] text-[#03A27E] flex items-center justify-center"
-                            href="{{ route('products.show', ['product' => $product->product_id]) }}"
-                          >
-                            <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                                <g transform="translate(1, 4)" fill="#000000">
-                                    <path d="M20.92,7.6 C18.9,2.91 15.1,0 11,0 C6.9,0 3.1,2.91 1.08,7.6 C0.968686852,7.85505046 0.968686852,8.14494954 1.08,8.4 C3.1,13.09 6.9,16 11,16 C15.1,16 18.9,13.09 20.92,8.4 C21.0313131,8.14494954 21.0313131,7.85505046 20.92,7.6 Z M11,14 C7.83,14 4.83,11.71 3.1,8 C4.83,4.29 7.83,2 11,2 C14.17,2 17.17,4.29 18.9,8 C17.17,11.71 14.17,14 11,14 Z M11,4 C8.790861,4 7,5.790861 7,8 C7,10.209139 8.790861,12 11,12 C13.209139,12 15,10.209139 15,8 C15,6.93913404 14.5785726,5.92171839 13.8284271,5.17157288 C13.0782816,4.42142736 12.060866,4 11,4 Z M11,10 C9.8954305,10 9,9.1045695 9,8 C9,6.8954305 9.8954305,6 11,6 C12.1045695,6 13,6.8954305 13,8 C13,9.1045695 12.1045695,10 11,10 Z" />
-                                  </g>
-                            </svg>
-                          </a>
-                          <form action="{{ route('products.toggleVisibility', $product->product_id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit"
-                                class="cursor-pointer text-sm p-1.5 rounded-full 
+                                <a class="cursor-pointer text-sm p-1.5 rounded-full bg-[#ECFDF3] text-[#03A27E] flex items-center justify-center"
+                                    href="{{ route('products.show', ['product' => $product->product_id]) }}">
+                                    <svg width="24px" height="24px" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                                        <g transform="translate(1, 4)" fill="#000000">
+                                            <path
+                                                d="M20.92,7.6 C18.9,2.91 15.1,0 11,0 C6.9,0 3.1,2.91 1.08,7.6 C0.968686852,7.85505046 0.968686852,8.14494954 1.08,8.4 C3.1,13.09 6.9,16 11,16 C15.1,16 18.9,13.09 20.92,8.4 C21.0313131,8.14494954 21.0313131,7.85505046 20.92,7.6 Z M11,14 C7.83,14 4.83,11.71 3.1,8 C4.83,4.29 7.83,2 11,2 C14.17,2 17.17,4.29 18.9,8 C17.17,11.71 14.17,14 11,14 Z M11,4 C8.790861,4 7,5.790861 7,8 C7,10.209139 8.790861,12 11,12 C13.209139,12 15,10.209139 15,8 C15,6.93913404 14.5785726,5.92171839 13.8284271,5.17157288 C13.0782816,4.42142736 12.060866,4 11,4 Z M11,10 C9.8954305,10 9,9.1045695 9,8 C9,6.8954305 9.8954305,6 11,6 C12.1045695,6 13,6.8954305 13,8 C13,9.1045695 12.1045695,10 11,10 Z" />
+                                        </g>
+                                    </svg>
+                                </a>
+                                <form action="{{ route('products.toggleVisibility', $product->product_id) }}"
+                                    method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                        class="cursor-pointer text-sm p-1.5 rounded-full 
                                 {{ $product->is_hidden ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-600' }} 
                                 flex items-center justify-center"
-                                title="{{ $product->is_hidden ? 'Hiện sản phẩm' : 'Ẩn sản phẩm' }}"
-                            >
-                                @if ($product->is_hidden)
-                                {{-- Icon hiện (mắt mở) --}}
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
-                                    <circle cx="12" cy="12" r="2.5"/>
-                                </svg>
-                                @else
-                                {{-- Icon ẩn (mắt gạch) --}}
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 6.5c2.5 0 4.7 1.2 6.3 3.1l1.7-1.7C17.9 5.6 15.1 4 12 4 7 4 2.73 7.61 1 11.5c.73 1.64 1.84 3.11 3.17 4.3l1.41-1.41C4.38 13.3 3.5 12 3.5 12S6.7 6.5 12 6.5zM12 17.5c-2.5 0-4.7-1.2-6.3-3.1l-1.7 1.7C6.1 18.4 8.9 20 12 20c5 0 9.27-3.61 11-7.5-.73-1.64-1.84-3.11-3.17-4.3l-1.41 1.41C19.62 10.7 20.5 12 20.5 12s-3.2 5.5-8.5 5.5z"/>
-                                </svg>
-                                @endif
-                            </button>
-                        </form>
+                                        title="{{ $product->is_hidden ? 'Hiện sản phẩm' : 'Ẩn sản phẩm' }}">
+                                        @if ($product->is_hidden)
+                                            {{-- Icon hiện (mắt mở) --}}
+                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z" />
+                                                <circle cx="12" cy="12" r="2.5" />
+                                            </svg>
+                                        @else
+                                            {{-- Icon ẩn (mắt gạch) --}}
+                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 6.5c2.5 0 4.7 1.2 6.3 3.1l1.7-1.7C17.9 5.6 15.1 4 12 4 7 4 2.73 7.61 1 11.5c.73 1.64 1.84 3.11 3.17 4.3l1.41-1.41C4.38 13.3 3.5 12 3.5 12S6.7 6.5 12 6.5zM12 17.5c-2.5 0-4.7-1.2-6.3-3.1l-1.7 1.7C6.1 18.4 8.9 20 12 20c5 0 9.27-3.61 11-7.5-.73-1.64-1.84-3.11-3.17-4.3l-1.41 1.41C19.62 10.7 20.5 12 20.5 12s-3.2 5.5-8.5 5.5z" />
+                                            </svg>
+                                        @endif
+                                    </button>
+                                </form>
 
 
-                          </div>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-  <div class="mt-6 flex justify-center">
-        {{ $products->links('pagination::tailwind') }}
-    </div>
+        <div class="mt-6 flex justify-center">
+            {{ $products->links('pagination::tailwind') }}
+        </div>
 
 
 

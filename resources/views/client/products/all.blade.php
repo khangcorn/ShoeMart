@@ -168,7 +168,7 @@
                             <span class="font-semibold">Black</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorWhite" class="form-checkbox">
+                            <input type="checkbox" id="color    White" class="form-checkbox">
                             <span class="font-semibold">White</span>
                         </label>
                         <label class="flex items-center space-x-2">

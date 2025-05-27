@@ -104,8 +104,8 @@ class OrderController extends Controller
             // dd($userAddress->city, $userAddress->district, $userAddress->ward); // Debug
             $shippingFee = $shippingFees->firstWhere(function ($fee) use ($userAddress) {
                 return strtolower($fee->province) === strtolower($userAddress->city) &&
-                       strtolower($fee->district) === strtolower($userAddress->district) &&
-                       strtolower($fee->ward) === strtolower($userAddress->ward);
+                    strtolower($fee->district) === strtolower($userAddress->district) &&
+                    strtolower($fee->ward) === strtolower($userAddress->ward);
             });
         }
 
@@ -126,7 +126,6 @@ class OrderController extends Controller
             'cartDetailIds',
             'coupons'
         ));
-
     }
 
     /**
@@ -198,9 +197,9 @@ class OrderController extends Controller
 
             $orderTotal = 0;
             foreach ($cartItems as $item) {
-            $price = $item->variant
-                ? ($item->variant->price_sale ?? $item->variant->price)
-                : $item->product->price;
+                $price = $item->variant
+                    ? ($item->variant->price_sale ?? $item->variant->price)
+                    : $item->product->price;
 
                 $orderTotal += $price * $item->quantity;
             }
@@ -314,9 +313,8 @@ class OrderController extends Controller
                     'amount' => $finalTotal,
                 ])
                 : redirect()->route('order.success')
-                    ->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)
-                    ->with('order', $order);
-
+                ->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode)
+                ->with('order', $order);
         } catch (QueryException $e) {
             DB::rollBack();
             if ($e->getCode() === '22003' || str_contains($e->getMessage(), 'Out of range value')) {
@@ -345,7 +343,7 @@ class OrderController extends Controller
                 'amount' => $order->total * 100, // Chuyển sang cents
                 'currency' => 'usd',
                 'source' => $request->token,
-                'description' => 'Thanh toán đơn hàng: '.$order->order_code,
+                'description' => 'Thanh toán đơn hàng: ' . $order->order_code,
             ]);
 
             if ($charge->status === 'succeeded') {
@@ -396,82 +394,82 @@ class OrderController extends Controller
         }
     }
 
-   public function cancel($order_id, Request $request)
-{
-    try {
-        // Tìm đơn hàng
-        $order = Order::with('orderDetails')->findOrFail($order_id);
+    public function cancel($order_id, Request $request)
+    {
+        try {
+            // Tìm đơn hàng
+            $order = Order::with('orderDetails')->findOrFail($order_id);
 
-        // Kiểm tra nếu đơn đã bị hủy
-        if (in_array($order->status_id, [3, 5])) {
-            return redirect()->route('order.index')->with('error', 'Đơn hàng này đã bị hủy.');
-        }
+            // Kiểm tra nếu đơn đã bị hủy
+            if (in_array($order->status_id, [3, 5])) {
+                return redirect()->route('order.index')->with('error', 'Đơn hàng này đã bị hủy.');
+            }
 
-        // Kiểm tra nếu đơn đang ở trạng thái mới (status_id == 1 hoặc 9)
-        if (!in_array($order->status_id, [1, 9])) {
-            return redirect()->route('order.index')->with('error', 'Chỉ có thể hủy đơn hàng mới.');
-        }
+            // Kiểm tra nếu đơn đang ở trạng thái mới (status_id == 1 hoặc 9)
+            if (!in_array($order->status_id, [1, 9])) {
+                return redirect()->route('order.index')->with('error', 'Chỉ có thể hủy đơn hàng mới.');
+            }
 
-        // Lấy lý do hủy (có thể null hoặc string)
-        $cancelReason = $request->input('cancel_reason', null);
+            // Lấy lý do hủy (có thể null hoặc string)
+            $cancelReason = $request->input('cancel_reason', null);
 
-        // Cộng lại số lượng tồn kho cho từng sản phẩm trong đơn
-        foreach ($order->orderDetails as $detail) {
-            if ($detail->variant_id) {
-                $variant = \App\Models\ProductVariant::find($detail->variant_id);
-                if ($variant) {
-                    $variant->increment('stock', $detail->quantity);
-                }
-            } else {
-                $product = \App\Models\Product::find($detail->product_id);
-                if ($product) {
-                    $product->increment('stock', $detail->quantity);
+            // Cộng lại số lượng tồn kho cho từng sản phẩm trong đơn
+            foreach ($order->orderDetails as $detail) {
+                if ($detail->variant_id) {
+                    $variant = \App\Models\ProductVariant::find($detail->variant_id);
+                    if ($variant) {
+                        $variant->increment('stock', $detail->quantity);
+                    }
+                } else {
+                    $product = \App\Models\Product::find($detail->product_id);
+                    if ($product) {
+                        $product->increment('stock', $detail->quantity);
+                    }
                 }
             }
-        }
 
-        // Tăng usage_count của mã giảm giá nếu có
-        $orderCoupons = OrderCoupon::where('order_id', $order_id)->get();
-        foreach ($orderCoupons as $orderCoupon) {
-            $coupon = Coupon::find($orderCoupon->coupon_id);
-            if ($coupon) {
-                $coupon->decrement('usage_count');
-            }
-        }
-
-        // Hoàn tiền nếu không phải COD
-        if ($order->payment_method != 'cod') {
-            if ($order->payment_method === 'wallet' || ($order->payment_method !== 'wallet' && $order->status_id == 1)) {
-                $user = auth()->user();
-                $wallet = \App\Models\Wallet::where('user_id', $user->user_id)->first();
-                if (! $wallet) {
-                    return redirect()->route('order.index')->with('error', 'Không tìm thấy ví để hoàn tiền.');
+            // Tăng usage_count của mã giảm giá nếu có
+            $orderCoupons = OrderCoupon::where('order_id', $order_id)->get();
+            foreach ($orderCoupons as $orderCoupon) {
+                $coupon = Coupon::find($orderCoupon->coupon_id);
+                if ($coupon) {
+                    $coupon->decrement('usage_count');
                 }
-
-                $wallet->increment('balance', $order->total);
-
-                \App\Models\WalletTransaction::create([
-                    'wallet_id' => $wallet->wallet_id,
-                    'amount' => $order->total,
-                    'type' => 'refund',
-                    'description' => 'Hoàn tiền khi hủy đơn hàng #'.$order->order_code,
-                    'status' => 'completed',
-                ]);
             }
+
+            // Hoàn tiền nếu không phải COD
+            if ($order->payment_method != 'cod') {
+                if ($order->payment_method === 'wallet' || ($order->payment_method !== 'wallet' && $order->status_id == 1)) {
+                    $user = auth()->user();
+                    $wallet = \App\Models\Wallet::where('user_id', $user->user_id)->first();
+                    if (! $wallet) {
+                        return redirect()->route('order.index')->with('error', 'Không tìm thấy ví để hoàn tiền.');
+                    }
+
+                    $wallet->increment('balance', $order->total);
+
+                    \App\Models\WalletTransaction::create([
+                        'wallet_id' => $wallet->wallet_id,
+                        'amount' => $order->total,
+                        'type' => 'refund',
+                        'description' => 'Hoàn tiền khi hủy đơn hàng #' . $order->order_code,
+                        'status' => 'completed',
+                    ]);
+                }
+            }
+
+            // Cập nhật trạng thái đơn hàng thành "Đã hủy" và lưu lý do hủy (nếu có)
+            $order->status_id = 3;
+            $order->cancel_reason = $cancelReason;
+            $order->save();
+
+            return redirect()->route('order.index')->with('success', 'Đã hủy đơn và cập nhật kho thành công.');
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi hủy đơn: ' . $e->getMessage());
+
+            return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi hủy đơn.');
         }
-
-        // Cập nhật trạng thái đơn hàng thành "Đã hủy" và lưu lý do hủy (nếu có)
-        $order->status_id = 3;
-        $order->cancel_reason = $cancelReason;
-        $order->save();
-
-        return redirect()->route('order.index')->with('success', 'Đã hủy đơn và cập nhật kho thành công.');
-    } catch (\Exception $e) {
-        Log::error('Lỗi khi hủy đơn: '.$e->getMessage());
-
-        return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi hủy đơn.');
     }
-}
 
 
     public function confirmReceived($order_id)
@@ -493,7 +491,7 @@ class OrderController extends Controller
             return redirect()->route('order.index')->with('success', 'Nhận hàng thành công.');
         } catch (\Exception $e) {
             // Log lỗi nếu có exception
-            Log::error('Lỗi khi nhận hàng: '.$e->getMessage());
+            Log::error('Lỗi khi nhận hàng: ' . $e->getMessage());
 
             return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi nhận hàng.');
         }
@@ -520,7 +518,7 @@ class OrderController extends Controller
                         'wallet_id' => $wallet->wallet_id,
                         'amount' => $order->total,
                         'type' => 'refund',
-                        'description' => 'Hoàn tiền cho đơn hàng #'.$order->order_code,
+                        'description' => 'Hoàn tiền cho đơn hàng #' . $order->order_code,
                         'status' => 'completed',
                     ]);
                 }
@@ -533,9 +531,8 @@ class OrderController extends Controller
             }
 
             return redirect()->route('order.index')->with('error', 'Đơn hàng không đủ điều kiện để hoàn tiền.');
-
         } catch (\Exception $e) {
-            Log::error('Lỗi khi hoàn tiền đơn hàng: '.$e->getMessage());
+            Log::error('Lỗi khi hoàn tiền đơn hàng: ' . $e->getMessage());
 
             return redirect()->route('order.index')->with('error', 'Đã xảy ra lỗi khi hoàn tiền.');
         }
@@ -543,7 +540,7 @@ class OrderController extends Controller
 
     public function returnRequest(Request $request)
     {
-        Log::info('Return request received for order_id: '.$request->order_id);
+        Log::info('Return request received for order_id: ' . $request->order_id);
 
         // Kiểm tra dữ liệu gửi lên
         Log::info('Request Data: ', $request->all());
@@ -563,7 +560,7 @@ class OrderController extends Controller
 
         // Kiểm tra xem đã có yêu cầu trả hàng chưa
         if ($order->returnRequest) {
-            Log::info('Return request already exists for order_id: '.$order->order_id);
+            Log::info('Return request already exists for order_id: ' . $order->order_id);
 
             return redirect()->back()->with('error', 'Bạn đã gửi yêu cầu trước đó.');
         }
@@ -572,7 +569,7 @@ class OrderController extends Controller
         $attachmentPaths = [];
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                Log::info('Uploading file: '.$file->getClientOriginalName());
+                Log::info('Uploading file: ' . $file->getClientOriginalName());
                 $attachmentPaths[] = $file->store('refunds', 'public');
             }
         }
@@ -589,17 +586,17 @@ class OrderController extends Controller
                 'status' => 'pending',
             ]);
 
-            Log::info('Refund request created successfully for order_id: '.$refundRequest->order_id);
+            Log::info('Refund request created successfully for order_id: ' . $refundRequest->order_id);
 
             return redirect()->back()->with('success', 'Yêu cầu trả hàng đã được gửi.');
         } catch (\Exception $e) {
-            Log::error('Lỗi khi tạo refund request: '.$e->getMessage());
+            Log::error('Lỗi khi tạo refund request: ' . $e->getMessage());
 
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi gửi yêu cầu trả hàng.');
         }
 
         // Ghi thông tin hoàn tất yêu cầu hoàn tiền
-        Log::info('Refund request created for order_id: '.$refundRequest->order_id);
+        Log::info('Refund request created for order_id: ' . $refundRequest->order_id);
 
         // Trả về kết quả
         return redirect()->back()->with('success', 'Yêu cầu trả hàng đã được gửi.');
