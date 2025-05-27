@@ -125,16 +125,15 @@ $totalProducts = \App\Models\Product::when($fromDate && $toDate, function ($quer
 
 
     $last7Days = collect();
-for ($i = 6; $i >= 0; $i--) {
-    $date = Carbon::today()->subDays($i)->toDateString();
-    if ($date < $fromDate || $date > $toDate) continue;
-
+    $start = Carbon::parse($fromDate);
+$end = Carbon::parse($toDate);
+for ($date = $start; $date->lte($end); $date->addDay()) {
     $revenue = Order::whereDate('created_at', $date)
         ->whereIn('status_id', [4, 6])
         ->sum('total');
 
     $last7Days->push([
-        'date' => $date,
+        'date' => $date->toDateString(),
         'revenue' => $revenue,
     ]);
 }
