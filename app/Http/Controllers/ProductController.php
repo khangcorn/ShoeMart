@@ -48,7 +48,7 @@ if ($sort === 'asc') {
 }
 
 
-        $products = $query->paginate(5);
+        $products = $query->latest()->paginate(5);
         $categories = Category::all();
 
         return view('admin.product.index', compact('products', 'categories'));
