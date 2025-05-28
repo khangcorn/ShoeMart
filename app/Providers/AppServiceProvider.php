@@ -24,8 +24,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Sử dụng Bootstrap cho phân trang
-        Paginator::useBootstrapFive();
-        Paginator::useBootstrapFour();
+        // Paginator::useBootstrapFive();
+        // Paginator::useBootstrapFour();
+        Paginator::useTailwind();
 
         // Truyền số lượng sản phẩm trong giỏ hàng đến tất cả view
         View::composer('*', function ($view) {
