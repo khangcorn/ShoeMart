@@ -60,18 +60,7 @@
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
                             <div class="flex space-x-3.5">
-                                <!-- Cột chứa ảnh biến thể -->
-                                <div class="flex flex-col space-y-2 overflow-y-auto h-full" id="variant-images-display">
-                                    @foreach ($product->variants as $variant)
-                                    @php
-                                        $variantImage = optional($variant->images->first())->image_url;
-                                    @endphp
-                                
-                                    <img class="" 
-                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
-                                        alt="{{ $variant->color ?? 'No Color' }}" 
-                                        onclick="updateProductDetails(this)">
-                                @endforeach
+                              
                                 
                                 </div>
 
@@ -81,7 +70,7 @@
                                   $mainImage = optional($product->images->first())->image_url;
                                     @endphp
                                    <img id="main-product-image"
-                                   class="object-cover w-auto h-[550px] " 
+                                   class="object-cover w-auto rounded-xl h-[300px] " 
                                     alt="{{ $product->name }}"
                                    src="{{ asset($mainImage ? 'storage/' . $mainImage : 'storage/default-image.jpg') }}">
 
@@ -96,6 +85,18 @@
                                         </svg> Highly Rated
                                     </p>
                                 </div>
+                                  <!-- Cột chứa ảnh biến thể -->
+                                  <div class="flex  space-x-2 mt-2 overflow-y-auto h-full" id="variant-images-display">
+                                    @foreach ($product->variants as $variant)
+                                    @php
+                                        $variantImage = optional($variant->images->first())->image_url;
+                                    @endphp
+                                
+                                    <img class="" 
+                                        src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}" 
+                                        alt="{{ $variant->color ?? 'No Color' }}" 
+                                        onclick="updateProductDetails(this)">
+                                @endforeach
                             </div>
 
                         </div>
@@ -157,7 +158,7 @@
                         data-stock="{{ $variant->stock }}"
                         data-images="{{ json_encode($variant->images) }}">
                 
-                        <img class="object-cover cursor-pointer w-[85px] h-[85px] rounded-md"
+                        <img class="object-cover cursor-pointer w-[90px] h-[90px] rounded-md"
                             src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
                             alt="{{ $variant->color ?? 'No Color' }}"
                             onclick="updateProductDetails(this)">

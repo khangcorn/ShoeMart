@@ -277,7 +277,7 @@ canvas {
                 },
                 y: {
                     ticks: { color: 'black', font: { size: 13 } },
-                    title: { display: true, color: 'black', font: { size: 14, weight: '600' } },
+                    title: { display: true, color: 'white', font: { size: 14, weight: '600' } },
                     grid: { color: '#444' }
                 }
             }
@@ -335,7 +335,7 @@ canvas {
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: 'black', font: { size: 14 } } },
+                    legend: { position: 'bottom', labels: { color: 'white', font: { size: 14 } } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -362,7 +362,7 @@ canvas {
                     fill: false,
                     borderColor: 'rgba(255, 99, 132, 0.9)',
                     tension: 0.3,
-                    pointBackgroundColor: 'black',
+                    pointBackgroundColor: 'white',
                     pointBorderColor: 'rgba(255, 99, 132, 1)',
                     pointRadius: 5,
                     borderWidth: 3,
@@ -511,14 +511,14 @@ new Chart(topSellingProductsCtx, {
                     minRotation: 30,
                     autoSkip: false,
                     font: { size: 10 },
-                    color: 'black'
+                    color: 'white'
                 },
                 title: { ...commonOptions.scales.x.title, text: 'Sản phẩm' }
             },
             y: {
                 ...commonOptions.scales.y,
                 beginAtZero: true,
-                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: 'black' },
+                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: 'white' },
                 title: { ...commonOptions.scales.y.title, text: 'Số lượng bán' }
             }
         }
