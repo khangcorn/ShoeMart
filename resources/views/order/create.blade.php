@@ -28,7 +28,8 @@
         </script>
     @endif
     <div class="container mx-auto p-6">
-        <h2 class="text-2xl font-semibold mb-4">Thanh toán</h2>
+      
+        <h2 class="text-2xl font-semibold mb-4">Thông tin thanh toán</h2>
 
         <!-- Form đặt hàng -->
         <form id="orderForm" action="{{ route('order.store') }}" method="POST">
@@ -318,7 +319,7 @@
 
                     <div class="order-summary mt-4">
                         <!-- Tổng tiền giỏ hàng -->
-                        <p class="summary-item text-lg font-bold">
+                        <p class="summary-item text-lg font-semibold">
                             Tổng tiền giỏ hàng:
                             <span id="cartTotal" class="amount">
                                 {{ number_format($total, 0, ',', '.') }} đ
@@ -327,7 +328,7 @@
 
                         <!-- Phí vận chuyển -->
                         <div class="shipping-info">
-                            <p id="shippingFeeText" class="summary-item text-lg font-bold">Phí vận chuyển:
+                            <p id="shippingFeeText" class="summary-item text-lg font-semibold">Phí vận chuyển:
                                 @if ($shippingFeeValue > 0)
                                     {{ number_format($shippingFeeValue, 0, ',', '.') }} đ
                                 @else
@@ -341,7 +342,7 @@
                         </div>
 
                         <!-- Giảm giá đơn hàng -->
-                        <p class="summary-item text-lg font-bold">
+                        <p class="summary-item text-lg font-semibold">
                             Giảm giá đơn hàng:
                             <span id="orderDiscount" class="discount">
                                 {{ number_format($orderDiscount ?? 0, 0, ',', '.') }} đ
@@ -349,7 +350,7 @@
                         </p>
 
                         <!-- Giảm giá phí vận chuyển -->
-                        <p class="summary-item text-lg font-bold">
+                        <p class="summary-item text-lg font-semibold">
                             Giảm giá phí vận chuyển:
                             <span id="shippingDiscount" class="discount">
                                 {{ number_format($shippingDiscount ?? 0, 0, ',', '.') }} đ
@@ -357,8 +358,8 @@
                         </p>
 
                         <!-- Tổng tiền thanh toán -->
-                        <p class="summary-item mt-4 text-lg font-bold">
-                            <strong>Tổng tiền thanh toán:</strong>
+                        <p class="summary-item mt-4 text-lg font-semibold">
+                            <span>Tổng tiền thanh toán:</span>
                             <span id="totalPrice" class="total-price">
                                 {{ number_format(
                                     max(0, $total + ($shippingFeeValue ?? 0) - ($orderDiscount ?? 0) - ($shippingDiscount ?? 0)),
