@@ -24,6 +24,141 @@
         <div class="flex transition-all duration-500 ease-in-out space-x-4 ">
             <!-- Cột Category (20%) -->
             <div id="categoryColumn" class="w-1/5 bg-white transition-all duration-500 ease-in-out">
+                 <!-- Dropdown Size Filter -->
+                 <div class="">
+                    <button id="sizeToggle"
+                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
+                        Sắp xếp theo kích cỡ
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <div id="sizeDropdown" class="hidden space-y-2 rounded-md mb-2">
+                        <div class="grid grid-cols-4 gap-2 p-0.5">
+                          <button type="button" data-size="30"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            30
+                          </button>
+                          <button type="button" data-size="31"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            31
+                          </button>
+                          <button type="button" data-size="32"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            32
+                          </button>
+                          <button type="button" data-size="33"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            33
+                          </button>
+                          <button type="button" data-size="34"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            34
+                          </button>
+                          <button type="button" data-size="35"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            35
+                          </button>
+                          <button type="button" data-size="35.5"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            35.5
+                          </button>
+                          <button type="button" data-size="36"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            36
+                          </button>
+                          <button type="button" data-size="37"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            37
+                          </button>
+                          <button type="button" data-size="38"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            38
+                          </button>
+                          <button type="button" data-size="39"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            39
+                          </button>
+                          <button type="button" data-size="40"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            40
+                          </button>
+                          <button type="button" data-size="41"
+                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                            41
+                          </button>
+                        </div>
+                      </div>
+                      
+                </div>
+                 <!-- Dropdown Gender -->
+                 <div class="">
+                    <button id="genderToggle"
+                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
+                        Sắp xếp theo giới tính
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <g clip-path="url(#clip0_429_11251)">
+                                    <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round"></path>
+                                    <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round"></path>
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_429_11251">
+                                        <rect width="24" height="24" fill="white"></rect>
+                                    </clipPath>
+                                </defs>
+                            </g>
+                        </svg>
+                    </button>
+                    <div id="genderDropdown" class="hidden rounded-md space-y-2 mb-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="gender[]" value="Men" class="form-checkbox">
+                            <span class="font-semibold">Nam</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="gender[]" value="Women" class="form-checkbox">
+                            <span class="font-semibold">Nữ</span>
+                        </label>
+                      
+                    </div>
+                </div>
+                 <!-- Dropdown Price Filter -->
+                 <div class="">
+                    <button id="priceToggle"
+                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
+                        Sắp xếp theo
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <div id="priceDropdown" class="hidden space-y-2 rounded-md mb-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="sortPriceAsc" class="form-checkbox">
+                            <span class="font-semibold">Giá: Cao tới thấp</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="sortPriceDesc" class="form-checkbox">
+                            <span class="font-semibold">Giá: Thấp tới cao</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="sortNewest" class="form-checkbox">
+                            <span class="font-semibold">Mới nhất</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="py-2">
+                    <p class="font-semibold text-lg mb-2">Từ khóa phổ biến</p>
                 <ul class="space-y-3" id="categoryList">
                     <li><a href="#" class="category-filter text-black font-semibold text-md"
                             data-category="lifestyle">Lifestyle</a></li>
@@ -50,44 +185,11 @@
                     <li><a href="#" class="category-filter text-black font-semibold text-md"
                             data-category="walking">Walking</a></li>
                 </ul>
-
-
-
-                <!-- Dropdown Gender -->
-                <div class="mt-4">
-                    <button id="genderToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
-                        Gender
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g id="SVGRepo_iconCarrier">
-                                <g clip-path="url(#clip0_429_11251)">
-                                    <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_429_11251">
-                                        <rect width="24" height="24" fill="white"></rect>
-                                    </clipPath>
-                                </defs>
-                            </g>
-                        </svg>
-                    </button>
-                    <div id="genderDropdown" class="hidden rounded-md space-y-2 mb-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="gender[]" value="Men" class="form-checkbox">
-                            <span class="font-semibold">Men</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="gender[]" value="Women" class="form-checkbox">
-                            <span class="font-semibold">Women</span>
-                        </label>
-                      
-                    </div>
                 </div>
+
+
+
+               
                 <script>
                     document.addEventListener("DOMContentLoaded", function () {
                         const genderCheckboxes = document.querySelectorAll("input[name='gender[]']");
@@ -123,177 +225,59 @@
                         });
                     });
                 </script>
-                <!-- Dropdown Price Filter -->
-                <div class="">
-                    <button id="priceToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
-                        Sort By
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                    <div id="priceDropdown" class="hidden space-y-2 rounded-md mb-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="sortPriceAsc" class="form-checkbox">
-                            <span class="font-semibold">Price: Low-High</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="sortPriceDesc" class="form-checkbox">
-                            <span class="font-semibold">Price: High-Low</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="sortNewest" class="form-checkbox">
-                            <span class="font-semibold">Newest</span>
-                        </label>
-                    </div>
-                </div>
-                <!-- Dropdown Colour Filter -->
-                <div class="">
-                    <button id="colourToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
-                        Colours
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                    <div id="colourDropdown" class="hidden space-y-2 rounded-md mb-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorBlack" class="form-checkbox">
-                            <span class="font-semibold">Black</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorWhite" class="form-checkbox">
-                            <span class="font-semibold">White</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorRed" class="form-checkbox">
-                            <span class="font-semibold">Red</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" id="colorPink" class="form-checkbox">
-                            <span class="font-semibold">Pink</span>
-                        </label>
-                    </div>
-                </div>
+               
+      
+                    
+               
+                
                 <script>
                     document.addEventListener("DOMContentLoaded", function () {
-                        // Lấy các phần tử
-                        const colourToggle = document.getElementById("colourToggle");
-                        const colourDropdown = document.getElementById("colourDropdown");
-                        const colorCheckboxes = document.querySelectorAll("#colourDropdown input[type='checkbox']");
-
-                        // Toggle hiển thị dropdown
-                        colourToggle.addEventListener("click", function () {
-                            colourDropdown.classList.toggle("hidden");
+                        const sizeToggle = document.getElementById("sizeToggle");
+                        const sizeDropdown = document.getElementById("sizeDropdown");
+                        const sizeButtons = document.querySelectorAll(".size-btn");
+                        const productContainer = document.querySelector('#productColumn .grid');
+                        const allProducts = Array.from(productContainer.children);
+                    
+                        // Toggle dropdown
+                        sizeToggle.addEventListener("click", function () {
+                            sizeDropdown.classList.toggle("hidden");
                         });
-
-                        // Chỉ cho phép chọn một màu duy nhất
-                        colorCheckboxes.forEach(checkbox => {
-                            checkbox.addEventListener("change", function () {
-                                if (this.checked) {
-                                    colorCheckboxes.forEach(cb => {
-                                        if (cb !== this) cb.checked = false;
-                                    });
-                                }
+                    
+                        // Khi chọn size => toggle class và lọc sản phẩm
+                        sizeButtons.forEach(button => {
+                            button.addEventListener("click", function () {
+                                this.classList.toggle("ring-2");
+                                this.classList.toggle("ring-black");
+                                this.classList.toggle("bg-white");
+                                this.classList.toggle("text-black");
+                    
+                                filterProductsBySize();
                             });
                         });
+                    
+                        function filterProductsBySize() {
+                            // Lấy các size đang chọn
+                            const selectedSizes = Array.from(sizeButtons)
+                                .filter(btn => btn.classList.contains("ring-2"))
+                                .map(btn => btn.getAttribute("data-size"));
+                    
+                            if (selectedSizes.length === 0) {
+                                // Không chọn size nào thì hiện tất cả
+                                allProducts.forEach(p => p.style.display = "");
+                                return;
+                            }
+                    
+                            // Chỉ hiển thị các sản phẩm có data-size khớp
+                            allProducts.forEach(product => {
+                                const productSize = product.getAttribute("data-sizes");
+                                product.style.display = selectedSizes.includes(productSize) ? "" : "none";
+                            });
+                            
+                        }
                     });
-                </script>
-                <!-- Dropdown Size Filter -->
-                <div class="">
-                    <button id="sizeToggle"
-                        class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
-                        Size
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                            <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                    <div id="sizeDropdown" class="hidden space-y-2 rounded-md mb-2">
-                        <div class="grid grid-cols-4 gap-2 p-0.5">
-                            <button type="button" data-value="35"
-                                class="size-btn bg-white text-gray-700 font-semibold px-1.5 py-1 border border-gray-200 rounded-md transition">
-                                35
-                            </button>
-                            <button type="button" data-value="35.5"
-                                class="size-btn bg-white text-gray-700 font-semibold px-1.5 py-1 border border-gray-200 rounded-md transition">
-                                35.5
-                            </button>
-                            <button type="button" data-value="36"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                36
-                            </button>
-                            <button type="button" data-value="36.5"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                36.5
-                            </button>
-                            <button type="button" data-value="37"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                37
-                            </button>
-                            <button type="button" data-value="37.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            37.5
-                        </button>
-                            <button type="button" data-value="38"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                38
-                            </button>
-                            <button type="button" data-value="38.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            38.5
-                        </button>
-                            <button type="button" data-value="39"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                39
-                            </button>
-                            <button type="button" data-value="40"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                40
-                            </button>
-                            <button type="button" data-value="40.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            40.5
-                        </button>
-                            <button type="button" data-value="41"
-                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                                41
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    </script>
+                    
                 
-                <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    const sizeToggle = document.getElementById("sizeToggle");
-                    const sizeDropdown = document.getElementById("sizeDropdown");
-                    const sizeButtons = document.querySelectorAll(".size-btn");
-                
-                    // Toggle dropdown
-                    sizeToggle.addEventListener("click", function () {
-                        sizeDropdown.classList.toggle("hidden");
-                    });
-                
-                    // Toggle button active state
-                    sizeButtons.forEach(button => {
-                        button.addEventListener("click", function () {
-                            this.classList.toggle("ring-2");
-                            this.classList.toggle("ring-black");
-                            this.classList.toggle("bg-white");
-                            this.classList.toggle("text-black");
-                        });
-                    });
-                });
-                </script>
                 
 
 
@@ -325,71 +309,89 @@
                     </div> --}}
                     
                     @foreach ($products as $product)
-                        <div class="bg-white product-item"
-                            data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
-                            data-category="{{ Str::slug($product->category->name) }}"
-                            data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}">
-
-                            <a href="{{ route('products.detail', $product->product_id) }}">
-                                @if ($product->images->isNotEmpty())
-                                    <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
-                                        class="w-[312px] h-[312px] object-cover" alt="{{ $product->name }}">
-                                @else
-                                    <img src="{{ asset('storage/default.jpg') }}"
-                                        class="w-[312px] h-[312px] object-cover border-[1px] border-gray-300" alt="No Image">
-                                @endif
-                            </a>
-
-                            <p class="font-semibold text-orange-600 mt-2">
-                                {{ $product->category->parent ? $product->category->parent->name : $product->category->name }}
-                            </p>
-                            <a href="{{ route('products.detail', $product->product_id) }}">
-                                <p class="font-semibold">{{ $product->name }}</p>
-                            </a>
-                            <p class="font-semibold text-gray-500">
-                                {{ $product->category->name }}
-                            </p>
-                            @php
-    $hasVariants = $product->variants && $product->variants->count() > 0;
-
-    if ($hasVariants) {
-        $lowestVariant = $product->variants->sortBy(function ($variant) {
-            return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
-        })->first();
-
-        $originalPrice = $lowestVariant->price;
-        $salePrice = $lowestVariant->price_sale;
-    } else {
-        $originalPrice = $product->price;
-        $salePrice = $product->price_sale;
-    }
-@endphp
-
-<p class="text-black font-semibold mb-2 space-x-1">
-    @if ($salePrice && $salePrice > 0)
-        <span class="text-gray-500 line-through">
-            {{ number_format($originalPrice, 0, ',', '.') }}
-           
-        </span>
- <span class="text-xs underline font-thin align-top">đ</span>
-        <span>/</span>
-
-        <span>
-            {{ number_format($salePrice, 0, ',', '.') }}
-            <span class="text-xs underline font-thin align-top">đ</span>
-        </span>
-    @else
-        <span>
-            {{ number_format($originalPrice, 0, ',', '.') }}
-            <span class="text-xs underline font-thin align-top">đ</span>
-        </span>
-    @endif
-</p>
-
-                              
-
-                        </div>
-                    @endforeach
+                    @php
+                        // Lấy danh sách size và color từ các variant
+                        $sizes = [];
+                        $colors = [];
+                
+                        foreach ($product->variants as $variant) {
+                            $sizeAttr = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size');
+                            $colorAttr = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color');
+                
+                            if ($sizeAttr) $sizes[] = $sizeAttr->variantAttribute->attribute_value;
+                            if ($colorAttr) $colors[] = strtolower($colorAttr->variantAttribute->attribute_value);
+                        }
+                
+                        $sizes = array_unique($sizes);
+                        $colors = array_unique($colors);
+                    @endphp
+                
+                    <div class="bg-white product-item"
+                        data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
+                        data-category="{{ Str::slug($product->category->name) }}"
+                        data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}"
+                        data-sizes="{{ implode(',', $sizes) }}"
+                        data-colors="{{ implode(',', $colors) }}"
+                    >
+                        {{-- Phần ảnh và thông tin như cũ --}}
+                        <a href="{{ route('products.detail', $product->product_id) }}">
+                            @if ($product->images->isNotEmpty())
+                                <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
+                                    class="w-[312px] h-[312px] object-cover" alt="{{ $product->name }}">
+                            @else
+                                <img src="{{ asset('storage/default.jpg') }}"
+                                    class="w-[312px] h-[312px] object-cover border-[1px] border-gray-300" alt="No Image">
+                            @endif
+                        </a>
+                
+                        <p class="font-semibold text-orange-600 mt-2">
+                            {{ $product->category->parent ? $product->category->parent->name : $product->category->name }}
+                        </p>
+                        <a href="{{ route('products.detail', $product->product_id) }}">
+                            <p class="font-semibold">{{ $product->name }}</p>
+                        </a>
+                        <p class="font-semibold text-gray-500">
+                            {{ $product->category->name }}
+                        </p>
+                
+                        {{-- Giá như cũ --}}
+                        @php
+                            $hasVariants = $product->variants && $product->variants->count() > 0;
+                
+                            if ($hasVariants) {
+                                $lowestVariant = $product->variants->sortBy(function ($variant) {
+                                    return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
+                                })->first();
+                
+                                $originalPrice = $lowestVariant->price;
+                                $salePrice = $lowestVariant->price_sale;
+                            } else {
+                                $originalPrice = $product->price;
+                                $salePrice = $product->price_sale;
+                            }
+                        @endphp
+                
+                        <p class="text-black font-semibold mb-2 space-x-1">
+                            @if ($salePrice && $salePrice > 0)
+                                <span class="text-gray-500 line-through">
+                                    {{ number_format($originalPrice, 0, ',', '.') }}
+                                </span>
+                                <span class="text-xs underline font-thin align-top">đ</span>
+                                <span>/</span>
+                                <span>
+                                    {{ number_format($salePrice, 0, ',', '.') }}
+                                    <span class="text-xs underline font-thin align-top">đ</span>
+                                </span>
+                            @else
+                                <span>
+                                    {{ number_format($originalPrice, 0, ',', '.') }}
+                                    <span class="text-xs underline font-thin align-top">đ</span>
+                                </span>
+                            @endif
+                        </p>
+                    </div>
+                @endforeach
+                
                 </div>
             </div>
 
@@ -435,6 +437,7 @@
 
 
     <script>
+        
         document.getElementById("toggleFilter").addEventListener("click", function () {
             let categoryColumn = document.getElementById("categoryColumn");
             let productColumn = document.getElementById("productColumn");
