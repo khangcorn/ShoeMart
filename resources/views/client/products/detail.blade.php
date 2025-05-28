@@ -492,6 +492,11 @@ function updateCartIcon(count) {
 
 
 function addToCart() {
+    const selectedSize = document.querySelector(".size-option.ring-2");
+    if (!selectedSize) {
+        alert("Vui lòng chọn size trước khi thêm vào giỏ hàng.");
+        return;
+    }
     let productId = this.getAttribute("data-product");
     let variantId = this.getAttribute("data-variant");
     let quantityInput = document.getElementById("quantity");
