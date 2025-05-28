@@ -62,7 +62,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::post('/profile/update-address', [UserController::class, 'updateAddress'])->name('update-address');
     Route::post('/profile/update-avatar', [UserController::class, 'updateAvatar'])->name('update-avatar');
-
 });
 Route::middleware('auth')->group(function () {
     // Giỏ hàng
@@ -116,20 +115,24 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/request-access', [App\Http\Controllers\Admin\UserController::class, 'requestAccess'])->name('admin.request-access');
     Route::post('/admin/send-request', [App\Http\Controllers\Admin\UserController::class, 'sendRequest'])->name('admin.send-request');
-
 });
 
-    Route::get('/', [HomeController::class, 'home'])->name('home');
-    Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
-    Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
-    Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
-    Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
-    Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
-    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/products/{id}/variant-details', [HomeController::class, 'getVariantDetails'])->name('products.variantDetails');
+Route::get('/products', [HomeController::class, 'getall'])->name('products.all');
+Route::patch('/products/{product}/toggle-visibility', [ProductController::class, 'toggleVisibility'])
+    ->name('products.toggleVisibility')
+    ->middleware('check_permission:toggle_products_visibility');
+
+
+Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
+Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
+Route::post('/check-coupon', [CouponController::class, 'check'])->name('coupon.check');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+
 Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/admin-users', [App\Http\Controllers\Admin\AdminAccessController::class, 'index'])
         ->middleware('check_permission:admin_create')
@@ -145,22 +148,22 @@ Route::prefix('admin')->middleware(['auth', 'admin.access'])->group(function () 
 
     Route::get('/admin-users/{user}/change-password', [App\Http\Controllers\Admin\AdminAccessController::class, 'changePasswordForm'])
         ->name('admin.users.change-password.form');
-// Trả về quyền hiện tại của user dạng JSON
-Route::get('/admin-users/{user}/permissions/json', [AdminAccessController::class, 'getPermissionsJson'])
-    ->name('admin.users.permissions.json');
+    // Trả về quyền hiện tại của user dạng JSON
+    Route::get('/admin-users/{user}/permissions/json', [AdminAccessController::class, 'getPermissionsJson'])
+        ->name('admin.users.permissions.json');
 
-// Cập nhật quyền
-Route::post('/admin-users/{user}/permissions', [AdminAccessController::class, 'updatePermissions'])
-    ->name('admin.users.permissions.update');
+    // Cập nhật quyền
+    Route::post('/admin-users/{user}/permissions', [AdminAccessController::class, 'updatePermissions'])
+        ->name('admin.users.permissions.update');
 
     Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::get('/requests', [App\Http\Controllers\Admin\UserController::class, 'viewRequests'])
         ->middleware('check_permission:access_request.view')
         ->name('admin.view-requests');
-Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggleHidden'])
-->middleware('check_permission:review_toggleHidden')
-->name('admin.reviews.toggleHidden');
+    Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggleHidden'])
+        ->middleware('check_permission:review_toggleHidden')
+        ->name('admin.reviews.toggleHidden');
 
     Route::post('/requests/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approveRequest'])
 
@@ -176,7 +179,7 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
     Route::get('admin/reviews/product/{productId}', [ReviewController::class, 'show'])->name('admin.reviews.productReviews');
 
     Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])
-->middleware('check_permission:review.delete')
+        ->middleware('check_permission:review.delete')
         ->name('admin.reviews.destroy');
 
     Route::get('reviews/{id}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])
@@ -192,17 +195,17 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
         ->middleware('check_permission:view_refunds')
         ->name('admin.refunds.index');
     Route::post('/refund-requests/{id}/approve', [RefundRequestController::class, 'approve'])
-    ->middleware('check_permission:process_refund')->name('admin.refunds.approve');
+        ->middleware('check_permission:process_refund')->name('admin.refunds.approve');
     Route::post('/refund-requests/{id}/reject', [RefundRequestController::class, 'reject'])
-    ->middleware('check_permission:reject_refund')->name('admin.refunds.reject');
+        ->middleware('check_permission:reject_refund')->name('admin.refunds.reject');
 
     // Withdraw Requests
     Route::get('withdraw', [WithdrawRequestController::class, 'index'])
-    ->middleware('check_permission:view_withdraw_requests')
-    ->name('admin.withdraw.index');
+        ->middleware('check_permission:view_withdraw_requests')
+        ->name('admin.withdraw.index');
     Route::patch('withdraw/{withdraw}', [WithdrawRequestController::class, 'update'])
-    ->middleware('check_permission:approve_withdraw')
-    ->name('admin.withdraw.update');
+        ->middleware('check_permission:approve_withdraw')
+        ->name('admin.withdraw.update');
 
     // Quản lý sản phẩm, danh mục, size, màu sắc, v.v...
     Route::resource('products', ProductController::class);
@@ -223,11 +226,11 @@ Route::post('/reviews/{review}/toggle-hidden', [ReviewController::class, 'toggle
     Route::get('/orders', [AdminOrderController::class, 'index'])->middleware('check_permission:view_orders')->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->middleware('check_permission:view_order_details')->name('admin.orders.show');
     Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
-    ->middleware('check_permission:delete_order')
-    ->name('admin.orders.cancel');
+        ->middleware('check_permission:delete_order')
+        ->name('admin.orders.cancel');
     Route::put('/orders/{order}/details/{detail}/cancel', [AdminOrderController::class, 'cancelOrderDetail'])
-    ->middleware('check_permission:delete_order_statuses')
-    ->name('admin.orders.details.cancel');
+        ->middleware('check_permission:delete_order_statuses')
+        ->name('admin.orders.details.cancel');
     Route::put('/orders/{order}/ajax-update-status', [AdminOrderController::class, 'ajaxUpdateStatus'])->middleware('check_permission:update_order_status')->name('admin.orders.ajaxUpdateStatus');
 
     // Xóa biến thể
@@ -249,4 +252,3 @@ Route::get('/payment/vnpay/return', [VnPayController::class, 'vnpayReturn'])->na
 
 
 Route::get('/check-ip', [VnPayController::class, 'checkIp']);
-

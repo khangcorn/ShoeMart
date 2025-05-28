@@ -60,8 +60,9 @@
 </style>
 
 <div class="p-6">
-    <h1 class="text-2xl font-semibold mb-6">Danh sách yêu cầu rút tiền</h1>
-
+    <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
+    <h1 class="text-lg font-semibold">Danh sách yêu cầu rút tiền</h1>
+      </div> 
    <table class="w-full ">
                 <thead class=" text-gray-700">
                     <tr class="border-b border-gray-300">

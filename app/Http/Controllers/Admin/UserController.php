@@ -65,7 +65,7 @@ class UserController extends Controller
     }
 
     // 1. Tổng doanh thu từ các đơn hoàn thành (id trạng thái = 6)
-   $totalRevenue = Order::where('status_id', 6)
+   $totalRevenue = Order::where('status_id', [4, 6])
     ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
         $query->whereBetween('created_at', [
             Carbon::parse($fromDate)->startOfDay(),
@@ -125,16 +125,15 @@ $totalProducts = \App\Models\Product::when($fromDate && $toDate, function ($quer
 
 
     $last7Days = collect();
-for ($i = 6; $i >= 0; $i--) {
-    $date = Carbon::today()->subDays($i)->toDateString();
-    if ($date < $fromDate || $date > $toDate) continue;
-
+    $start = Carbon::parse($fromDate);
+$end = Carbon::parse($toDate);
+for ($date = $start; $date->lte($end); $date->addDay()) {
     $revenue = Order::whereDate('created_at', $date)
         ->whereIn('status_id', [4, 6])
         ->sum('total');
 
     $last7Days->push([
-        'date' => $date,
+        'date' => $date->toDateString(),
         'revenue' => $revenue,
     ]);
 }
@@ -155,17 +154,24 @@ foreach ($statuses as $status) {
     $orderStatusCountsForChart[] = $status->orders->count();
 }
 
-    $orderCounts = collect();
-for ($i = 29; $i >= 0; $i--) {
-    $date = Carbon::today()->subDays($i)->toDateString();
-    if ($date < $fromDate || $date > $toDate) continue;
+$orderCounts = collect();
 
-    $count = Order::whereDate('created_at', $date)->count();
+$start = Carbon::parse($fromDate)->startOfDay();
+$end = Carbon::parse($toDate)->endOfDay();
+
+while ($start->lte($end)) {
+    $dateString = $start->toDateString();
+
+    $count = Order::whereDate('created_at', $dateString)->count();
+
     $orderCounts->push([
-        'date' => $date,
+        'date' => $dateString,
         'count' => $count,
     ]);
+
+    $start->addDay();
 }
+
 
       $currentYear = Carbon::now()->year;
    $monthlyRevenue = Order::select(

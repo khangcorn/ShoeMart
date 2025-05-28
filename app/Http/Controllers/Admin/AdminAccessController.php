@@ -10,12 +10,23 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminAccessController extends Controller
 {
-   public function index()
+public function index()
 {
-    $users = User::where('created_by', auth()->id())->paginate(10);
+    $users = \App\Models\User::whereHas('roles', function ($query) {
+        // Chỉ rõ bảng roles, cột role_id
+        $query->where('roles.role_id', 3);
+    })
+    ->latest()
+    ->paginate(10);
+
     $permissions = Permission::all();
+
     return view('admin.users.index', compact('users', 'permissions'));
 }
+
+
+
+
 
 
     public function create()

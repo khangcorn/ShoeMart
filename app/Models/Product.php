@@ -27,6 +27,7 @@ class Product extends Model
         'price_sale',
         'stock',
         'category_id',
+        'is_hidden',
     ];
 
     /**
@@ -82,5 +83,16 @@ class Product extends Model
     {
         return $this->hasMany(OrderReview::class, 'product_id', 'product_id');
     }
+  public function averageRating()
+    {
+        return $this->orderReviews()->avg('rating');
+    }
 
+    /**
+     * Lấy tổng lượt đánh giá sản phẩm.
+     */
+    public function totalRatings()
+    {
+        return $this->orderReviews()->count();
+    }
 }

@@ -414,10 +414,33 @@
         .review .star.filled {
             color: #ffc107; /* Bootstrap warning color */
         }
+        .review-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.review-title::before {
+    content: "⭐";
+    position: absolute;
+    left: -25px;
+    font-size: 20px;
+    color: #f39c12;
+}
+
         
             </style>
-                <h4>Đánh giá từ người mua</h4>
-        
+                <h4 class="review-title">Đánh giá từ người mua</h4>
+                    <p>
+                ⭐ Trung bình: {{ $averageRating }} / 5 
+                ({{ $totalRatings }} lượt đánh giá)
+            </p>
                  @include('client.products.product_reviews', ['reviews' => $reviews])
             </div>
     </div>

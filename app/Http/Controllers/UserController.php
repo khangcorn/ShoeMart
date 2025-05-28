@@ -78,6 +78,16 @@ public function login(Request $request)
 
     if (Auth::attempt($request->only('email', 'password'))) {
 
+        $user = Auth::user();
+
+        // Kiểm tra nếu tài khoản bị khóa
+        if ($user->is_blocked) {
+            Auth::logout(); // logout ngay
+            return back()->withErrors([
+                'error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+            ]);
+        }
+
         $now = now()->timestamp;
         $redirectTo = null;
 
@@ -93,16 +103,7 @@ public function login(Request $request)
         $checkoutUrl = session('checkout.intended');
         $checkoutTime = session('checkout.intended_time');
 
-        Log::info('Session trước khi xử lý redirect:', [
-            'cart.intended' => $cartUrl,
-            'cart.intended_time' => $cartTime,
-            'favorite.intended' => $favUrl,
-            'favorite.intended_time' => $favTime,
-            'wishlist.intended' => $wishlistUrl,
-            'wishlist.intended_time' => $wishlistTime,
-            'checkout.intended' => $checkoutUrl,
-            'checkout.intended_time' => $checkoutTime,
-        ]);
+        // (Các phần xử lý session redirect và log như bạn đã viết...)
 
         // Mảng chứa url và thời gian tương ứng nếu tồn tại
         $urls = [];
@@ -121,11 +122,9 @@ public function login(Request $request)
         }
 
         if (!empty($urls)) {
-            // Lấy phần tử có thời gian lớn nhất (gần nhất)
             $latest = collect($urls)->sortByDesc('time')->first();
             $redirectTo = $latest['url'];
 
-            // Xóa hết các session liên quan
             session()->forget([
                 'cart.intended', 'cart.intended_time',
                 'favorite.intended', 'favorite.intended_time',
@@ -133,15 +132,9 @@ public function login(Request $request)
                 'checkout.intended', 'checkout.intended_time',
                 '_intended'
             ]);
-
-            Log::info('Redirect chọn URL gần nhất, đã xóa session redirect.');
         } else {
-            // Fallback về _intended hoặc profile
             $redirectTo = session()->pull('_intended', route('profile'));
-            Log::info('Redirect dùng fallback _intended hoặc profile.');
         }
-
-        Log::info('Redirect sau login về:', ['url' => $redirectTo]);
 
         return redirect()->to($redirectTo);
     }

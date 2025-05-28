@@ -4,8 +4,9 @@
 <div class="py-4 px-4">
 
     {{-- Header --}}
-    <h2 class="text-3xl font-bold mb-6">Danh sách người dùng </h2> 
-
+    <div class="flex justify-between items-center px-6 py-4 bg-blue-600 text-white rounded-t-lg">
+    <h2 class="text-lg font-semibold">Danh sách người dùng </h2> 
+    </div>
     {{-- User Table --}}
     <div class="overflow-x-auto bg-white ">
         <table class="w-full ">
