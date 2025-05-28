@@ -45,34 +45,34 @@
     </div>
     
     <div class="bg-white  p-5 rounded-lg shadow-sm mb-4">
-        <h2 class="text-black text-lg font-semibold py-4 px-4 ">Thống kê doanh thu</h2>
+        <h2 class=" text-lg font-semibold py-4 px-4 ">Thống kê doanh thu</h2>
         <canvas id="revenueChart"></canvas>
     </div>
     
     <div class="bg-white p-5 rounded-lg shadow-sm mb-4">
-        <h2 class="text-black  text-lg font-semibold py-4 px-4">Tỷ lệ trạng thái đơn hàng</h2>
+        <h2 class="  text-lg font-semibold py-4 px-4">Tỷ lệ trạng thái đơn hàng</h2>
         <canvas id="orderStatusChart"></canvas>
     </div>
     
     <div class="bg-white p-5 rounded-lg shadow-sm mb-4">
-        <h2 class="text-black text-lg font-semibold py-4 px-4">Số lượng đơn hàng mỗi ngày</h2>
+        <h2 class="  text-lg font-semibold py-4 px-4">Số lượng đơn hàng mỗi ngày</h2>
         <canvas id="dailyOrdersChart"></canvas>
     </div>
     
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
         <div class="bg-white p-5 rounded-lg shadow-sm">
-            <h2 class="text-black text-lg font-semibold py-4 px-4">Tổng số đơn hàng theo phương thức thanh toán</h2>
+            <h2 class="text-lg font-semibold py-4 px-4">Tổng số đơn hàng theo phương thức thanh toán</h2>
             <canvas id="ordersByPaymentMethodChart"></canvas>
         </div>
     
         <div class="bg-white p-5 rounded-lg shadow-sm">
-            <h2 class="text-black text-lg font-semibold py-4 px-4">Thống kê mã giảm giá</h2>
+            <h2 class=" text-lg font-semibold py-4 px-4">Thống kê mã giảm giá</h2>
             <canvas id="couponStatsChart"></canvas>
         </div>
     </div>
     
     <div class="bg-white p-5 rounded-lg shadow-sm">
-        <h2 class="text-black text-lg font-semibold py-4 px-4">Top sản phẩm bán chạy</h2>
+        <h2 class=" text-lg font-semibold py-4 px-4">Top sản phẩm bán chạy</h2>
         <canvas id="topSellingProductsChart"></canvas>
     </div>
 </div>
@@ -277,7 +277,7 @@ canvas {
                 },
                 y: {
                     ticks: { color: 'black', font: { size: 13 } },
-                    title: { display: true, color: 'white', font: { size: 14, weight: '600' } },
+                    title: { display: true, color: 'black', font: { size: 14, weight: '600' } },
                     grid: { color: '#444' }
                 }
             }
@@ -335,7 +335,7 @@ canvas {
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: 'white', font: { size: 14 } } },
+                    legend: { position: 'bottom', labels: { color: 'black', font: { size: 14 } } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -362,7 +362,7 @@ canvas {
                     fill: false,
                     borderColor: 'rgba(255, 99, 132, 0.9)',
                     tension: 0.3,
-                    pointBackgroundColor: 'white',
+                    pointBackgroundColor: 'black',
                     pointBorderColor: 'rgba(255, 99, 132, 1)',
                     pointRadius: 5,
                     borderWidth: 3,
@@ -400,21 +400,37 @@ new Chart(ordersByPaymentMethodCtx, {
             borderRadius: 5,
         }]
     },
+    
     options: {
-        ...commonOptions,
-        scales: {
-            x: {
-                ...commonOptions.scales.x,
-                title: { ...commonOptions.scales.x.title, text: 'Phương thức thanh toán' }
-            },
-            y: {
-                ...commonOptions.scales.y,
-                beginAtZero: true,
-                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1 },
-                title: { ...commonOptions.scales.y.title, text: 'Số đơn' }
+    ...commonOptions,
+    plugins: {
+        ...commonOptions.plugins,
+        tooltip: {
+            ...commonOptions.plugins?.tooltip,
+            backgroundColor: '#333',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#fff',
+            borderWidth: 1,
+            callbacks: {
+                label: context => `${context.label}: ${context.parsed.y} đơn`
             }
         }
+    },
+    scales: {
+        x: {
+            ...commonOptions.scales?.x,
+            title: { ...commonOptions.scales?.x?.title, text: 'Phương thức thanh toán', color: 'black' }
+        },
+        y: {
+            ...commonOptions.scales?.y,
+            beginAtZero: true,
+            ticks: { ...commonOptions.scales?.y?.ticks, stepSize: 1, color: 'black' },
+            title: { ...commonOptions.scales?.y?.title, text: 'Số đơn', color: 'black' }
+        }
     }
+}
+
 });
 
 // Thống kê mã giảm giá
@@ -433,20 +449,35 @@ new Chart(couponStatsCtx, {
         }]
     },
     options: {
-        ...commonOptions,
-        scales: {
-            x: {
-                ...commonOptions.scales.x,
-                title: { ...commonOptions.scales.x.title, text: 'Mã giảm giá' }
-            },
-            y: {
-                ...commonOptions.scales.y,
-                beginAtZero: true,
-                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1 },
-                title: { ...commonOptions.scales.y.title, text: 'Số lượt sử dụng' }
+    ...commonOptions,
+    plugins: {
+        ...commonOptions.plugins,
+        tooltip: {
+            ...commonOptions.plugins?.tooltip,
+            backgroundColor: '#333',       // nền tối
+            titleColor: '#fff',            // tiêu đề trắng
+            bodyColor: '#fff',             // nội dung trắng
+            borderColor: '#fff',
+            borderWidth: 1,
+            callbacks: {
+                label: context => `${context.label}: ${context.parsed.y} lượt`
             }
         }
+    },
+    scales: {
+        x: {
+            ...commonOptions.scales.x,
+            title: { ...commonOptions.scales.x.title, text: 'Mã giảm giá' }
+        },
+        y: {
+            ...commonOptions.scales.y,
+            beginAtZero: true,
+            ticks: { ...commonOptions.scales.y.ticks, stepSize: 1 },
+            title: { ...commonOptions.scales.y.title, text: 'Số lượt sử dụng' }
+        }
     }
+}
+
 });
 
 const fullLabels = {!! json_encode($topProducts->map(function($item) {
@@ -488,41 +519,47 @@ new Chart(topSellingProductsCtx, {
         }]
     },
     options: {
-        ...commonOptions,
-        plugins: {
-            ...commonOptions.plugins,
-            tooltip: {
-                callbacks: {
-                    title: function(context) {
-                        const index = context[0].dataIndex;
-                        return fullLabels[index];  // hiện tên đầy đủ khi hover
-                    },
-                    label: function(context) {
-                        return `${context.dataset.label}: ${context.raw} sản phẩm`;
-                    }
+    ...commonOptions,
+    plugins: {
+        ...commonOptions.plugins,
+        tooltip: {
+            backgroundColor: '#333',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#fff',
+            borderWidth: 1,
+            callbacks: {
+                title: function(context) {
+                    const index = context[0].dataIndex;
+                    return fullLabels[index];  // hiện tên đầy đủ khi hover
+                },
+                label: function(context) {
+                    return `${context.dataset.label}: ${context.raw} sản phẩm`;
                 }
             }
-        },
-        scales: {
-            x: {
-                ...commonOptions.scales.x,
-                ticks: {
-                    maxRotation: 60,
-                    minRotation: 30,
-                    autoSkip: false,
-                    font: { size: 10 },
-                    color: 'white'
-                },
-                title: { ...commonOptions.scales.x.title, text: 'Sản phẩm' }
+        }
+    },
+    scales: {
+        x: {
+            ...commonOptions.scales.x,
+            ticks: {
+                maxRotation: 60,
+                minRotation: 30,
+                autoSkip: false,
+                font: { size: 10 },
+                color: 'black'
             },
-            y: {
-                ...commonOptions.scales.y,
-                beginAtZero: true,
-                ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: 'white' },
-                title: { ...commonOptions.scales.y.title, text: 'Số lượng bán' }
-            }
+            title: { ...commonOptions.scales.x.title, text: 'Sản phẩm' }
+        },
+        y: {
+            ...commonOptions.scales.y,
+            beginAtZero: true,
+            ticks: { ...commonOptions.scales.y.ticks, stepSize: 1, color: 'black' },
+            title: { ...commonOptions.scales.y.title, text: 'Số lượng bán' }
         }
     }
+}
+
 });
 
 
