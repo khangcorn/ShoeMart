@@ -14,8 +14,8 @@
             <table class="w-full">
                 <thead>
                     <tr >
-                        <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Size</th>
-                        <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Actions</th>
+                        <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Kích thước</th>
+                        <th class="px-2 py-5 border border-gray-300 text-center font-semibold">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
