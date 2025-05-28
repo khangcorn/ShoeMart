@@ -28,271 +28,11 @@
         </script>
     @endif
     <div class="container mx-auto p-6">
-      
-        <h2 class="text-2xl font-semibold mb-4">Thông tin thanh toán</h2>
-
-        <!-- Form đặt hàng -->
-        <form id="orderForm" action="{{ route('order.store') }}" method="POST">
-            @csrf
-            <!-- Chọn địa chỉ giao hàng -->
-            <div class="mb-6">
-                <h3 class="text-xl font-semibold mb-2">Địa chỉ giao hàng</h3>
-                @php
-                    $user = Auth::user();
-                    if ($user) {
-                        $user->load('userAddresses');
-                        $defaultAddress = $user->userAddresses->where('is_default', true)->first();
-                    } else {
-                        $defaultAddress = null;
-                    }
-                @endphp
-
-                <div id="selectedAddress" class="border p-4 rounded-md mb-2">
-                    @if ($defaultAddress)
-                        <span>{{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }},
-                            {{ $defaultAddress->district }}, {{ $defaultAddress->city }}</span>
-                        <input type="hidden" name="address_id" id="selectedAddressId"
-                            value="{{ $defaultAddress->address_id }}">
-                    @else
-                        <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
-                        <input type="hidden" name="address_id" id="selectedAddressId" value="">
-                    @endif
-                </div>
-
-                <div class="flex justify-between">
-                    <button type="button" class="bg-blue-500 text-white py-2 px-4 rounded-md" onclick="openAddressPopup()">
-                        Thay đổi địa chỉ nhận hàng
-                    </button>
-                </div>
-            </div>
-
-            <!-- Phương thức thanh toán -->
-            <div class="mb-6">
-                <h3 class="text-xl font-semibold mb-2">Phương thức thanh toán</h3>
-                <select name="payment_method" class="w-full p-2 border border-gray-300 rounded-md">
-                    <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                    <option value="wallet">Thanh toán qua ví</option>
-                    <option value="vnpay">Thanh toán qua VNPay</option>
-                </select>
-            </div>
-
-            <div class="mb-6">
-                <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
-
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <input type="text" name="codes" id="couponInput"
-                        class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md"
-                        placeholder="Nhập mã giảm giá (cách nhau dấu phẩy)">
-                </div>
-
-                <!-- Popup -->
-                <div x-data="{
-                    open: false,
-                    selectedOrderCoupon: null,
-                    selectedShippingCoupon: null,
-                    initSelectedCoupons() {
-                        // Lấy mảng codes từ input, loại bỏ khoảng trắng
-                        let codes = (document.getElementById('couponInput').value || '')
-                            .split(',')
-                            .map(c => c.trim())
-                            .filter(c => c);
-                        // Tìm xem mỗi code có radio tương ứng hay không
-                        this.selectedOrderCoupon = codes.find(c =>
-                            document.querySelector(`input[name='orderCoupon'][value='${c}']`)
-                        ) || null;
-                        this.selectedShippingCoupon = codes.find(c =>
-                            document.querySelector(`input[name='shippingCoupon'][value='${c}']`)
-                        ) || null;
-                    },
-                }">
-                    <button type="button" @click="initSelectedCoupons(); open = true"
-                        class="mt-2 px-4 py-2 bg-green-600 text-black rounded hover:bg-green-700">
-                        📜 Xem danh sách giảm giá
-                    </button>
-
-                    <div x-show="open" x-transition
-                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-                        style="display:none" @keydown.escape.window="open = false" @click.outside="open = false">
-                        <div
-                            class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto relative">
-                            <button type="button" @click="open = false"
-                                class="absolute top-2 right-2 text-2xl font-bold hover:text-gray-700">&times;</button>
-
-                            <!-- Nội dung có thể scroll -->
-                            <div class="p-6 overflow-y-auto" style="max-height: 90vh;">
-                                <h2 class="text-2xl font-semibold mb-4">Danh sách mã giảm giá</h2>
-
-                                @php
-                                    $orderCoupons = $coupons->where('apply_to', 'order');
-                                    $shippingCoupons = $coupons->where('apply_to', 'shipping');
-                                @endphp
-
-                                {{-- Mã giảm giá cho đơn hàng --}}
-                                <h3 class="text-xl font-bold mt-6 mb-2">🎁 Mã giảm cho đơn hàng</h3>
-                                @if ($orderCoupons->isEmpty())
-                                    <p class="text-gray-500">Hiện không có mã giảm giá cho đơn hàng.</p>
-                                @else
-                                    <ul class="space-y-4">
-                                        @foreach ($orderCoupons as $coupon)
-                                            @php
-                                                $disabled =
-                                                    $coupon->status !== 'active' ||
-                                                    $coupon->usage_limit == 0 ||
-                                                    $coupon->usage_count >= $coupon->usage_limit ||
-                                                    \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
-                                            @endphp
-                                            <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
-                                                <label class="flex flex-row-reverse items-center cursor-pointer flex-1"
-                                                    :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }">
-                                                    <input type="radio" name="orderCoupon"
-                                                        :disabled="{{ $disabled ? 'true' : 'false' }}"
-                                                        x-model="selectedOrderCoupon"
-                                                        @click="selectedOrderCoupon = selectedOrderCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
-                                                        value="{{ $coupon->code }}" class="ml-3" />
-
-                                                    <div>
-                                                        <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
-                                                        <p class="text-sm">
-                                                            Giảm giá
-                                                            @if ($coupon->discount_type === 'percentage')
-                                                                {{ intval($coupon->discount_value) }}%
-                                                                @if ($coupon->max_discount_value)
-                                                                    (Tối đa
-                                                                    {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
-                                                                @endif
-                                                            @elseif ($coupon->discount_type === 'fixed')
-                                                                tối đa:
-                                                                {{ number_format($coupon->discount_value, 0, ',', '.') }}đ
-                                                            @else
-                                                                Không rõ loại giảm giá
-                                                            @endif
-                                                        </p>
-
-                                                        @if ($coupon->min_order_value)
-                                                            <p class="text-sm text-gray-500">Dành cho đơn hàng từ
-                                                                {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ
-                                                            </p>
-                                                        @endif
-
-                                                        @if ($coupon->status !== 'active')
-                                                            <p class="text-xs text-red-500">Mã giảm giá không hoạt động</p>
-                                                        @elseif($coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit)
-                                                            <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
-                                                        @elseif(\Carbon\Carbon::parse($coupon->expiration_date)->isPast())
-                                                            <p class="text-xs text-red-500">Đã quá hạn</p>
-                                                        @else
-                                                            <p class="text-xs text-green-500">Số lượng có hạn</p>
-                                                        @endif
-
-                                                        <p class="text-xs text-gray-500">
-                                                            Hết hạn:
-                                                            {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y H:i:s') }}
-                                                        </p>
-                                                    </div>
-                                                </label>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-
-                                {{-- Mã giảm giá cho phí vận chuyển --}}
-                                <h3 class="text-xl font-bold mt-10 mb-2">🚚 Mã giảm cho phí vận chuyển</h3>
-                                @if ($shippingCoupons->isEmpty())
-                                    <p class="text-gray-500">Hiện không có mã giảm giá cho phí vận chuyển.</p>
-                                @else
-                                    <ul class="space-y-4">
-                                        @foreach ($shippingCoupons as $coupon)
-                                            @php
-                                                $disabled =
-                                                    $coupon->status !== 'active' ||
-                                                    $coupon->usage_limit == 0 ||
-                                                    $coupon->usage_count >= $coupon->usage_limit ||
-                                                    \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
-                                            @endphp
-                                            <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
-                                                <div>
-                                                    <label class="flex items-center cursor-pointer"
-                                                        :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }">
-                                                        <input type="radio" name="shippingCoupon"
-                                                            :disabled="{{ $disabled ? 'true' : 'false' }}"
-                                                            x-model="selectedShippingCoupon"
-                                                            @click="selectedShippingCoupon = selectedShippingCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
-                                                            value="{{ $coupon->code }}" class="ml-3" />
-
-                                                        <div>
-                                                            <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}
-                                                            </h4>
-                                                            <p class="text-sm">
-                                                                Giảm giá:
-                                                                @if ($coupon->discount_type === 'percentage')
-                                                                    {{ intval($coupon->discount_value) }}%
-                                                                    @if ($coupon->max_discount_value)
-                                                                        (Tối đa
-                                                                        {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
-                                                                    @endif
-                                                                @elseif ($coupon->discount_type === 'fixed')
-                                                                    {{ number_format($coupon->discount_value, 0, ',', '.') }}đ
-                                                                @else
-                                                                    Không rõ loại giảm giá
-                                                                @endif
-                                                            </p>
-
-                                                            @if ($coupon->min_order_value)
-                                                                <p class="text-sm text-gray-500">Dành cho đơn hàng từ
-                                                                    {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ
-                                                                </p>
-                                                            @endif
-
-                                                            @php
-                                                                $expirationDate = \Carbon\Carbon::parse(
-                                                                    $coupon->expiration_date,
-                                                                );
-                                                            @endphp
-
-                                                            @if ($coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit)
-                                                                <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
-                                                            @elseif($expirationDate->isPast())
-                                                                <p class="text-xs text-red-500">Đã quá hạn</p>
-                                                            @else
-                                                                <p class="text-xs text-green-500">Số lượng có hạn</p>
-                                                            @endif
-
-                                                            <p class="text-xs text-gray-500">
-                                                                Hết hạn: {{ $expirationDate->format('d/m/Y H:i:s') }}
-                                                            </p>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-
-
-
-                                <div class="mt-6 flex justify-end">
-                                    <button type="button" id="btnApplyPopup"
-                                        class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                        Áp dụng mã giảm giá
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-                <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
-                <!-- Các input ẩn để backend nhận coupon_id, discount -->
-                <input type="hidden" id="orderCouponIdInput" name="order_coupon_id" value="">
-                <input type="hidden" id="shippingCouponIdInput" name="shipping_coupon_id" value="">
-                <input type="hidden" id="orderDiscountInput" name="order_discount" value="0">
-                <input type="hidden" id="shippingDiscountInput" name="shipping_discount" value="0">
-
-
-                <!-- Thông tin giỏ hàng -->
-                <div class="mb-6">
-                    <h3 class="text-xl font-semibold mb-2">Thông tin giỏ hàng</h3>
+        <div class="flex flex-col lg:flex-row gap-6"> 
+            <div class="flex-1 w-1/2 ">
+                  <!-- Thông tin giỏ hàng -->
+                  <div class="mb-6">
+                    <h3 class="text-2xl font-semibold mb-4">Thông tin giỏ hàng</h3>
                     <ul class="space-y-2">
                         @foreach ($cartItems as $item)
                             @php
@@ -319,48 +59,50 @@
 
                     <div class="order-summary mt-4">
                         <!-- Tổng tiền giỏ hàng -->
-                        <p class="summary-item text-lg font-semibold">
+                        <div class="summary-item text-lg font-semibold flex justify-between">
                             Tổng tiền giỏ hàng:
-                            <span id="cartTotal" class="amount">
+                            <p id="cartTotal" class="amount">
                                 {{ number_format($total, 0, ',', '.') }} đ
-                            </span>
-                        </p>
-
-                        <!-- Phí vận chuyển -->
-                        <div class="shipping-info">
-                            <p id="shippingFeeText" class="summary-item text-lg font-semibold">Phí vận chuyển:
-                                @if ($shippingFeeValue > 0)
-                                    {{ number_format($shippingFeeValue, 0, ',', '.') }} đ
-                                @else
-                                    Phí vận chuyển không xác định.
-                                @endif
                             </p>
-
-                            <input type="hidden" id="shippingFeeValue" name="shipping_fee"
-                                value="{{ $shippingFeeValue }}">
-                            <input type="hidden" id="shippingId" name="shipping_id" value="{{ $shippingId }}">
                         </div>
 
+                        <!-- Phí vận chuyển -->
+                        <div class="shipping-info flex justify-between items-center">
+                            <p id="shippingFeeText" class="summary-item text-lg font-semibold">Phí vận chuyển:
+                               
+                            </p>
+                            @if ($shippingFeeValue > 0)
+                           <p class="font-semibold text-lg"> {{ number_format($shippingFeeValue, 0, ',', '.') }} đ</p>
+                        @else
+                            Phí vận chuyển không xác định.
+                        @endif
+
+                           
+                        </div>
+                        <input type="hidden" id="shippingFeeValue" name="shipping_fee"
+                        value="{{ $shippingFeeValue }}">
+                    <input type="hidden" id="shippingId" name="shipping_id" value="{{ $shippingId }}">
+
                         <!-- Giảm giá đơn hàng -->
-                        <p class="summary-item text-lg font-semibold">
+                        <div class="summary-item text-lg flex justify-between font-semibold">
                             Giảm giá đơn hàng:
-                            <span id="orderDiscount" class="discount">
+                            <p id="orderDiscount" class="discount">
                                 {{ number_format($orderDiscount ?? 0, 0, ',', '.') }} đ
-                            </span>
-                        </p>
+                            </p>
+                        </div>
 
                         <!-- Giảm giá phí vận chuyển -->
-                        <p class="summary-item text-lg font-semibold">
+                        <div class="summary-item text-lg flex justify-between items-center font-semibold">
                             Giảm giá phí vận chuyển:
-                            <span id="shippingDiscount" class="discount">
+                            <p id="shippingDiscount" class="discount">
                                 {{ number_format($shippingDiscount ?? 0, 0, ',', '.') }} đ
-                            </span>
-                        </p>
+                            </p>
+                        </div>
 
                         <!-- Tổng tiền thanh toán -->
-                        <p class="summary-item mt-4 text-lg font-semibold">
-                            <span>Tổng tiền thanh toán:</span>
-                            <span id="totalPrice" class="total-price">
+                        <div class="summary-item mt-4 text-lg border-t justify-between flex items-center py-4 border-gray-300 font-semibold">
+                            <p>Tổng tiền thanh toán:</p>
+                            <p id="totalPrice" class="total-price">
                                 {{ number_format(
                                     max(0, $total + ($shippingFeeValue ?? 0) - ($orderDiscount ?? 0) - ($shippingDiscount ?? 0)),
                                     0,
@@ -368,37 +110,306 @@
                                     '.',
                                 ) }}
                                 đ
-                            </span>
-                        </p>
+                            </p>
+                        </div>
                     </div>
 
                     </p>
 
 
                 </div>
+                      </div>
+                      <div class="flex-1 w-1/2 ">
+                        <h2 class="text-2xl font-semibold mb-4">Thông tin thanh toán</h2>
 
-
-                @foreach ($cartDetailIds as $id)
-                    <input type="hidden" name="cart_detail_ids[]" value="{{ $id }}">
-                @endforeach
-
-                <div class="flex items-center gap-4">
-                    <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-md"
-                        onclick="return validateOrder()">
-                        Xác nhận đơn hàng
-                    </button>
-                    <a href="{{ route('cart.index') }}"
-                        class="bg-gray-300 text-gray-800 py-2 px-6 rounded-md hover:bg-gray-400 transition">
-                        Quay lại giỏ hàng
-                    </a>
-                </div>
-        </form>
-
+                    
+                
+                        <!-- Form đặt hàng -->
+                        <form id="orderForm" action="{{ route('order.store') }}" method="POST">
+                            @csrf
+                            <!-- Chọn địa chỉ giao hàng -->
+                            <div class="mb-6">
+                                <h3 class="text-xl font-semibold mb-2">Địa chỉ giao hàng</h3>
+                                @php
+                                    $user = Auth::user();
+                                    if ($user) {
+                                        $user->load('userAddresses');
+                                        $defaultAddress = $user->userAddresses->where('is_default', true)->first();
+                                    } else {
+                                        $defaultAddress = null;
+                                    }
+                                @endphp
+                
+                                <div id="selectedAddress" class="border p-4 rounded-md mb-2">
+                                    @if ($defaultAddress)
+                                        <span>{{ $defaultAddress->street_address }}, {{ $defaultAddress->ward }},
+                                            {{ $defaultAddress->district }}, {{ $defaultAddress->city }}</span>
+                                        <input type="hidden" name="address_id" id="selectedAddressId"
+                                            value="{{ $defaultAddress->address_id }}">
+                                    @else
+                                        <span id="addressError" class="text-red-500">Bạn chưa chọn địa chỉ giao hàng.</span>
+                                        <input type="hidden" name="address_id" id="selectedAddressId" value="">
+                                    @endif
+                                </div>
+                
+                                <div class="flex justify-between">
+                                    <button type="button" class="bg-blue-500 text-white py-2 px-4 rounded-md" onclick="openAddressPopup()">
+                                        Thay đổi địa chỉ nhận hàng
+                                    </button>
+                                </div>
+                            </div>
+                
+                            <!-- Phương thức thanh toán -->
+                            <div class="mb-6">
+                                <h3 class="text-xl font-semibold mb-2">Phương thức thanh toán</h3>
+                                <select name="payment_method" class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+                                    <option value="wallet">Thanh toán qua ví</option>
+                                    <option value="vnpay">Thanh toán qua VNPay</option>
+                                </select>
+                            </div>
+                
+                            <div class="mb-6">
+                                <h3 class="text-xl font-semibold mb-2">Mã giảm giá</h3>
+                
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <input type="text" name="codes" id="couponInput"
+                                        class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-md"
+                                        placeholder="Nhập mã giảm giá (cách nhau dấu phẩy)">
+                                </div>
+                
+                                <!-- Popup -->
+                                <div x-data="{
+                                    open: false,
+                                    selectedOrderCoupon: null,
+                                    selectedShippingCoupon: null,
+                                    initSelectedCoupons() {
+                                        // Lấy mảng codes từ input, loại bỏ khoảng trắng
+                                        let codes = (document.getElementById('couponInput').value || '')
+                                            .split(',')
+                                            .map(c => c.trim())
+                                            .filter(c => c);
+                                        // Tìm xem mỗi code có radio tương ứng hay không
+                                        this.selectedOrderCoupon = codes.find(c =>
+                                            document.querySelector(`input[name='orderCoupon'][value='${c}']`)
+                                        ) || null;
+                                        this.selectedShippingCoupon = codes.find(c =>
+                                            document.querySelector(`input[name='shippingCoupon'][value='${c}']`)
+                                        ) || null;
+                                    },
+                                }">
+                                    <button type="button" @click="initSelectedCoupons(); open = true"
+                                        class="mt-2 px-4 py-2 bg-green-600 text-black rounded hover:bg-green-700">
+                                        📜 Xem danh sách giảm giá
+                                    </button>
+                
+                                    <div x-show="open" x-transition
+                                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                                        style="display:none" @keydown.escape.window="open = false" @click.outside="open = false">
+                                        <div
+                                            class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto relative">
+                                            <button type="button" @click="open = false"
+                                                class="absolute top-2 right-2 text-2xl font-bold hover:text-gray-700">&times;</button>
+                
+                                            <!-- Nội dung có thể scroll -->
+                                            <div class="p-6 overflow-y-auto" style="max-height: 90vh;">
+                                                <h2 class="text-2xl font-semibold mb-4">Danh sách mã giảm giá</h2>
+                
+                                                @php
+                                                    $orderCoupons = $coupons->where('apply_to', 'order');
+                                                    $shippingCoupons = $coupons->where('apply_to', 'shipping');
+                                                @endphp
+                
+                                                {{-- Mã giảm giá cho đơn hàng --}}
+                                                <h3 class="text-xl font-bold mt-6 mb-2">🎁 Mã giảm cho đơn hàng</h3>
+                                                @if ($orderCoupons->isEmpty())
+                                                    <p class="text-gray-500">Hiện không có mã giảm giá cho đơn hàng.</p>
+                                                @else
+                                                    <ul class="space-y-4">
+                                                        @foreach ($orderCoupons as $coupon)
+                                                            @php
+                                                                $disabled =
+                                                                    $coupon->status !== 'active' ||
+                                                                    $coupon->usage_limit == 0 ||
+                                                                    $coupon->usage_count >= $coupon->usage_limit ||
+                                                                    \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
+                                                            @endphp
+                                                            <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
+                                                                <label class="flex flex-row-reverse items-center cursor-pointer flex-1"
+                                                                    :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }">
+                                                                    <input type="radio" name="orderCoupon"
+                                                                        :disabled="{{ $disabled ? 'true' : 'false' }}"
+                                                                        x-model="selectedOrderCoupon"
+                                                                        @click="selectedOrderCoupon = selectedOrderCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
+                                                                        value="{{ $coupon->code }}" class="ml-3" />
+                
+                                                                    <div>
+                                                                        <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}</h4>
+                                                                        <p class="text-sm">
+                                                                            Giảm giá
+                                                                            @if ($coupon->discount_type === 'percentage')
+                                                                                {{ intval($coupon->discount_value) }}%
+                                                                                @if ($coupon->max_discount_value)
+                                                                                    (Tối đa
+                                                                                    {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
+                                                                                @endif
+                                                                            @elseif ($coupon->discount_type === 'fixed')
+                                                                                tối đa:
+                                                                                {{ number_format($coupon->discount_value, 0, ',', '.') }}đ
+                                                                            @else
+                                                                                Không rõ loại giảm giá
+                                                                            @endif
+                                                                        </p>
+                
+                                                                        @if ($coupon->min_order_value)
+                                                                            <p class="text-sm text-gray-500">Dành cho đơn hàng từ
+                                                                                {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ
+                                                                            </p>
+                                                                        @endif
+                
+                                                                        @if ($coupon->status !== 'active')
+                                                                            <p class="text-xs text-red-500">Mã giảm giá không hoạt động</p>
+                                                                        @elseif($coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit)
+                                                                            <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
+                                                                        @elseif(\Carbon\Carbon::parse($coupon->expiration_date)->isPast())
+                                                                            <p class="text-xs text-red-500">Đã quá hạn</p>
+                                                                        @else
+                                                                            <p class="text-xs text-green-500">Số lượng có hạn</p>
+                                                                        @endif
+                
+                                                                        <p class="text-xs text-gray-500">
+                                                                            Hết hạn:
+                                                                            {{ \Carbon\Carbon::parse($coupon->expiration_date)->format('d/m/Y H:i:s') }}
+                                                                        </p>
+                                                                    </div>
+                                                                </label>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                
+                                                {{-- Mã giảm giá cho phí vận chuyển --}}
+                                                <h3 class="text-xl font-bold mt-10 mb-2">🚚 Mã giảm cho phí vận chuyển</h3>
+                                                @if ($shippingCoupons->isEmpty())
+                                                    <p class="text-gray-500">Hiện không có mã giảm giá cho phí vận chuyển.</p>
+                                                @else
+                                                    <ul class="space-y-4">
+                                                        @foreach ($shippingCoupons as $coupon)
+                                                            @php
+                                                                $disabled =
+                                                                    $coupon->status !== 'active' ||
+                                                                    $coupon->usage_limit == 0 ||
+                                                                    $coupon->usage_count >= $coupon->usage_limit ||
+                                                                    \Carbon\Carbon::parse($coupon->expiration_date)->isPast();
+                                                            @endphp
+                                                            <li class="border p-4 rounded-md shadow-sm flex items-center justify-between">
+                                                                <div>
+                                                                    <label class="flex items-center cursor-pointer"
+                                                                        :class="{ 'opacity-50 cursor-not-allowed': {{ $disabled ? 'true' : 'false' }} }">
+                                                                        <input type="radio" name="shippingCoupon"
+                                                                            :disabled="{{ $disabled ? 'true' : 'false' }}"
+                                                                            x-model="selectedShippingCoupon"
+                                                                            @click="selectedShippingCoupon = selectedShippingCoupon === '{{ $coupon->code }}' ? null : '{{ $coupon->code }}'"
+                                                                            value="{{ $coupon->code }}" class="ml-3" />
+                
+                                                                        <div>
+                                                                            <h4 class="text-lg font-bold">Mã voucher: {{ $coupon->code }}
+                                                                            </h4>
+                                                                            <p class="text-sm">
+                                                                                Giảm giá:
+                                                                                @if ($coupon->discount_type === 'percentage')
+                                                                                    {{ intval($coupon->discount_value) }}%
+                                                                                    @if ($coupon->max_discount_value)
+                                                                                        (Tối đa
+                                                                                        {{ number_format($coupon->max_discount_value, 0, ',', '.') }}đ)
+                                                                                    @endif
+                                                                                @elseif ($coupon->discount_type === 'fixed')
+                                                                                    {{ number_format($coupon->discount_value, 0, ',', '.') }}đ
+                                                                                @else
+                                                                                    Không rõ loại giảm giá
+                                                                                @endif
+                                                                            </p>
+                
+                                                                            @if ($coupon->min_order_value)
+                                                                                <p class="text-sm text-gray-500">Dành cho đơn hàng từ
+                                                                                    {{ number_format($coupon->min_order_value, 0, ',', '.') }}đ
+                                                                                </p>
+                                                                            @endif
+                
+                                                                            @php
+                                                                                $expirationDate = \Carbon\Carbon::parse(
+                                                                                    $coupon->expiration_date,
+                                                                                );
+                                                                            @endphp
+                
+                                                                            @if ($coupon->usage_limit == 0 || $coupon->usage_count >= $coupon->usage_limit)
+                                                                                <p class="text-xs text-red-500">Đã hết lượt sử dụng</p>
+                                                                            @elseif($expirationDate->isPast())
+                                                                                <p class="text-xs text-red-500">Đã quá hạn</p>
+                                                                            @else
+                                                                                <p class="text-xs text-green-500">Số lượng có hạn</p>
+                                                                            @endif
+                
+                                                                            <p class="text-xs text-gray-500">
+                                                                                Hết hạn: {{ $expirationDate->format('d/m/Y H:i:s') }}
+                                                                            </p>
+                                                                        </div>
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                
+                
+                
+                                                <div class="mt-6 flex justify-end">
+                                                    <button type="button" id="btnApplyPopup"
+                                                        class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                                        Áp dụng mã giảm giá
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                
+                
+                                </div>
+                                <div id="couponResult" class="mt-3 text-sm text-gray-700"></div>
+                                <!-- Các input ẩn để backend nhận coupon_id, discount -->
+                                <input type="hidden" id="orderCouponIdInput" name="order_coupon_id" value="">
+                                <input type="hidden" id="shippingCouponIdInput" name="shipping_coupon_id" value="">
+                                <input type="hidden" id="orderDiscountInput" name="order_discount" value="0">
+                                <input type="hidden" id="shippingDiscountInput" name="shipping_discount" value="0">
+                
+                
+                             
+                
+                
+                                @foreach ($cartDetailIds as $id)
+                                    <input type="hidden" name="cart_detail_ids[]" value="{{ $id }}">
+                                @endforeach
+                
+                                <div class="flex items-center gap-4">
+                                    <button type="submit" class="bg-blue-500 text-white py-2 px-6 rounded-md"
+                                        onclick="return validateOrder()">
+                                        Xác nhận đơn hàng
+                                    </button>
+                                    <a href="{{ route('cart.index') }}"
+                                        class="bg-gray-300 text-gray-800 py-2 px-6 rounded-md hover:bg-gray-400 transition">
+                                        Quay lại giỏ hàng
+                                    </a>
+                                </div>
+                        </form>
+                
+                      </div>
+        </div>
+    
     </div>
 @endsection
 
 <div id="addressFormPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white p-6 rounded-md w-full max-w-3xl">
+    <div class="bg-white p-6 rounded-md w-1/2 flex-1 max-w-3xl">
         <h2 id="addressFormTitle" class="text-xl font-semibold mb-4">Thêm địa chỉ mới</h2>
 
         <form id="addressForm">
