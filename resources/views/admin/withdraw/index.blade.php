@@ -77,13 +77,13 @@
         <tbody class="divide-y divide-gray-200 bg-white">
             @forelse ($withdrawRequests as $withdraw)
                 <tr class="text-center hover:bg-gray-50">
-                    <td class="px-4 py-3 text-gray-600">{{ $withdraw->id }}</td>
-                    <td class="px-4 py-3 text-gray-600">
+                    <td class="px-4 py-3 border text-gray-600">{{ $withdraw->id }}</td>
+                    <td class="px-4 py-3 border text-gray-600">
                         {{ optional($withdraw->user)->username ?? 'N/A' }}<br>
                         <small class="text-gray-500">{{ optional($withdraw->user)->email ?? 'N/A' }}</small>
                     </td>
-                    <td class="px-4 py-3 text-gray-600">{{ number_format($withdraw->amount, 0, ',', '.') }}đ</td>
-                    <td class="py-3 px-4 border-b border-gray-300">
+                    <td class="px-4 py-3 border text-gray-600">{{ number_format($withdraw->amount, 0, ',', '.') }}đ</td>
+                    <td class="py-3 px-4  border border-gray-300">
                         @switch($withdraw->status)
                             @case('pending')
                                 <span class="text-yellow-500 font-semibold">Chờ duyệt</span>
@@ -98,8 +98,8 @@
                                 <span>Không rõ</span>
                         @endswitch
                     </td>
-                    <td class="px-4 py-3 text-gray-600">{{ $withdraw->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="py-3 px-4 border-b border-gray-300">
+                    <td class="px-4 py-3 border text-gray-600">{{ $withdraw->created_at->format('d/m/Y H:i') }}</td>
+                    <td class="py-3 px-4  border border-gray-300">
                         @if ($withdraw->status === 'pending')
                          @if(auth()->user()->hasPermission('approve_withdraw'))
                             <form action="{{ route('admin.withdraw.update', $withdraw->id) }}" method="POST" class="inline-block">

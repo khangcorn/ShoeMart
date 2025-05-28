@@ -159,20 +159,34 @@ public function login(Request $request)
     }
 
     // Hiển thị trang hồ sơ
+    // public function profile()
+    // {
+    //     $user = Auth::user();
+    //     $address = UserAddresses::where('user_id', $user->user_id)
+    //         ->orderByDesc('is_default') // Ưu tiên is_default = true
+    //         ->orderBy('user_id')              // Nếu không có thì lấy theo id tăng dần (địa chỉ đầu tiên)
+    //         ->first();
+
+    //     $wallet = $user->wallet; // Nếu bạn có quan hệ User -> Wallet (hasOne)
+    //     $transactions = $wallet ? $wallet->transactions()->latest()->limit(10)->get() : collect(); // Lấy lịch sử giao dịch ví
+
+    //     return view('client.auth.profile', compact('user', 'address', 'wallet', 'transactions'));
+
+    // }
     public function profile()
-    {
-        $user = Auth::user();
-        $address = UserAddresses::where('user_id', $user->user_id)
-            ->orderByDesc('is_default') // Ưu tiên is_default = true
-            ->orderBy('user_id')              // Nếu không có thì lấy theo id tăng dần (địa chỉ đầu tiên)
-            ->first();
+{
+    $user = Auth::user();
+    $address = UserAddresses::where('user_id', $user->user_id)
+        ->orderByDesc('is_default') // Ưu tiên is_default = true
+        ->orderBy('user_id')        // Nếu không có thì lấy theo id tăng dần (địa chỉ đầu tiên)
+        ->first();
 
-        $wallet = $user->wallet; // Nếu bạn có quan hệ User -> Wallet (hasOne)
-        $transactions = $wallet ? $wallet->transactions()->latest()->limit(10)->get() : collect(); // Lấy lịch sử giao dịch ví
+    $wallet = $user->wallet; 
+    $transactions = $wallet ? $wallet->transactions()->latest()->paginate(5) : collect();
 
-        return view('client.auth.profile', compact('user', 'address', 'wallet', 'transactions'));
+    return view('client.auth.profile', compact('user', 'address', 'wallet', 'transactions'));
+}
 
-    }
 
     // Cập nhật địa chỉ
     public function updateAddress(Request $request)

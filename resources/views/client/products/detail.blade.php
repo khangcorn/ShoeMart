@@ -53,7 +53,7 @@
 
 
     <div class="container mx-auto p-4 max-w-screen-lg mt-16">
-        <div class="flex flex-wrap gap-10 md:flex-nowrap">
+        <div class="flex flex-wrap gap-4 md:flex-nowrap">
             <!-- Hình ảnh sản phẩm chính -->
             <div class="w-full md:w-1/2">
                 <div class="swiper mySwiper">

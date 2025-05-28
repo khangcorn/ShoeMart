@@ -5,7 +5,7 @@
     <h2 class="text-3xl font-bold mb-6">Danh sách danh mục</h2>  
            <div class="flex items-center justify-between">
          @if(auth()->user()->hasPermission('create_categories'))
-        <a class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden" href="{{ route('categories.create') }}">Add Category</a>
+        <a class="inline-block duration-300 rounded-lg border border-indigo-600 bg-indigo-600 px-6 py-2 text-sm font-medium text-white focus:ring-3 focus:outline-hidden" href="{{ route('categories.create') }}">Thêm mới danh mục</a>
         @endif
     </div>
 
