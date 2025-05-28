@@ -22,25 +22,30 @@ class UserController extends Controller
         $this->middleware('check_permission:view_users')->only(['index', 'show']);
 
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $users = User::with('wallet')->paginate(10)->through(function ($user) {
+
+
+public function index()
+{
+    $users = User::with(['wallet', 'roles'])
+        ->whereDoesntHave('roles', function ($query) {
+            $query->whereIn('roles.role_id', [2, 3]); 
+        })
+        ->paginate(10)
+        ->through(function ($user) {
             return [
                 'id' => $user->user_id,
                 'email' => $user->email,
-                'contact' => $user->username.' | '.$user->phone,
+                'contact' => $user->username . ' | ' . $user->phone,
                 'avatar' => $user->avatar,
                 'balance' => $user->wallet?->balance ?? 0,
                 'is_blocked' => $user->is_blocked,
             ];
         });
 
-        return view('admin.auth.index', compact('users'));
+    return view('admin.auth.index', compact('users'));
+}
 
-    }
+
 
     /**
      * Show the form for creating a new resource.

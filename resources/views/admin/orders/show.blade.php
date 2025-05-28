@@ -41,7 +41,7 @@
     <div class="mb-6 space-y-2">
         <p>
             <strong class="text-gray-600">Người đặt:</strong>
-            {{ $order->user ? $order->user->username . ' - ' . $order->user->phone . ' - ' . $order->user->email : 'N/A' }}
+            {{ $order->user ? $order->user->username . ' - ' . $order->userAddresses->recipient_phone . ' - ' . $order->user->email : 'N/A' }}
         </p>
         <p>
             <strong class="text-gray-600">Người nhận:</strong>
