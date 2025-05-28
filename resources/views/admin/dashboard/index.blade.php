@@ -300,6 +300,12 @@ canvas {
             },
             options: {
                 ...commonOptions,
+                plugins: {
+        tooltip: {
+            bodyColor: '#FFF',   // Màu chữ nội dung tooltip
+            titleColor: '#FFF',  // Màu chữ tiêu đề tooltip
+        }
+    },
                 scales: {
                     x: {
                         ...commonOptions.scales.x,
