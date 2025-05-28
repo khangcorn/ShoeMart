@@ -95,7 +95,14 @@
             
             <div class="hidden sm:block">
                 <ul class="flex  items-center space-x-8 ">
-                   
+                    <li>
+                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
+                            href="{{ route('products.all') }}"> Sản phẩm</a>
+                    </li>
+                    <li>
+                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
+                            href="{{ route('vouchers.index') }}"> Mã giảm giá</a>
+                    </li>
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href="">Bộ sưu tập</a>
@@ -105,14 +112,7 @@
                             href=""> Góc cảm hứng</a>
                     </li>
                  
-                    <li>
-                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
-                            href="{{ route('products.all') }}"> Sản phẩm</a>
-                    </li>
-                    <li>
-                        <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
-                            href="{{ route('vouchers.index') }}"> Mã giảm giá</a>
-                    </li>
+                  
                     <li>
                         <a class="text-black no-underline hover:cursor-pointer font-medium hover:border-b-black border-white transition ease-in-out duration-300 border-[1.5px]"
                             href="">Liên hệ</a>
