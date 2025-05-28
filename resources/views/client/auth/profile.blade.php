@@ -359,9 +359,47 @@
                 
             </tbody>
         </table>
-<div class="mt-4">
-    {{ $transactions->links() }}
-</div>
+        <div class="flex justify-center space-x-2 mt-4">
+            {{-- Prev button --}}
+            @if ($transactions->onFirstPage())
+                <span class="px-3 py-1 bg-gray-300 text-white rounded cursor-not-allowed">Prev</span>
+            @else
+                <a href="{{ $transactions->previousPageUrl() }}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Prev</a>
+            @endif
+        
+            {{-- Trang đầu --}}
+            @if ($transactions->currentPage() > 3)
+                <a href="{{ $transactions->url(1) }}" class="px-3 py-1 bg-white border rounded hover:bg-gray-200">1</a>
+                @if ($transactions->currentPage() > 4)
+                    <span class="px-3 py-1">...</span>
+                @endif
+            @endif
+        
+            {{-- Trang giữa (trước và sau trang hiện tại) --}}
+            @for ($i = max(1, $transactions->currentPage() - 2); $i <= min($transactions->lastPage(), $transactions->currentPage() + 2); $i++)
+                @if ($i == $transactions->currentPage())
+                    <span class="px-3 py-1 bg-blue-500 text-white rounded">{{ $i }}</span>
+                @else
+                    <a href="{{ $transactions->url($i) }}" class="px-3 py-1 bg-white border rounded hover:bg-gray-200">{{ $i }}</a>
+                @endif
+            @endfor
+        
+            {{-- Trang cuối --}}
+            @if ($transactions->currentPage() < $transactions->lastPage() - 2)
+                @if ($transactions->currentPage() < $transactions->lastPage() - 3)
+                    <span class="px-3 py-1">...</span>
+                @endif
+                <a href="{{ $transactions->url($transactions->lastPage()) }}" class="px-3 py-1 bg-white border rounded hover:bg-gray-200">{{ $transactions->lastPage() }}</a>
+            @endif
+        
+            {{-- Next button --}}
+            @if ($transactions->hasMorePages())
+                <a href="{{ $transactions->nextPageUrl() }}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Next</a>
+            @else
+                <span class="px-3 py-1 bg-gray-300 text-white rounded cursor-not-allowed">Next</span>
+            @endif
+        </div>
+        
 
         
     </div>
