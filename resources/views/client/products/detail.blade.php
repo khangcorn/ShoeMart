@@ -175,15 +175,6 @@
                 </div>
                 <div class="py-2 flex justify-between">
                     <p for="size" class="font-semibold">Select size</p>
-                    <p class="font-semibold flex items-center gap-2"> <svg aria-hidden="true" focusable="false"
-                            viewBox="0 0 24 24" role="img" width="24px" height="24px" fill="none">
-                            <path stroke="currentColor" stroke-width="1.5"
-                                d="M21.75 10.5v6.75a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V10.5m3.308-2.25h12.885">
-                            </path>
-                            <path stroke="currentColor" stroke-width="1.5"
-                                d="M15.79 5.599l2.652 2.65-2.652 2.653M8.21 5.599l-2.652 2.65 2.652 2.653M17.25 19v-2.5M12 19v-2.5M6.75 19v-2.5">
-                            </path>
-                        </svg> Size guide</p>
                 </div>
 
 
@@ -206,14 +197,17 @@
             <div>
                 <div class="grid grid-cols-4 gap-2">
                     @php
-                        $currentVariant = $product->variants->first(); // Lấy biến thể đầu tiên làm mặc định
-                        $sizeArray = $currentVariant
-                            ? $currentVariant->variantAttributeValues
+                    // Lấy tất cả size từ tất cả các biến thể của sản phẩm
+                    $sizeArray = $product->variants
+                        ->flatMap(function ($variant) {
+                            return $variant->variantAttributeValues
                                 ->where('variantAttribute.attribute_name', 'Size')
-                                ->pluck('variantAttribute.attribute_value')
-                                ->toArray()
-                            : [];
-                    @endphp
+                                ->pluck('variantAttribute.attribute_value');
+                        })
+                        ->unique()
+                        ->toArray();
+                @endphp
+                
             
                     @for ($size = 30; $size <= 41; $size++)
                         <p class="px-3 hover:border-black transition ease-in-out duration-300 cursor-pointer py-2 text-center text-lg font-semibold border-[1.5px] border-gray-300 rounded-md size-option
@@ -492,6 +486,11 @@ function updateCartIcon(count) {
 
 
 function addToCart() {
+    const selectedSize = document.querySelector(".size-option.ring-2");
+    if (!selectedSize) {
+        alert("Vui lòng chọn size trước khi thêm vào giỏ hàng.");
+        return;
+    }
     let productId = this.getAttribute("data-product");
     let variantId = this.getAttribute("data-variant");
     let quantityInput = document.getElementById("quantity");
