@@ -377,13 +377,14 @@
                                     </svg>
                                 </a>
                                 <form action="{{ route('products.toggleVisibility', $product->product_id) }}"
-                                    method="POST">
+                                    method="POST"
+                                    onsubmit="return confirm('{{ $product->is_hidden ? 'Bạn có chắc muốn hiển thị sản phẩm này không?' : 'Bạn có chắc muốn ẩn sản phẩm này không?' }}');">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit"
                                         class="cursor-pointer text-sm p-1.5 rounded-full 
-                                {{ $product->is_hidden ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-600' }} 
-                                flex items-center justify-center"
+        {{ $product->is_hidden ? 'bg-gray-200 text-gray-600' : 'bg-green-100 text-green-600' }} 
+        flex items-center justify-center"
                                         title="{{ $product->is_hidden ? 'Hiện sản phẩm' : 'Ẩn sản phẩm' }}">
                                         @if ($product->is_hidden)
                                             {{-- Icon hiện (mắt mở) --}}
@@ -401,6 +402,7 @@
                                         @endif
                                     </button>
                                 </form>
+
 
 
                             </div>

@@ -24,8 +24,8 @@
         <div class="flex transition-all duration-500 ease-in-out space-x-4 ">
             <!-- Cột Category (20%) -->
             <div id="categoryColumn" class="w-1/5 bg-white transition-all duration-500 ease-in-out">
-                 <!-- Dropdown Size Filter -->
-                 <div class="">
+                <!-- Dropdown Size Filter -->
+                <div class="">
                     <button id="sizeToggle"
                         class="w-full text-left font-semibold text-md flex justify-between items-center py-2 border-t border-gray-200">
                         Sắp xếp theo kích cỡ
@@ -39,68 +39,69 @@
                     </button>
                     <div id="sizeDropdown" class="hidden space-y-2 rounded-md mb-2">
                         <div class="grid grid-cols-4 gap-2 p-0.5">
-                          <button type="button" data-size="30"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            30
-                          </button>
-                          <button type="button" data-size="31"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            31
-                          </button>
-                          <button type="button" data-size="32"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            32
-                          </button>
-                          <button type="button" data-size="33"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            33
-                          </button>
-                          <button type="button" data-size="34"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            34
-                          </button>
-                          <button type="button" data-size="35"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            35
-                          </button>
-                          <button type="button" data-size="35.5"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            35.5
-                          </button>
-                          <button type="button" data-size="36"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            36
-                          </button>
-                          <button type="button" data-size="37"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            37
-                          </button>
-                          <button type="button" data-size="38"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            38
-                          </button>
-                          <button type="button" data-size="39"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            39
-                          </button>
-                          <button type="button" data-size="40"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            40
-                          </button>
-                          <button type="button" data-size="41"
-                            class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
-                            41
-                          </button>
+                            <button type="button" data-size="30"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                30
+                            </button>
+                            <button type="button" data-size="31"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                31
+                            </button>
+                            <button type="button" data-size="32"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                32
+                            </button>
+                            <button type="button" data-size="33"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                33
+                            </button>
+                            <button type="button" data-size="34"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                34
+                            </button>
+                            <button type="button" data-size="35"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                35
+                            </button>
+                            <button type="button" data-size="35.5"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                35.5
+                            </button>
+                            <button type="button" data-size="36"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                36
+                            </button>
+                            <button type="button" data-size="37"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                37
+                            </button>
+                            <button type="button" data-size="38"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                38
+                            </button>
+                            <button type="button" data-size="39"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                39
+                            </button>
+                            <button type="button" data-size="40"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                40
+                            </button>
+                            <button type="button" data-size="41"
+                                class="size-btn bg-white text-gray-700 font-semibold px-2 py-1 border border-gray-200 rounded-md transition">
+                                41
+                            </button>
                         </div>
-                      </div>
-                      
+                    </div>
+
                 </div>
-                 <!-- Dropdown Gender -->
-                 <div class="">
+                <!-- Dropdown Gender -->
+                <div class="">
                     <button id="genderToggle"
                         class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
                         Sắp xếp theo giới tính
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                             <g id="SVGRepo_iconCarrier">
@@ -127,15 +128,16 @@
                             <input type="checkbox" name="gender[]" value="Women" class="form-checkbox">
                             <span class="font-semibold">Nữ</span>
                         </label>
-                      
+
                     </div>
                 </div>
-                 <!-- Dropdown Price Filter -->
-                 <div class="">
+                <!-- Dropdown Price Filter -->
+                <div class="">
                     <button id="priceToggle"
                         class="w-full text-left font-semibold text-md flex justify-between items-center py-2  border-t border-gray-200">
                         Sắp xếp theo
-                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
                             <path d="M7 10L12 15" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
                                 stroke-linejoin="round"></path>
                             <path d="M12 15L17 10" stroke="#292929" stroke-width="2.5" stroke-linecap="round"
@@ -159,44 +161,46 @@
                 </div>
                 <div class="py-2">
                     <p class="font-semibold text-lg mb-2">Từ khóa phổ biến</p>
-                <ul class="space-y-3" id="categoryList">
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="lifestyle">Lifestyle</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="jordan">Jordan</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="running">Running</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="basketball">Basketball</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="football">Football</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="training-gym">Training </a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="skateboarding">Skateboarding</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md" data-category="golf">Golf</a>
-                    </li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md" data-category="yoga">Yoga</a>
-                    </li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="tennis">Tennis</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="athletics">Athletics</a></li>
-                    <li><a href="#" class="category-filter text-black font-semibold text-md"
-                            data-category="walking">Walking</a></li>
-                </ul>
+                    <ul class="space-y-3" id="categoryList">
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="lifestyle">Lifestyle</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="jordan">Jordan</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="running">Running</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="basketball">Basketball</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="football">Football</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="training-gym">Training </a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="skateboarding">Skateboarding</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="golf">Golf</a>
+                        </li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="yoga">Yoga</a>
+                        </li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="tennis">Tennis</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="athletics">Athletics</a></li>
+                        <li><a href="#" class="category-filter text-black font-semibold text-md"
+                                data-category="walking">Walking</a></li>
+                    </ul>
                 </div>
 
 
 
-               
+
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
+                    document.addEventListener("DOMContentLoaded", function() {
                         const genderCheckboxes = document.querySelectorAll("input[name='gender[]']");
                         const products = document.querySelectorAll(".product-item");
 
                         genderCheckboxes.forEach(checkbox => {
-                            checkbox.addEventListener("change", function () {
+                            checkbox.addEventListener("change", function() {
                                 // Bỏ chọn tất cả checkbox khác
                                 genderCheckboxes.forEach(cb => {
                                     if (cb !== this) cb.checked = false;
@@ -225,60 +229,62 @@
                         });
                     });
                 </script>
-               
-      
-                    
-               
-                
+
+
+
+
+
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
+                    document.addEventListener("DOMContentLoaded", function() {
                         const sizeToggle = document.getElementById("sizeToggle");
                         const sizeDropdown = document.getElementById("sizeDropdown");
                         const sizeButtons = document.querySelectorAll(".size-btn");
                         const productContainer = document.querySelector('#productColumn .grid');
-                        const allProducts = Array.from(productContainer.children);
-                    
+                        const allProducts = Array.from(productContainer.querySelectorAll('.product-item'));
+
+
                         // Toggle dropdown
-                        sizeToggle.addEventListener("click", function () {
+                        sizeToggle.addEventListener("click", function() {
                             sizeDropdown.classList.toggle("hidden");
                         });
-                    
+
                         // Khi chọn size => toggle class và lọc sản phẩm
                         sizeButtons.forEach(button => {
-                            button.addEventListener("click", function () {
+                            button.addEventListener("click", function() {
                                 this.classList.toggle("ring-2");
                                 this.classList.toggle("ring-black");
                                 this.classList.toggle("bg-white");
                                 this.classList.toggle("text-black");
-                    
+
                                 filterProductsBySize();
                             });
                         });
-                    
+
                         function filterProductsBySize() {
-                            // Lấy các size đang chọn
                             const selectedSizes = Array.from(sizeButtons)
                                 .filter(btn => btn.classList.contains("ring-2"))
                                 .map(btn => btn.getAttribute("data-size"));
-                    
-                            if (selectedSizes.length === 0) {
-                                // Không chọn size nào thì hiện tất cả
-                                allProducts.forEach(p => p.style.display = "");
-                                return;
-                            }
-                    
-                            // Chỉ hiển thị các sản phẩm có data-size khớp
+
                             allProducts.forEach(product => {
-                                const productSize = product.getAttribute("data-sizes");
-                                product.style.display = selectedSizes.includes(productSize) ? "" : "none";
+                                const productSizes = product.getAttribute("data-sizes");
+
+                                if (!productSizes) {
+                                    product.style.display = "none";
+                                    return;
+                                }
+
+                                const productSizeArray = productSizes.split(",").map(s => s.trim());
+
+                                const isMatch = selectedSizes.some(size => productSizeArray.includes(size));
+                                product.style.display = selectedSizes.length === 0 || isMatch ? "" : "none";
                             });
-                            
                         }
+
                     });
-                    </script>
-                    
-                
-                
+                </script>
+
+
+
 
 
 
@@ -287,7 +293,7 @@
             </div>
 
             <script>
-                document.getElementById('genderToggle').addEventListener('click', function () {
+                document.getElementById('genderToggle').addEventListener('click', function() {
                     let dropdown = document.getElementById('genderDropdown');
                     let arrow = document.getElementById('arrow');
                     dropdown.classList.toggle('hidden');
@@ -307,91 +313,102 @@
                             </button>
                         </div>
                     </div> --}}
-                    
+
                     @foreach ($products as $product)
-                    @php
-                        // Lấy danh sách size và color từ các variant
-                        $sizes = [];
-                        $colors = [];
-                
-                        foreach ($product->variants as $variant) {
-                            $sizeAttr = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size');
-                            $colorAttr = $variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color');
-                
-                            if ($sizeAttr) $sizes[] = $sizeAttr->variantAttribute->attribute_value;
-                            if ($colorAttr) $colors[] = strtolower($colorAttr->variantAttribute->attribute_value);
-                        }
-                
-                        $sizes = array_unique($sizes);
-                        $colors = array_unique($colors);
-                    @endphp
-                
-                    <div class="bg-white product-item"
-                        data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
-                        data-category="{{ Str::slug($product->category->name) }}"
-                        data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}"
-                        data-sizes="{{ implode(',', $sizes) }}"
-                        data-colors="{{ implode(',', $colors) }}"
-                    >
-                        {{-- Phần ảnh và thông tin như cũ --}}
-                        <a href="{{ route('products.detail', $product->product_id) }}">
-                            @if ($product->images->isNotEmpty())
-                                <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
-                                    class="w-[312px] h-[312px] object-cover" alt="{{ $product->name }}">
-                            @else
-                                <img src="{{ asset('storage/default.jpg') }}"
-                                    class="w-[312px] h-[312px] object-cover border-[1px] border-gray-300" alt="No Image">
-                            @endif
-                        </a>
-                
-                        <p class="font-semibold text-orange-600 mt-2">
-                            {{ $product->category->parent ? $product->category->parent->name : $product->category->name }}
-                        </p>
-                        <a href="{{ route('products.detail', $product->product_id) }}">
-                            <p class="font-semibold">{{ $product->name }}</p>
-                        </a>
-                        <p class="font-semibold text-gray-500">
-                            {{ $product->category->name }}
-                        </p>
-                
-                        {{-- Giá như cũ --}}
                         @php
-                            $hasVariants = $product->variants && $product->variants->count() > 0;
-                
-                            if ($hasVariants) {
-                                $lowestVariant = $product->variants->sortBy(function ($variant) {
-                                    return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
-                                })->first();
-                
-                                $originalPrice = $lowestVariant->price;
-                                $salePrice = $lowestVariant->price_sale;
-                            } else {
-                                $originalPrice = $product->price;
-                                $salePrice = $product->price_sale;
+                            // Lấy danh sách size và color từ các variant
+                            $sizes = [];
+                            $colors = [];
+
+                            foreach ($product->variants as $variant) {
+                                $sizeAttr = $variant->variantAttributeValues->firstWhere(
+                                    'variantAttribute.attribute_name',
+                                    'Size',
+                                );
+                                $colorAttr = $variant->variantAttributeValues->firstWhere(
+                                    'variantAttribute.attribute_name',
+                                    'Color',
+                                );
+
+                                if ($sizeAttr) {
+                                    $sizes[] = $sizeAttr->variantAttribute->attribute_value;
+                                }
+                                if ($colorAttr) {
+                                    $colors[] = strtolower($colorAttr->variantAttribute->attribute_value);
+                                }
                             }
+
+                            $sizes = array_unique($sizes);
+                            $colors = array_unique($colors);
                         @endphp
-                
-                        <p class="text-black font-semibold mb-2 space-x-1">
-                            @if ($salePrice && $salePrice > 0)
-                                <span class="text-gray-500 line-through">
-                                    {{ number_format($originalPrice, 0, ',', '.') }}
-                                </span>
-                                <span class="text-xs underline font-thin align-top">đ</span>
-                                <span>/</span>
-                                <span>
-                                    {{ number_format($salePrice, 0, ',', '.') }}
+
+                        <div class="bg-white product-item"
+                            data-category-parent="{{ $product->category->parent ? $product->category->parent->name : '' }}"
+                            data-category="{{ Str::slug($product->category->name) }}"
+                            data-date="{{ $product->created_at ? $product->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s') }}"
+                            data-sizes="{{ implode(',', $sizes) }}" data-colors="{{ implode(',', $colors) }}">
+                            {{-- Phần ảnh và thông tin như cũ --}}
+                            <a href="{{ route('products.detail', $product->product_id) }}">
+                                @if ($product->images->isNotEmpty())
+                                    <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
+                                        class="w-[312px] h-[312px] object-cover" alt="{{ $product->name }}">
+                                @else
+                                    <img src="{{ asset('storage/default.jpg') }}"
+                                        class="w-[312px] h-[312px] object-cover border-[1px] border-gray-300"
+                                        alt="No Image">
+                                @endif
+                            </a>
+
+                            <p class="font-semibold text-orange-600 mt-2">
+                                {{ $product->category->parent ? $product->category->parent->name : $product->category->name }}
+                            </p>
+                            <a href="{{ route('products.detail', $product->product_id) }}">
+                                <p class="font-semibold">{{ $product->name }}</p>
+                            </a>
+                            <p class="font-semibold text-gray-500">
+                                {{ $product->category->name }}
+                            </p>
+
+                            {{-- Giá như cũ --}}
+                            @php
+                                $hasVariants = $product->variants && $product->variants->count() > 0;
+
+                                if ($hasVariants) {
+                                    $lowestVariant = $product->variants
+                                        ->sortBy(function ($variant) {
+                                            return $variant->price_sale > 0 ? $variant->price_sale : $variant->price;
+                                        })
+                                        ->first();
+
+                                    $originalPrice = $lowestVariant->price;
+                                    $salePrice = $lowestVariant->price_sale;
+                                } else {
+                                    $originalPrice = $product->price;
+                                    $salePrice = $product->price_sale;
+                                }
+                            @endphp
+
+                            <p class="text-black font-semibold mb-2 space-x-1">
+                                @if ($salePrice && $salePrice > 0)
+                                    <span class="text-gray-500 line-through">
+                                        {{ number_format($originalPrice, 0, ',', '.') }}
+                                    </span>
                                     <span class="text-xs underline font-thin align-top">đ</span>
-                                </span>
-                            @else
-                                <span>
-                                    {{ number_format($originalPrice, 0, ',', '.') }}
-                                    <span class="text-xs underline font-thin align-top">đ</span>
-                                </span>
-                            @endif
-                        </p>
-                    </div>
-                @endforeach
-                
+                                    <span>/</span>
+                                    <span>
+                                        {{ number_format($salePrice, 0, ',', '.') }}
+                                        <span class="text-xs underline font-thin align-top">đ</span>
+                                    </span>
+                                @else
+                                    <span>
+                                        {{ number_format($originalPrice, 0, ',', '.') }}
+                                        <span class="text-xs underline font-thin align-top">đ</span>
+                                    </span>
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+
                 </div>
             </div>
 
@@ -437,8 +454,7 @@
 
 
     <script>
-        
-        document.getElementById("toggleFilter").addEventListener("click", function () {
+        document.getElementById("toggleFilter").addEventListener("click", function() {
             let categoryColumn = document.getElementById("categoryColumn");
             let productColumn = document.getElementById("productColumn");
             let images = document.querySelectorAll("#productColumn img");
@@ -471,7 +487,7 @@
 
     <script>
         // Toggle dropdown visibility
-        document.getElementById('priceToggle').addEventListener('click', function () {
+        document.getElementById('priceToggle').addEventListener('click', function() {
             document.getElementById('priceDropdown').classList.toggle('hidden');
         });
 
@@ -480,7 +496,7 @@
 
         // Thêm sự kiện để đảm bảo chỉ chọn một trong ba tùy chọn
         sortOptions.forEach(option => {
-            option.addEventListener('change', function () {
+            option.addEventListener('change', function() {
                 if (this.checked) {
                     // Bỏ chọn tất cả các checkbox khác
                     sortOptions.forEach(otherOption => {
@@ -545,12 +561,12 @@
 
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             const categoryLinks = document.querySelectorAll(".category-filter");
             const products = document.querySelectorAll(".product-item");
 
             categoryLinks.forEach(link => {
-                link.addEventListener("click", function (event) {
+                link.addEventListener("click", function(event) {
                     event.preventDefault();
 
                     const selectedCategory = this.getAttribute("data-category");

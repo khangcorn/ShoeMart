@@ -474,7 +474,9 @@ button[type="submit"]:hover {
         @endforeach
     </tbody>
 </table>
-
+ <div class="mt-6 flex justify-center">
+        {{ $orders->links('pagination::tailwind') }}
+    </div>
 <!-- Modal Trả hàng và hoàn tiền -->
 <div id="returnModal" class="hidden">
     <div class="bg-white p-6 rounded-md shadow-lg">
@@ -505,9 +507,7 @@ button[type="submit"]:hover {
 
 
 <!-- Pagination -->
-<div class="pagination mt-4">
-    {{ $orders->links() }}
-</div>
+
 </div>
 <script>
 function openReturnModal(orderId, amount) {

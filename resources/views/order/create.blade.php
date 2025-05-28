@@ -1208,6 +1208,31 @@
 
 
     function updateShippingFee(addressId) {
+          function updateTotalPrice() {
+            const toNumber = str => parseInt((str || '0').replace(/\D/g, ''), 10);
+
+            const cartTotalText = document.getElementById('cartTotal')?.innerText || '0';
+            const cartTotal = toNumber(cartTotalText);
+
+            const shippingFeeValue = document.getElementById('shippingFeeValue')?.value || '0';
+            const shippingFee = parseInt(shippingFeeValue, 10) || 0;
+
+            const orderDiscValue = document.getElementById('orderDiscountInput')?.value || '0';
+            const shippingDiscValue = document.getElementById('shippingDiscountInput')?.value || '0';
+            const orderDiscount = parseInt(orderDiscValue, 10) || 0;
+            const shippingDiscount = parseInt(shippingDiscValue, 10) || 0;
+
+            console.log({
+                cartTotal,
+                shippingFee,
+                orderDiscount,
+                shippingDiscount
+            });
+
+            const total = Math.max(0, cartTotal + shippingFee - orderDiscount - shippingDiscount);
+
+            document.getElementById('totalPrice').innerText = `${total.toLocaleString('vi-VN')} đ`;
+        }
         console.log("Đang gọi API cập nhật phí vận chuyển với address_id:", addressId);
 
         fetch(`/update-shipping-fee`, {
