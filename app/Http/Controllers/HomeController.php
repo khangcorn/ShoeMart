@@ -83,6 +83,55 @@ public function showDetail($productId)
 
 }
 
+public function testLogic($productId)
+{
+    // Lấy sản phẩm cùng các relation
+    $product = Product::with([
+        'variants.variantAttributeValues.variantAttribute',
+        'images',
+        'category',
+    ])
+    ->where('is_hidden', false)
+    ->findOrFail($productId);
+
+    // Lấy tất cả màu sắc và kích thước
+    $colors = $product->variants->flatMap(function ($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Color')->pluck('variantAttribute.attribute_value');
+    })->unique();
+
+    $sizes = $product->variants->flatMap(function ($variant) {
+        return $variant->variantAttributeValues->where('variantAttribute.attribute_name', 'Size')->pluck('variantAttribute.attribute_value');
+    })->unique();
+
+    // Lấy đánh giá
+    $reviews = $product->orderReviews()
+        ->where('is_hidden', false)
+        ->with([
+            'user',
+            'orderDetail.product',
+            'orderDetail.variant.attributes.variantAttribute',
+        ])->get();
+    $averageRating = round($reviews->avg('rating'), 1);
+    $totalRatings = $reviews->count();
+    // Lấy danh sách product_id đã yêu thích của user hiện tại (nếu có)
+    $wishlistedProductIds = [];
+    if (auth()->check()) {
+        $wishlistedProductIds = Wishlist::where('user_id', auth()->id())
+            ->pluck('product_id')
+            ->toArray();
+    }
+
+    return view('client.test.testLogic', compact(
+    'product',
+    'colors',
+    'sizes',
+    'reviews',
+    'wishlistedProductIds',
+    'averageRating',
+    'totalRatings'
+));
+
+}
 
     public function indexVoucher(Request $request)
     {

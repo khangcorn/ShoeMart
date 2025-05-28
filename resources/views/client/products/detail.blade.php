@@ -139,34 +139,40 @@
                 
                 
                 <!-- Ảnh biến thể dưới -->
-                <div class=" border-1 flex py-4 overflow-x-auto" id="variant-images-container">
-
+                <div class="border-1 flex py-4 space-x-2 overflow-x-auto" id="variant-images-container">
                     @foreach ($product->variants as $variant)
-                    <div class="w-1/5 variant-item" data-variant="{{ $variant->variant_id }}"
                         @php
                             $colorAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Color'))->variantAttribute;
                             $sizeAttribute = optional($variant->variantAttributeValues->firstWhere('variantAttribute.attribute_name', 'Size'))->variantAttribute;
                             $variantImage = optional($variant->images->first())->image_url;
-
+                
                             $originalPrice = $variant->price;
                             $salePrice = $variant->price_sale;
+                
+                            $colorValue = $colorAttribute ? $colorAttribute->attribute_value : 'N/A';
+                            $sizeValue = $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A';
                         @endphp
-                        data-color="{{ $colorAttribute ? $colorAttribute->attribute_value : 'N/A' }}"
-                        data-size="{{ $sizeAttribute ? $sizeAttribute->attribute_value : 'N/A' }}"
-                        data-price="{{ $originalPrice }}"
-                        data-price-sale="{{ $salePrice }}"
-                        data-stock="{{ $variant->stock }}"
-                        data-images="{{ json_encode($variant->images) }}">
                 
-                        <img class="object-cover cursor-pointer w-[90px] h-[90px] rounded-md"
-                            src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
-                            alt="{{ $variant->color ?? 'No Color' }}"
-                            onclick="updateProductDetails(this)">
-                    </div>
-                @endforeach
-                
-
+                        <div class="w-1/5 variant-item" 
+                            data-variant="{{ $variant->variant_id }}"
+                            data-color="{{ $colorValue }}"
+                            data-size="{{ $sizeValue }}"
+                            data-price="{{ $originalPrice }}"
+                            data-price-sale="{{ $salePrice }}"
+                            data-stock="{{ $variant->stock }}"
+                            data-images="{{ json_encode($variant->images) }}">
+                            
+                            {{-- <!-- Label size ở trên ảnh -->
+                            <div class="text-center mb-1 text-sm font-semibold">{{ $sizeValue }}</div> --}}
+                            
+                            <img class="object-cover cursor-pointer w-[90px] h-[90px] rounded-md"
+                                src="{{ asset($variantImage ? 'storage/' . $variantImage : 'storage/default-image.jpg') }}"
+                                alt="{{ $colorValue }}"
+                                onclick="updateProductDetails(this)">
+                        </div>
+                    @endforeach
                 </div>
+                
                 <!-- Hiển thị màu sắc của sản phẩm -->
                 <div class="hidden">
                     <div class=" mb-1 mt-4 flex justify-between">

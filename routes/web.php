@@ -124,6 +124,7 @@ Route::patch('/products/{product}/toggle-visibility', [ProductController::class,
     ->name('products.toggleVisibility')
     ->middleware('check_permission:toggle_products_visibility');
 
+    Route::get('ahahahah/testLogic/{id}', [HomeController::class, 'testLogic'])->name('test.testLogic');
 
 Route::get('/products/{id}', [HomeController::class, 'showdetail'])->name('products.detail');
 Route::get('/vouchers', [App\Http\Controllers\HomeController::class, 'indexVoucher'])->name('vouchers.index');
